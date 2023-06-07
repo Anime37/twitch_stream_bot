@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html>
+
+<body>
+    <p id="p">Sending token...</p>
+    <script>
+        // Extract the URL hash value
+        const hash = window.location.hash;
+        // Send the hash value to the server
+        fetch(`http://localhost:7452/process?hash=${encodeURIComponent(hash)}`)
+        .then(response => response.text())
+        .then(data => console.log(data))
+        .catch(error => console.error(error));
+        var paragraph = document.getElementById("p");
+        paragraph.textContent = "Token sent, you can close this page."
+    </script>
+</body>
+
+</html>
