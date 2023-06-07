@@ -5,16 +5,16 @@ import server
 import requests
 import utils
 from events import EventWrapper
-from time import time
+from time import sleep, time
 import json
 
 
 @dataclasses.dataclass
 class Account():
-    REDIRENT_URI:str = ''
-    USER_NAME:str = ''
-    CLIENT_ID:str = ''
-    CLIENT_SECRET:str = ''
+    REDIRENT_URI: str = ''
+    USER_NAME: str = ''
+    CLIENT_ID: str = ''
+    CLIENT_SECRET: str = ''
 
 
 class Twitch():
@@ -120,12 +120,15 @@ class Twitch():
             except:
                 print(json_data)
 
-    def raid(self, user_id):
+    def raid(self, stream_data):
         current_time = int(time())
         if (self.last_raid_time and (self.last_raid_time + 60) > current_time):
             print(f'too soon for another raid ({(self.last_raid_time + 60)} < {current_time})')
             return True
-        print(f'raiding user_id {user_id}')
+        user_id = stream_data['user_id']
+        user_name = stream_data['user_name']
+        viewer_count = stream_data['viewer_count']
+        print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
         base_url = 'https://api.twitch.tv/helix/raids'
         headers = {
             'Authorization': f'Bearer {self.token}',
@@ -151,28 +154,49 @@ class Twitch():
             'Authorization': f'Bearer {self.token}',
             'Client-Id': self.account.CLIENT_ID
         }
-        with self.session.get(base_url, headers=headers) as r:
-            json_data = r.json()
+        params = {
+            'first': 100,
+            'after': ''
+        }
+        page_to_get = random.randint(5, 20)
+        if (random.randint(0, 10) == 0):
+            page_to_get = random.randint(3, 5)
+        if (random.randint(0, 20) == 0):
+            page_to_get = random.randint(1, 3)
+        print(f'getting page {page_to_get}')
+        json_data = {}
+        for i in range(page_to_get):
+            with self.session.get(base_url, params=params, headers=headers) as r:
+                json_data = r.json()
+            if (i % 11) == 10:
+                sleep_time = 3 + (random.random() * 3)
+                print(f'sleeping for {sleep_time:.2f} seconds')
+                sleep(sleep_time)
+            params['after'] = json_data['pagination']['cursor']
         self.game_ids = []
-        rand_idx = random.randrange(len(json_data['data']))
-        rand_entry = json_data['data'][rand_idx]
+        data_entries = json_data['data']
+        rand_idx = random.randrange(len(data_entries))
+        rand_entry = data_entries[rand_idx]
         rand_user_id = rand_entry['user_id']
         rand_user_name = rand_entry['user_name']
         retry_cnt = 0
-        while not self.raid(rand_user_id) and retry_cnt < 3:
+        while not self.raid(rand_entry) and retry_cnt < 3:
             print(f'{rand_user_name} ({rand_user_id}) doenst want to be raided')
-            rand_idx = random.randrange(len(json_data['data']))
-            rand_entry = json_data['data'][rand_idx]
+            rand_idx = random.randrange(len(data_entries))
+            rand_entry = data_entries[rand_idx]
             rand_user_id = rand_entry['user_id']
             rand_user_name = rand_entry['user_name']
             retry_cnt += 1
-        for entry in json_data['data']:
+        for entry in data_entries:
             game_id = entry['game_id']
             game_name = entry['game_name']
             if game_id not in self.game_ids:
                 self.game_ids.append(game_id)
+        total_ids = len(self.game_ids)
+        if total_ids > 10:
+            from_left = random.randint(0,1)
+            self.game_ids = self.game_ids[:10] if from_left else self.game_ids[-10:]
         self.game_ids_iter = iter(self.game_ids)
-
 
     def modify_channel_title(self, title):
         try:
