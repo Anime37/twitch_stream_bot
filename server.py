@@ -1,5 +1,6 @@
 import flask
 import threading
+from cli import CLI
 from events import EventWrapper
 from queue import Queue
 from urllib.parse import parse_qs
@@ -14,17 +15,18 @@ class ServerThread(threading.Thread):
     queue = Queue(1)
 
     def __init__(self, app):
+        self.cli = CLI()
         threading.Thread.__init__(self)
         self.server = make_server('127.0.0.1', self.port, app)
         self.ctx = app.app_context()
         self.ctx.push()
 
     def run(self):
-        print('starting server...')
+        self.cli.print('starting server...')
         self.server.serve_forever()
 
     def shutdown(self):
-        print('stopping server')
+        self.cli.print('stopping server')
         self.server.shutdown()
 
 
@@ -49,7 +51,7 @@ def start_server():
     # App routes defined here
     server = ServerThread(app)
     server.start()
-    print('server started')
+    CLI().print('server started')
 
 
 def stop_server():

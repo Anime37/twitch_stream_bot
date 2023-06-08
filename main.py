@@ -3,10 +3,16 @@ import random
 from time import sleep
 from twitch import Twitch
 from word_utfer import TextUTFy
+from cli import CLI
 
 
-def loop(twitch):
+def loop(twitch:Twitch):
+    cli = CLI()
     offset = 3
+    spaces = ' ' * offset
+    base_word = 'nullptr'
+    word = base_word
+    utfed_word = ''
     while(True):
         base_word = 'nullptr'
         spaces = ' ' * offset
@@ -14,7 +20,7 @@ def loop(twitch):
         utfed_word = TextUTFy(word, 1, 5, False)
         twitch.modify_channel_title(utfed_word)
         sleep_time = 10 + (random.random() * 10)
-        print(f'sleeping for {sleep_time:.2f} seconds')
+        cli.print(f'sleeping for {sleep_time:.2f} seconds')
         sleep(sleep_time)
 
 

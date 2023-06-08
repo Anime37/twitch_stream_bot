@@ -1,6 +1,7 @@
 import dataclasses
 import os
 import random
+from cli import CLI
 import server
 import requests
 import utils
@@ -22,6 +23,7 @@ class Twitch():
     last_raid_time = 0
 
     def __init__(self):
+        self.cli = CLI()
         self.session = requests.Session()
 
     def save_account_info(self):
@@ -32,7 +34,7 @@ class Twitch():
         self.account = Account()
         if not os.path.exists(self.account_json_path):
             self.save_account_info()
-            print(f'please fill out the account details in {self.account_json_path}')
+            self.cli.print(f'please fill out the account details in {self.account_json_path}')
             return False
         with open(self.account_json_path, 'r') as f:
             json_data = json.load(f)
@@ -43,13 +45,13 @@ class Twitch():
         for field in self.account.__dataclass_fields__:
             value = getattr(self.account, field)
             if not value:
-                print(f'missing {field} value in {self.account_json_path}')
+                self.cli.print(f'missing {field} value in {self.account_json_path}')
                 return False
         return True
 
     def get_token(self):
         self.validate_account_info()
-        print('getting token')
+        self.cli.print('getting token')
         base_url = 'https://id.twitch.tv/oauth2/authorize'
 
         params = {
@@ -61,7 +63,7 @@ class Twitch():
         }
         # params_str = "&".join("%s=%s" % (k,v) for k,v in params.items())
         with self.session.get(base_url, params=params) as r:
-            print(r.url)
+            self.cli.print(r.url)
         server.start_server()
         EventWrapper().wait()
         EventWrapper().clear()
@@ -72,7 +74,7 @@ class Twitch():
         server.stop_server()
 
     def get_broadcaster_id(self):
-        print('getting broadcaster_id')
+        self.cli.print('getting broadcaster_id')
         base_url = 'https://api.twitch.tv/helix/users'
         headers = {
             'Authorization': f'Bearer {self.token}',
@@ -86,10 +88,10 @@ class Twitch():
             try:
                 self.broadcaster_id = json_data['data'][0]['id']
             except:
-                print(json_data)
+                self.cli.print(json_data)
 
     def get_channel_info(self):
-        print('getting channel_info')
+        self.cli.print('getting channel_info')
 
         base_url = 'https://api.twitch.tv'
         headers = {
@@ -100,10 +102,10 @@ class Twitch():
             'broadcaster_id': self.broadcaster_id
         }
         with self.session.get(base_url, params=params, headers=headers) as r:
-            print(r.json())
+            self.cli.print(r.json())
 
     def get_channel_stream_key(self):
-        print('getting channel_stream_key')
+        self.cli.print('getting channel_stream_key')
         base_url = 'https://api.twitch.tv/helix/streams/key'
         headers = {
             'Authorization': f'Bearer {self.token}',
@@ -116,19 +118,19 @@ class Twitch():
             json_data = r.json()
             try:
                 self.stream_key = json_data['data'][0]['stream_key']
-                print(self.stream_key)
+                self.cli.print(self.stream_key)
             except:
-                print(json_data)
+                self.cli.print(json_data)
 
     def raid(self, stream_data):
         current_time = int(time())
         if (self.last_raid_time and (self.last_raid_time + 60) > current_time):
-            print(f'too soon for another raid ({(self.last_raid_time + 60)} < {current_time})')
+            self.cli.print(f'too soon for another raid ({(self.last_raid_time + 60)} < {current_time})')
             return True
         user_id = stream_data['user_id']
         user_name = stream_data['user_name']
         viewer_count = stream_data['viewer_count']
-        print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
+        self.cli.print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
         base_url = 'https://api.twitch.tv/helix/raids'
         headers = {
             'Authorization': f'Bearer {self.token}',
@@ -139,7 +141,7 @@ class Twitch():
             'to_broadcaster_id': user_id,
         }
         with self.session.post(base_url, params=params, headers=headers) as r:
-            print(r.content)
+            self.cli.print(r.content)
             if r.status_code == 429:
                 return True
             if r.status_code != 200:
@@ -148,7 +150,7 @@ class Twitch():
         return True
 
     def get_streams(self):
-        print(f'getting streams')
+        self.cli.print(f'getting streams')
         base_url = 'https://api.twitch.tv/helix/streams'
         headers = {
             'Authorization': f'Bearer {self.token}',
@@ -163,14 +165,14 @@ class Twitch():
             page_to_get = random.randint(3, 5)
         if (random.randint(0, 20) == 0):
             page_to_get = random.randint(1, 3)
-        print(f'getting page {page_to_get}')
+        self.cli.print(f'getting page {page_to_get}')
         json_data = {}
         for i in range(page_to_get):
             with self.session.get(base_url, params=params, headers=headers) as r:
                 json_data = r.json()
             if (i % 11) == 10:
                 sleep_time = 3 + (random.random() * 3)
-                print(f'sleeping for {sleep_time:.2f} seconds')
+                self.cli.print(f'sleeping for {sleep_time:.2f} seconds')
                 sleep(sleep_time)
             params['after'] = json_data['pagination']['cursor']
         self.game_ids = []
@@ -181,7 +183,7 @@ class Twitch():
         rand_user_name = rand_entry['user_name']
         retry_cnt = 0
         while not self.raid(rand_entry) and retry_cnt < 3:
-            print(f'{rand_user_name} ({rand_user_id}) doenst want to be raided')
+            self.cli.print(f'{rand_user_name} ({rand_user_id}) doenst want to be raided')
             rand_idx = random.randrange(len(data_entries))
             rand_entry = data_entries[rand_idx]
             rand_user_id = rand_entry['user_id']
@@ -204,8 +206,8 @@ class Twitch():
         except StopIteration:
             self.get_streams()
             game_id = next(self.game_ids_iter)
-        print(f'changing stream title to {title}')
-        print(f'changing game_id to {game_id}')
+        self.cli.print(f'changing stream title to {title}')
+        self.cli.print(f'changing game_id to {game_id}')
         base_url = 'https://api.twitch.tv/helix/channels'
         headers = {
             'Authorization': f'Bearer {self.token}',
@@ -220,4 +222,3 @@ class Twitch():
         }
         with self.session.patch(base_url, params=params, headers=headers, data=data) as r:
             pass
-            # print(r.content)

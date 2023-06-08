@@ -12,7 +12,6 @@ def TextUTFy(input, min, max, block):
                 accent = random.randrange(300, 370)
                 temp_ch = char + (b'\\u0%d' % accent).decode('raw_unicode_escape')
                 if sum(not unicodedata.combining(ch) for ch in temp_ch) == 1:
-                    # print(temp_ch)
                     char = temp_ch
                     break
         output += char
