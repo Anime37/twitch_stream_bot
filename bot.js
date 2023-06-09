@@ -19,9 +19,6 @@ const opts = {
     ]
 };
 
-// Clear console
-console.log('\033[2J');
-
 // Create a client with our options
 const client = new tmi.client(opts);
 
@@ -38,17 +35,18 @@ const comm_tmo_s = 5;
 function onMessageHandler(target, context, msg, self) {
     if (self) { return; } // Ignore messages from the bot
     const commandName = msg.trim();
-    console.log(`${target}: ${commandName}`);
+    console.log(`${context.username}: ${commandName}`);
 
     const current_time = (Date.now() / 1000);
     if ((last_receive_time && ((last_receive_time + comm_tmo_s) > current_time)) &&
         ((last_send_time + comm_tmo_s) < current_time)) {
-        client.say(target, getRandomThreat());
+        const msg = context.username + ', ' + getRandomThreat();
+        client.say(target, msg);
         last_send_time = current_time;
         return;
     }
     last_receive_time = current_time;
-    fs.writeFile('chat.txt', `${target}:\n${commandName}`, err => {
+    fs.writeFile('chat.txt', `${context.username}:\n${commandName}`, err => {
         if (err) {
             console.error(err);
         }
