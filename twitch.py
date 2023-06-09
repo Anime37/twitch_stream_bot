@@ -19,7 +19,10 @@ class Account():
 
 
 class Twitch():
-    account_json_path = 'user_data/account.json'
+    user_data_path = 'user_data/'
+    account_json_path = f'{user_data_path}account.json'
+    token_path = f'{user_data_path}token'
+    token = ''
     last_raid_time = 0
 
     def __init__(self):
@@ -52,6 +55,14 @@ class Twitch():
     def get_token(self):
         self.validate_account_info()
         self.cli.print('getting token')
+
+        if os.path.exists(self.token_path):
+            with open(self.token_path, 'r') as f:
+                self.token = f.read()
+
+        if self.token:
+            return
+
         base_url = 'https://id.twitch.tv/oauth2/authorize'
 
         params = {
@@ -61,16 +72,16 @@ class Twitch():
             'scope': 'channel:read:stream_key channel:manage:broadcast channel:manage:raids',
             'state': utils.get_random_string(32)
         }
-        # params_str = "&".join("%s=%s" % (k,v) for k,v in params.items())
         with self.session.get(base_url, params=params) as r:
             self.cli.print(r.url)
         server.start_server()
-        EventWrapper().wait()
-        EventWrapper().clear()
+        EventWrapper().wait_and_clear()
         EventWrapper().wait(5)
         if EventWrapper().is_set():
             self.token = server.server.queue.get()
             EventWrapper().clear()
+        with open(self.token_path, 'w') as f:
+            f.write(self.token)
         server.stop_server()
 
     def get_broadcaster_id(self):

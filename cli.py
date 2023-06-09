@@ -28,3 +28,7 @@ class CLI():
             utils.clear_terminal()
             for history_item in self.history:
                 print(history_item)
+
+    # overrides
+    def print(self, text):
+        print(text)

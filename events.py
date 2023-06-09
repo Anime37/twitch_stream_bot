@@ -16,6 +16,10 @@ class EventWrapper(Event):
         super().__init__()
         self.initialized = True
 
+    def wait_and_clear(self, timeout=None):
+        self.wait(timeout)
+        self.clear()
+
     # def set(self):
     #     print('setting')
     #     super().set()
