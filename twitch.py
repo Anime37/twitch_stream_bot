@@ -69,7 +69,7 @@ class Twitch():
             'response_type': 'token',
             'client_id': self.account.CLIENT_ID,
             'redirect_uri': self.account.REDIRENT_URI,
-            'scope': 'channel:read:stream_key channel:manage:broadcast channel:manage:raids',
+            'scope': 'channel:read:stream_key channel:manage:broadcast channel:manage:raids chat:read chat:edit',
             'state': utils.get_random_string(32)
         }
         with self.session.get(base_url, params=params) as r:
