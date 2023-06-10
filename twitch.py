@@ -158,7 +158,7 @@ class Twitch():
             'to_broadcaster_id': user_id,
         }
         with self.session.post(base_url, params=params) as r:
-            self.cli.print(r.content)
+            # self.cli.print(r.content)
             if r.status_code == 429:
                 return True
             if r.status_code != 200:
