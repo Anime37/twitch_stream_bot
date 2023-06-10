@@ -19,6 +19,7 @@ def loop(twitch:Twitch):
         word = utils.get_random_string(3) + SPACES + BASE_WORD + SPACES + utils.get_random_string(3)
         utfed_word = TextUTFy(word, 1, 5, False)
         twitch.modify_channel_title(utfed_word)
+        twitch.create_clip()
         sleep_time = MIN_SLEEP_TIME + (random.random() * MAX_SLEEP_DELTA)
         cli.print(f'sleeping for {sleep_time:.2f} seconds')
         sleep(sleep_time)

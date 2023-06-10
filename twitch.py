@@ -20,19 +20,28 @@ class Account():
 
 @dataclasses.dataclass
 class CategoryInfo():
-    name:str
-    id:str
+    name: str
+    id: str
 
 
 class Twitch():
     USER_DATA_PATH = 'user_data/'
     ACCOUNT_PATH = f'{USER_DATA_PATH}account.json'
+    SCOPES = [
+        'channel:read:stream_key',
+        'channel:manage:broadcast',
+        'channel:manage:raids',
+        'chat:read',
+        'chat:edit',
+        'clips:edit',
+    ]
     token = None
     broadcaster_id = None
     last_raid_time = 0
 
     def __init__(self):
         self.cli = CLI()
+        self.SCOPES = ' '.join(self.SCOPES)
         self.session = requests.Session()
 
     def save_account_info(self):
@@ -74,7 +83,7 @@ class Twitch():
             'response_type': 'token',
             'client_id': self.account.CLIENT_ID,
             'redirect_uri': self.account.REDIRENT_URI,
-            'scope': 'channel:read:stream_key channel:manage:broadcast channel:manage:raids chat:read chat:edit',
+            'scope': self.SCOPES,
             'state': utils.get_random_string(32)
         }
         with self.session.get(base_url, params=params) as r:
@@ -151,7 +160,6 @@ class Twitch():
         user_id = stream_data['user_id']
         user_name = stream_data['user_name']
         viewer_count = stream_data['viewer_count']
-        self.cli.print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
         base_url = 'https://api.twitch.tv/helix/raids'
         params = {
             'from_broadcaster_id': self.broadcaster_id,
@@ -164,6 +172,7 @@ class Twitch():
             if r.status_code != 200:
                 return False
         self.last_raid_time = current_time
+        self.cli.print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
         return True
 
     def get_top_streams(self, params):
@@ -219,12 +228,12 @@ class Twitch():
                 self.categories.append(category_info)
         total_ids = len(self.categories)
         if total_ids > 10:
-            from_left = random.randint(0,1)
+            from_left = random.randint(0, 1)
             self.categories = self.categories[:10] if from_left else self.categories[-10:]
         self.category_iter = iter(self.categories)
 
     def get_stream_category(self):
-        category:CategoryInfo
+        category: CategoryInfo
         try:
             category = next(self.category_iter)
         except StopIteration:
@@ -251,4 +260,14 @@ class Twitch():
             pass
 
     def create_clip(self):
-        pass
+        self.cli.print(f'creating a clip')
+
+        base_url = 'https://api.twitch.tv/helix/clips'
+        params = {
+            'broadcaster_id': self.broadcaster_id
+        }
+        with self.session.post(base_url, params=params) as r:
+            try:
+                print(f"clip_id={r.json()['data'][0]['id']}")
+            except:
+                print(r.content)
