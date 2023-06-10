@@ -34,6 +34,7 @@ class Twitch():
         'chat:read',
         'chat:edit',
         'clips:edit',
+        'channel:manage:guest_star'
         # need affiliate
         # 'channel:manage:predictions',
         # 'channel:manage:polls'
@@ -213,6 +214,8 @@ class Twitch():
             params['after'] = json_data['pagination']['cursor']
         self.categories = []
         data_entries = json_data['data']
+
+        # Raid a random stream
         rand_idx = random.randrange(len(data_entries))
         rand_entry = data_entries[rand_idx]
         rand_user_id = rand_entry['user_id']
@@ -225,6 +228,12 @@ class Twitch():
             rand_user_id = rand_entry['user_id']
             rand_user_name = rand_entry['user_name']
             retry_cnt += 1
+
+        # Invite a random streamer to a guest session
+        rand_idx = random.randrange(len(data_entries))
+        rand_entry = data_entries[rand_idx]
+        self.send_guest_star_invite(rand_entry)
+
         for entry in data_entries:
             if not entry['game_id']:
                 continue
@@ -300,3 +309,46 @@ class Twitch():
     #             print(f"{r.json()}")
     #         except:
     #             print(r.content)
+
+    def create_guest_star_session(self):
+        base_url = 'https://api.twitch.tv/helix/guest_star/session'
+        params = {
+            'broadcaster_id': self.broadcaster_id
+        }
+        with self.session.post(base_url, params=params) as r:
+            try:
+                json_data = r.json()
+                return json_data['data'][0]['id']
+            except:
+                print(r.content)
+
+    def get_guest_star_session(self):
+        base_url = 'https://api.twitch.tv/helix/guest_star/session'
+        params = {
+            'broadcaster_id': self.broadcaster_id,
+            'moderator_id': self.broadcaster_id,
+        }
+        with self.session.get(base_url, params=params) as r:
+            try:
+                json_data = r.json()
+                if not json_data['data']:
+                    return self.create_guest_star_session()
+                return json_data['data'][0]['id']
+            except:
+                print(r.content)
+
+    def send_guest_star_invite(self, stream_data):
+        user_id = stream_data['user_id']
+        user_name = stream_data['user_name']
+        viewer_count = stream_data['viewer_count']
+        self.cli.print(f'inviting {user_name} ({user_id=}, {viewer_count=})')
+
+        base_url = 'https://api.twitch.tv/helix/guest_star/invites'
+        params = {
+            'broadcaster_id': self.broadcaster_id,
+            'moderator_id': self.broadcaster_id,
+            'session_id': self.get_guest_star_session(),
+            'guest_id': user_id,
+        }
+        with self.session.post(base_url, params=params) as r:
+            pass
