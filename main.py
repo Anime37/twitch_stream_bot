@@ -8,18 +8,18 @@ from cli import CLI
 
 def loop(twitch:Twitch):
     cli = CLI()
-    offset = 3
-    spaces = ' ' * offset
-    base_word = 'nullptr'
-    word = base_word
+    BASE_WORD = 'nullptr'
+    OFFSET = 3
+    SPACES = ' ' * OFFSET
+    MIN_SLEEP_TIME = 10
+    MAX_SLEEP_DELTA = 10
+    word = ''
     utfed_word = ''
     while(True):
-        base_word = 'nullptr'
-        spaces = ' ' * offset
-        word = utils.get_random_string(3) + spaces + base_word + spaces + utils.get_random_string(3)
+        word = utils.get_random_string(3) + SPACES + BASE_WORD + SPACES + utils.get_random_string(3)
         utfed_word = TextUTFy(word, 1, 5, False)
         twitch.modify_channel_title(utfed_word)
-        sleep_time = 10 + (random.random() * 10)
+        sleep_time = MIN_SLEEP_TIME + (random.random() * MAX_SLEEP_DELTA)
         cli.print(f'sleeping for {sleep_time:.2f} seconds')
         sleep(sleep_time)
 
@@ -29,6 +29,7 @@ def main():
     if not twitch.load_account_info():
         return
     twitch.get_token()
+    twitch.set_session_headers()
     twitch.get_broadcaster_id()
     # twitch.get_channel_stream_key()
     twitch.get_streams()

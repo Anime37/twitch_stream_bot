@@ -18,6 +18,12 @@ class Account():
     CLIENT_SECRET: str = ''
 
 
+@dataclasses.dataclass
+class CategoryInfo():
+    name:str
+    id:str
+
+
 class Twitch():
     USER_DATA_PATH = 'user_data/'
     ACCOUNT_PATH = f'{USER_DATA_PATH}account.json'
@@ -82,6 +88,8 @@ class Twitch():
             EventWrapper().clear()
         with open(TOKEN_PATH, 'w') as f:
             f.write(self.token)
+
+    def set_session_headers(self):
         self.session.headers = {
             'Authorization': f'Bearer {self.token}',
             'Client-Id': self.account.CLIENT_ID
@@ -158,6 +166,15 @@ class Twitch():
         self.last_raid_time = current_time
         return True
 
+    def get_top_streams(self, params):
+        pass
+
+    def get_mid_streams(self, params):
+        pass
+
+    def get_low_streams(self, params):
+        pass
+
     def get_streams(self):
         self.cli.print(f'getting streams')
         base_url = 'https://api.twitch.tv/helix/streams'
@@ -180,7 +197,7 @@ class Twitch():
                 self.cli.print(f'sleeping for {sleep_time:.2f} seconds')
                 sleep(sleep_time)
             params['after'] = json_data['pagination']['cursor']
-        self.game_ids = []
+        self.categories = []
         data_entries = json_data['data']
         rand_idx = random.randrange(len(data_entries))
         rand_entry = data_entries[rand_idx]
@@ -195,31 +212,40 @@ class Twitch():
             rand_user_name = rand_entry['user_name']
             retry_cnt += 1
         for entry in data_entries:
-            game_id = entry['game_id']
-            game_name = entry['game_name']
-            if game_id not in self.game_ids:
-                self.game_ids.append(game_id)
-        total_ids = len(self.game_ids)
+            if not entry['game_id']:
+                continue
+            category_info = CategoryInfo(entry['game_name'], entry['game_id'])
+            if category_info not in self.categories:
+                self.categories.append(category_info)
+        total_ids = len(self.categories)
         if total_ids > 10:
             from_left = random.randint(0,1)
-            self.game_ids = self.game_ids[:10] if from_left else self.game_ids[-10:]
-        self.game_ids_iter = iter(self.game_ids)
+            self.categories = self.categories[:10] if from_left else self.categories[-10:]
+        self.category_iter = iter(self.categories)
 
-    def modify_channel_title(self, title):
+    def get_stream_category(self):
+        category:CategoryInfo
         try:
-            game_id = next(self.game_ids_iter)
+            category = next(self.category_iter)
         except StopIteration:
             self.get_streams()
-            game_id = next(self.game_ids_iter)
+            category = next(self.category_iter)
+        return category
+
+    def modify_channel_title(self, title, category=None):
+        if not category:
+            category = self.get_stream_category()
+
         self.cli.print(f'changing stream title to {title}')
-        self.cli.print(f'changing game_id to {game_id}')
+        self.cli.print(f'changing category to {category.name} (id={category.id})')
+
         base_url = 'https://api.twitch.tv/helix/channels'
         params = {
             'broadcaster_id': self.broadcaster_id
         }
         data = {
             'title': title,
-            'game_id': game_id
+            'game_id': category.id
         }
         with self.session.patch(base_url, params=params, data=data) as r:
             pass
