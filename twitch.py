@@ -19,10 +19,10 @@ class Account():
 
 
 class Twitch():
-    user_data_path = 'user_data/'
-    account_json_path = f'{user_data_path}account.json'
-    token_path = f'{user_data_path}token'
-    token = ''
+    USER_DATA_PATH = 'user_data/'
+    ACCOUNT_PATH = f'{USER_DATA_PATH}account.json'
+    token = None
+    broadcaster_id = None
     last_raid_time = 0
 
     def __init__(self):
@@ -30,41 +30,40 @@ class Twitch():
         self.session = requests.Session()
 
     def save_account_info(self):
-        with open(self.account_json_path, 'w') as f:
+        with open(self.ACCOUNT_PATH, 'w') as f:
             json.dump(dataclasses.asdict(self.account), f, indent=2)
 
     def load_account_info(self):
         self.account = Account()
-        if not os.path.exists(self.account_json_path):
+        if not os.path.exists(self.ACCOUNT_PATH):
             self.save_account_info()
-            self.cli.print(f'please fill out the account details in {self.account_json_path}')
+            self.cli.print(f'please fill out the account details in {self.ACCOUNT_PATH}')
             return False
-        with open(self.account_json_path, 'r') as f:
+        with open(self.ACCOUNT_PATH, 'r') as f:
             json_data = json.load(f)
             self.account = Account(**json_data)
-        return True
+        return self.validate_account_info()
 
     def validate_account_info(self):
         for field in self.account.__dataclass_fields__:
             value = getattr(self.account, field)
             if not value:
-                self.cli.print(f'missing {field} value in {self.account_json_path}')
+                self.cli.print(f'missing {field} value in {self.ACCOUNT_PATH}')
                 return False
         return True
 
     def get_token(self):
-        self.validate_account_info()
         self.cli.print('getting token')
 
-        if os.path.exists(self.token_path):
-            with open(self.token_path, 'r') as f:
+        # Try loading existing token
+        TOKEN_PATH = f'{self.USER_DATA_PATH}token'
+        if os.path.exists(TOKEN_PATH):
+            with open(TOKEN_PATH, 'r') as f:
                 self.token = f.read()
-
         if self.token:
             return
 
         base_url = 'https://id.twitch.tv/oauth2/authorize'
-
         params = {
             'response_type': 'token',
             'client_id': self.account.CLIENT_ID,
@@ -77,55 +76,58 @@ class Twitch():
         server.start_server()
         EventWrapper().wait_and_clear()
         EventWrapper().wait(5)
+        server.stop_server()
         if EventWrapper().is_set():
             self.token = server.server.queue.get()
             EventWrapper().clear()
-        with open(self.token_path, 'w') as f:
+        with open(TOKEN_PATH, 'w') as f:
             f.write(self.token)
-        server.stop_server()
-
-    def get_broadcaster_id(self):
-        self.cli.print('getting broadcaster_id')
-        base_url = 'https://api.twitch.tv/helix/users'
-        headers = {
+        self.session.headers = {
             'Authorization': f'Bearer {self.token}',
             'Client-Id': self.account.CLIENT_ID
         }
+
+    def get_broadcaster_id(self):
+        self.cli.print('getting broadcaster_id')
+
+        # Try loading existing broadcaster_id
+        BROADCASTER_ID_PATH = f'{self.USER_DATA_PATH}broadcaster_id'
+        if os.path.exists(BROADCASTER_ID_PATH):
+            with open(BROADCASTER_ID_PATH, 'r') as f:
+                self.broadcaster_id = f.read()
+        if self.broadcaster_id:
+            return
+
+        base_url = 'https://api.twitch.tv/helix/users'
         params = {
             'login': f'{self.account.USER_NAME}'
         }
-        with self.session.get(base_url, params=params, headers=headers) as r:
+        with self.session.get(base_url, params=params) as r:
             json_data = r.json()
-            try:
-                self.broadcaster_id = json_data['data'][0]['id']
-            except:
-                self.cli.print(json_data)
+        try:
+            self.broadcaster_id = json_data['data'][0]['id']
+            with open(BROADCASTER_ID_PATH, 'w') as f:
+                f.write(self.broadcaster_id)
+        except:
+            self.cli.print(json_data)
 
     def get_channel_info(self):
         self.cli.print('getting channel_info')
 
         base_url = 'https://api.twitch.tv'
-        headers = {
-            'Authorization': f'Bearer {self.token}',
-            'Client-Id': self.account.CLIENT_ID
-        }
         params = {
             'broadcaster_id': self.broadcaster_id
         }
-        with self.session.get(base_url, params=params, headers=headers) as r:
+        with self.session.get(base_url, params=params) as r:
             self.cli.print(r.json())
 
     def get_channel_stream_key(self):
         self.cli.print('getting channel_stream_key')
         base_url = 'https://api.twitch.tv/helix/streams/key'
-        headers = {
-            'Authorization': f'Bearer {self.token}',
-            'Client-Id': self.account.CLIENT_ID
-        }
         params = {
             'broadcaster_id': self.broadcaster_id
         }
-        with self.session.get(base_url, params=params, headers=headers) as r:
+        with self.session.get(base_url, params=params) as r:
             json_data = r.json()
             try:
                 self.stream_key = json_data['data'][0]['stream_key']
@@ -143,15 +145,11 @@ class Twitch():
         viewer_count = stream_data['viewer_count']
         self.cli.print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
         base_url = 'https://api.twitch.tv/helix/raids'
-        headers = {
-            'Authorization': f'Bearer {self.token}',
-            'Client-Id': self.account.CLIENT_ID
-        }
         params = {
             'from_broadcaster_id': self.broadcaster_id,
             'to_broadcaster_id': user_id,
         }
-        with self.session.post(base_url, params=params, headers=headers) as r:
+        with self.session.post(base_url, params=params) as r:
             self.cli.print(r.content)
             if r.status_code == 429:
                 return True
@@ -163,10 +161,6 @@ class Twitch():
     def get_streams(self):
         self.cli.print(f'getting streams')
         base_url = 'https://api.twitch.tv/helix/streams'
-        headers = {
-            'Authorization': f'Bearer {self.token}',
-            'Client-Id': self.account.CLIENT_ID
-        }
         params = {
             'first': 100,
             'after': ''
@@ -179,7 +173,7 @@ class Twitch():
         self.cli.print(f'getting page {page_to_get}')
         json_data = {}
         for i in range(page_to_get):
-            with self.session.get(base_url, params=params, headers=headers) as r:
+            with self.session.get(base_url, params=params) as r:
                 json_data = r.json()
             if (i % 11) == 10:
                 sleep_time = 3 + (random.random() * 3)
@@ -220,10 +214,6 @@ class Twitch():
         self.cli.print(f'changing stream title to {title}')
         self.cli.print(f'changing game_id to {game_id}')
         base_url = 'https://api.twitch.tv/helix/channels'
-        headers = {
-            'Authorization': f'Bearer {self.token}',
-            'Client-Id': self.account.CLIENT_ID
-        }
         params = {
             'broadcaster_id': self.broadcaster_id
         }
@@ -231,5 +221,8 @@ class Twitch():
             'title': title,
             'game_id': game_id
         }
-        with self.session.patch(base_url, params=params, headers=headers, data=data) as r:
+        with self.session.patch(base_url, params=params, data=data) as r:
             pass
+
+    def create_clip(self):
+        pass

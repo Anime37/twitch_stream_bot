@@ -26,7 +26,7 @@ def loop(twitch:Twitch):
 
 def main():
     twitch = Twitch()
-    if not (twitch.load_account_info() and twitch.validate_account_info()):
+    if not twitch.load_account_info():
         return
     twitch.get_token()
     twitch.get_broadcaster_id()
