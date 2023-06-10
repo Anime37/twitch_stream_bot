@@ -34,10 +34,14 @@ class Twitch():
         'chat:read',
         'chat:edit',
         'clips:edit',
+        # need affiliate
+        # 'channel:manage:predictions',
+        # 'channel:manage:polls'
     ]
     token = None
     broadcaster_id = None
     last_raid_time = 0
+    # prediction_files = []
 
     def __init__(self):
         self.cli = CLI()
@@ -101,7 +105,8 @@ class Twitch():
     def set_session_headers(self):
         self.session.headers = {
             'Authorization': f'Bearer {self.token}',
-            'Client-Id': self.account.CLIENT_ID
+            'Client-Id': self.account.CLIENT_ID,
+            'Content-Type': 'application/json'
         }
 
     def get_broadcaster_id(self):
@@ -271,3 +276,27 @@ class Twitch():
                 print(f"clip_id={r.json()['data'][0]['id']}")
             except:
                 print(r.content)
+
+    # def get_random_prediction_outcomes(self):
+    #     PREDICTIONS_PATH = 'predictions/'
+    #     if not self.prediction_files:
+    #         self.prediction_files = os.listdir(PREDICTIONS_PATH)
+    #     prediction_list_path = f'{PREDICTIONS_PATH}{random.choice(self.prediction_files)}'
+    #     with open(prediction_list_path, 'r') as f:
+    #         random_prediction = random.choice(json.load(f)['predictions'])
+    #     return random_prediction
+
+    # def create_prediction(self):
+    #     base_url = 'https://api.twitch.tv/helix/predictions'
+    #     base_url = 'https://api.twitch.tv/helix/polls'
+    #     data = {
+    #         "broadcaster_id": self.broadcaster_id,
+    #         "duration": 300,
+    #     }
+    #     data.update(self.get_random_prediction_outcomes())
+    #     with self.session.post(base_url, data=json.dumps(data)) as r:
+    #         print(r.request.body)
+    #         try:
+    #             print(f"{r.json()}")
+    #         except:
+    #             print(r.content)
