@@ -107,7 +107,7 @@ class Twitch():
         self.session.headers = {
             'Authorization': f'Bearer {self.token}',
             'Client-Id': self.account.CLIENT_ID,
-            'Content-Type': 'application/json'
+            # 'Content-Type': 'application/json'
         }
 
     def get_broadcaster_id(self):
