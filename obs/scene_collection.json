@@ -946,6 +946,44 @@
                             "duration": 0
                         },
                         "private_settings": {}
+                    },
+                    {
+                        "name": "zebnat-dizzy.gif",
+                        "source_uuid": "80881cf2-e075-446e-ae18-c834fbcf96c9",
+                        "visible": true,
+                        "locked": false,
+                        "rot": 0.0,
+                        "pos": {
+                            "x": 1751.0,
+                            "y": 1017.0997314453125
+                        },
+                        "scale": {
+                            "x": -0.6328125,
+                            "y": 0.6328125
+                        },
+                        "align": 5,
+                        "bounds_type": 0,
+                        "bounds_align": 0,
+                        "bounds": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "crop_left": 0,
+                        "crop_top": 0,
+                        "crop_right": 0,
+                        "crop_bottom": 0,
+                        "id": 23,
+                        "group_item_backup": false,
+                        "scale_filter": "disable",
+                        "blend_method": "default",
+                        "blend_type": "normal",
+                        "show_transition": {
+                            "duration": 0
+                        },
+                        "hide_transition": {
+                            "duration": 0
+                        },
+                        "private_settings": {}
                     }
                 ]
             },
@@ -961,10 +999,10 @@
             "push-to-talk": false,
             "push-to-talk-delay": 0,
             "hotkeys": {
-                "libobs.show_scene_item.vibe-dance.gif": [],
-                "libobs.hide_scene_item.vibe-dance.gif": [],
                 "libobs.show_scene_item.dancing-dance.gif": [],
                 "libobs.hide_scene_item.dancing-dance.gif": [],
+                "libobs.show_scene_item.vibe-dance.gif": [],
+                "libobs.hide_scene_item.vibe-dance.gif": [],
                 "libobs.show_scene_item.cute-dance.gif": [],
                 "libobs.hide_scene_item.cute-dance.gif": [],
                 "libobs.show_scene_item.higurashi-rena.gif": [],
@@ -974,7 +1012,11 @@
                 "libobs.show_scene_item.knock-k88mes.gif": [],
                 "libobs.hide_scene_item.knock-k88mes.gif": [],
                 "libobs.show_scene_item.ezgif-1-06fd70255d.gif": [],
-                "libobs.hide_scene_item.ezgif-1-06fd70255d.gif": []
+                "libobs.hide_scene_item.ezgif-1-06fd70255d.gif": [],
+                "libobs.show_scene_item.spin-rei.gif": [],
+                "libobs.hide_scene_item.spin-rei.gif": [],
+                "libobs.show_scene_item.zebnat-dizzy.gif": [],
+                "libobs.hide_scene_item.zebnat-dizzy.gif": []
             },
             "deinterlace_mode": 0,
             "deinterlace_field_order": 0,
@@ -1046,6 +1088,39 @@
         }
     },
     "sources": [
+        {
+            "prev_ver": 486604802,
+            "name": "Alerts",
+            "uuid": "4083619e-ac58-48f9-95cf-a65766b80732",
+            "id": "browser_source",
+            "versioned_id": "browser_source",
+            "settings": {
+                "url": "https://dashboard.twitch.tv/widgets/alert/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbGVydF9zZXRfaWQiOiJkODM4ZWVkNS0wYjFjLTRkMjMtYjJhNy01MmMwNTg0NmI5ZjUiLCJ1c2VyX2lkIjoiNTU2OTk2MjkyIn0.LKDAgCqwT5LgHIQ7gXxSSc9_tkuNS1BX5yEsiXvNwcA",
+                "reroute_audio": true
+            },
+            "mixers": 255,
+            "sync": 0,
+            "flags": 0,
+            "volume": 0.57978254556655884,
+            "balance": 0.5,
+            "enabled": true,
+            "muted": false,
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "hotkeys": {
+                "libobs.mute": [],
+                "libobs.unmute": [],
+                "libobs.push-to-mute": [],
+                "libobs.push-to-talk": [],
+                "ObsBrowser.Refresh": []
+            },
+            "deinterlace_mode": 0,
+            "deinterlace_field_order": 0,
+            "monitoring_type": 0,
+            "private_settings": {}
+        },
         {
             "prev_ver": 486604802,
             "name": "Cam",
@@ -1542,18 +1617,56 @@
             "id": "scene",
             "versioned_id": "scene",
             "settings": {
-                "id_counter": 21,
+                "id_counter": 25,
                 "custom_size": false,
                 "items": [
                     {
-                        "name": "VSCode",
-                        "source_uuid": "eb71e41e-54d6-46f6-82d5-a5ecdf83b93b",
+                        "name": "Media Source",
+                        "source_uuid": "977b19bf-675c-4282-970c-d53d5f6dc99c",
                         "visible": true,
-                        "locked": false,
+                        "locked": true,
                         "rot": 0.0,
                         "pos": {
                             "x": 0.0,
                             "y": 0.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0
+                        },
+                        "align": 5,
+                        "bounds_type": 0,
+                        "bounds_align": 0,
+                        "bounds": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "crop_left": 0,
+                        "crop_top": 0,
+                        "crop_right": 0,
+                        "crop_bottom": 0,
+                        "id": 4,
+                        "group_item_backup": false,
+                        "scale_filter": "disable",
+                        "blend_method": "default",
+                        "blend_type": "normal",
+                        "show_transition": {
+                            "duration": 0
+                        },
+                        "hide_transition": {
+                            "duration": 0
+                        },
+                        "private_settings": {}
+                    },
+                    {
+                        "name": "VSCodeTerminal",
+                        "source_uuid": "eb71e41e-54d6-46f6-82d5-a5ecdf83b93b",
+                        "visible": true,
+                        "locked": true,
+                        "rot": 0.0,
+                        "pos": {
+                            "x": -11.0,
+                            "y": -8.0
                         },
                         "scale": {
                             "x": 3.1851239204406738,
@@ -1566,11 +1679,49 @@
                             "x": 0.0,
                             "y": 0.0
                         },
-                        "crop_left": 459,
-                        "crop_top": 683,
+                        "crop_left": 455,
+                        "crop_top": 680,
                         "crop_right": 856,
-                        "crop_bottom": 18,
+                        "crop_bottom": 17,
                         "id": 18,
+                        "group_item_backup": false,
+                        "scale_filter": "disable",
+                        "blend_method": "default",
+                        "blend_type": "normal",
+                        "show_transition": {
+                            "duration": 0
+                        },
+                        "hide_transition": {
+                            "duration": 0
+                        },
+                        "private_settings": {}
+                    },
+                    {
+                        "name": "VSCode",
+                        "source_uuid": "aa896a9b-f72f-4ed2-ae02-08b7ed567b7a",
+                        "visible": false,
+                        "locked": false,
+                        "rot": 0.0,
+                        "pos": {
+                            "x": 1198.907470703125,
+                            "y": 187.0
+                        },
+                        "scale": {
+                            "x": 0.65198236703872681,
+                            "y": 0.65158373117446899
+                        },
+                        "align": 5,
+                        "bounds_type": 0,
+                        "bounds_align": 0,
+                        "bounds": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "crop_left": 41,
+                        "crop_top": 25,
+                        "crop_right": 773,
+                        "crop_bottom": 352,
+                        "id": 22,
                         "group_item_backup": false,
                         "scale_filter": "disable",
                         "blend_method": "default",
@@ -1587,7 +1738,7 @@
                         "name": "Game Capture",
                         "source_uuid": "de790f32-a544-40c9-88e1-554ecbaffa7d",
                         "visible": true,
-                        "locked": false,
+                        "locked": true,
                         "rot": 0.0,
                         "pos": {
                             "x": 1196.0,
@@ -1628,7 +1779,7 @@
                         "locked": true,
                         "rot": 0.0,
                         "pos": {
-                            "x": 1007.0,
+                            "x": 929.0,
                             "y": 0.0
                         },
                         "scale": {
@@ -1660,18 +1811,18 @@
                         "private_settings": {}
                     },
                     {
-                        "name": "Media Source",
-                        "source_uuid": "977b19bf-675c-4282-970c-d53d5f6dc99c",
+                        "name": "Alerts",
+                        "source_uuid": "4083619e-ac58-48f9-95cf-a65766b80732",
                         "visible": true,
                         "locked": true,
                         "rot": 0.0,
                         "pos": {
-                            "x": 0.0,
-                            "y": 0.0
+                            "x": 1450.0,
+                            "y": 103.0
                         },
                         "scale": {
-                            "x": 1.0,
-                            "y": 1.0
+                            "x": 0.58749997615814209,
+                            "y": 0.58833330869674683
                         },
                         "align": 5,
                         "bounds_type": 0,
@@ -1684,7 +1835,45 @@
                         "crop_top": 0,
                         "crop_right": 0,
                         "crop_bottom": 0,
-                        "id": 4,
+                        "id": 24,
+                        "group_item_backup": false,
+                        "scale_filter": "disable",
+                        "blend_method": "default",
+                        "blend_type": "normal",
+                        "show_transition": {
+                            "duration": 0
+                        },
+                        "hide_transition": {
+                            "duration": 0
+                        },
+                        "private_settings": {}
+                    },
+                    {
+                        "name": "Guest",
+                        "source_uuid": "7c725f24-3e92-41f9-be5a-b5440e70ae27",
+                        "visible": true,
+                        "locked": true,
+                        "rot": 0.0,
+                        "pos": {
+                            "x": 1173.0,
+                            "y": 532.0
+                        },
+                        "scale": {
+                            "x": 0.74374997615814209,
+                            "y": 0.74333333969116211
+                        },
+                        "align": 5,
+                        "bounds_type": 0,
+                        "bounds_align": 0,
+                        "bounds": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "crop_left": 0,
+                        "crop_top": 0,
+                        "crop_right": 0,
+                        "crop_bottom": 0,
+                        "id": 25,
                         "group_item_backup": false,
                         "scale_filter": "disable",
                         "blend_method": "default",
@@ -2002,6 +2191,44 @@
                         "private_settings": {}
                     },
                     {
+                        "name": "zebnat-dizzy.gif",
+                        "source_uuid": "80881cf2-e075-446e-ae18-c834fbcf96c9",
+                        "visible": true,
+                        "locked": false,
+                        "rot": 0.0,
+                        "pos": {
+                            "x": 1751.0,
+                            "y": 988.0
+                        },
+                        "scale": {
+                            "x": -0.6328125,
+                            "y": 0.6328125
+                        },
+                        "align": 5,
+                        "bounds_type": 0,
+                        "bounds_align": 0,
+                        "bounds": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "crop_left": 0,
+                        "crop_top": 0,
+                        "crop_right": 0,
+                        "crop_bottom": 0,
+                        "id": 23,
+                        "group_item_backup": true,
+                        "scale_filter": "disable",
+                        "blend_method": "default",
+                        "blend_type": "normal",
+                        "show_transition": {
+                            "duration": 0
+                        },
+                        "hide_transition": {
+                            "duration": 0
+                        },
+                        "private_settings": {}
+                    },
+                    {
                         "name": "gifs",
                         "source_uuid": "9ee260ef-dc1f-44e9-b216-5ab93466fb32",
                         "visible": true,
@@ -2056,18 +2283,22 @@
             "push-to-talk-delay": 0,
             "hotkeys": {
                 "OBSBasic.SelectScene": [],
+                "libobs.show_scene_item.VSCodeTerminal": [],
+                "libobs.hide_scene_item.VSCodeTerminal": [],
                 "libobs.show_scene_item.VSCode": [],
                 "libobs.hide_scene_item.VSCode": [],
-                "libobs.show_scene_item.spin-rei.gif": [],
-                "libobs.hide_scene_item.spin-rei.gif": [],
+                "libobs.show_scene_item.Game Capture": [],
+                "libobs.hide_scene_item.Game Capture": [],
                 "libobs.show_scene_item.learningTXT": [],
                 "libobs.hide_scene_item.learningTXT": [],
                 "libobs.show_scene_item.Media Source": [],
                 "libobs.hide_scene_item.Media Source": [],
                 "libobs.show_scene_item.gifs": [],
                 "libobs.hide_scene_item.gifs": [],
-                "libobs.show_scene_item.Game Capture": [],
-                "libobs.hide_scene_item.Game Capture": []
+                "libobs.show_scene_item.Alerts": [],
+                "libobs.hide_scene_item.Alerts": [],
+                "libobs.show_scene_item.Guest": [],
+                "libobs.hide_scene_item.Guest": []
             },
             "deinterlace_mode": 0,
             "deinterlace_field_order": 0,
@@ -2256,8 +2487,8 @@
             "id": "game_capture",
             "versioned_id": "game_capture",
             "settings": {
-                "capture_mode": "window",
-                "window": "Rocket League (64-bit, DX11, Cooked):LaunchUnrealUWindowsClient:RocketLeague.exe"
+                "window": "yuzu Early Access 3659 | The Legend of Zelda#3A Tears of the Kingdom (64-bit) | 1.1.2 | NVIDIA:Qt5152QWindowIcon:yuzu.exe",
+                "capture_mode": "any_fullscreen"
             },
             "mixers": 0,
             "sync": 0,
@@ -2273,6 +2504,38 @@
             "hotkeys": {
                 "hotkey_start": [],
                 "hotkey_stop": []
+            },
+            "deinterlace_mode": 0,
+            "deinterlace_field_order": 0,
+            "monitoring_type": 0,
+            "private_settings": {}
+        },
+        {
+            "prev_ver": 486604802,
+            "name": "Guest",
+            "uuid": "7c725f24-3e92-41f9-be5a-b5440e70ae27",
+            "id": "browser_source",
+            "versioned_id": "browser_source",
+            "settings": {
+                "url": "https://dashboard.twitch.tv/widgets/guest-star/nullptrrrrrrrrrrrrrrrrrrr?display=group#auth=2QjWMJ3XzqlhuhwuRnYAekwo1pg"
+            },
+            "mixers": 255,
+            "sync": 0,
+            "flags": 0,
+            "volume": 1.0,
+            "balance": 0.5,
+            "enabled": true,
+            "muted": false,
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "hotkeys": {
+                "libobs.mute": [],
+                "libobs.unmute": [],
+                "libobs.push-to-mute": [],
+                "libobs.push-to-talk": [],
+                "ObsBrowser.Refresh": []
             },
             "deinterlace_mode": 0,
             "deinterlace_field_order": 0,
@@ -2369,6 +2632,8 @@
                 "chatlog": false,
                 "extents": true,
                 "text": "LEARNING ABOUT APIS\n    DONT BAN\n          THX",
+                "read_from_file": true,
+                "file": "C:/_git/twitch/chat.txt",
                 "font": {
                     "face": "Comic Sans MS",
                     "style": "Regular",
@@ -2382,9 +2647,9 @@
                 "gradient_dir": 100.2,
                 "bk_opacity": 10,
                 "chatlog_lines": 3,
-                "extents_cx": 2200,
+                "extents_cx": 2400,
                 "extents_cy": 2803,
-                "transform": 1
+                "transform": 0
             },
             "mixers": 0,
             "sync": 0,
@@ -2687,11 +2952,65 @@
         {
             "prev_ver": 486604802,
             "name": "VSCode",
+            "uuid": "aa896a9b-f72f-4ed2-ae02-08b7ed567b7a",
+            "id": "window_capture",
+            "versioned_id": "window_capture",
+            "settings": {
+                "window": "events.py - twitch - Visual Studio Code:Chrome_WidgetWin_1:Code.exe",
+                "priority": 2
+            },
+            "mixers": 0,
+            "sync": 0,
+            "flags": 0,
+            "volume": 1.0,
+            "balance": 0.5,
+            "enabled": true,
+            "muted": false,
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "hotkeys": {},
+            "deinterlace_mode": 0,
+            "deinterlace_field_order": 0,
+            "monitoring_type": 0,
+            "private_settings": {}
+        },
+        {
+            "prev_ver": 486604802,
+            "name": "VSCodeTerminal",
             "uuid": "eb71e41e-54d6-46f6-82d5-a5ecdf83b93b",
             "id": "window_capture",
             "versioned_id": "window_capture",
             "settings": {
-                "window": "twitch.py - twitch - Visual Studio Code:Chrome_WidgetWin_1:Code.exe"
+                "window": "twitch.py - twitch - Visual Studio Code:Chrome_WidgetWin_1:Code.exe",
+                "priority": 2
+            },
+            "mixers": 0,
+            "sync": 0,
+            "flags": 0,
+            "volume": 1.0,
+            "balance": 0.5,
+            "enabled": true,
+            "muted": false,
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "hotkeys": {},
+            "deinterlace_mode": 0,
+            "deinterlace_field_order": 0,
+            "monitoring_type": 0,
+            "private_settings": {}
+        },
+        {
+            "prev_ver": 486604802,
+            "name": "zebnat-dizzy.gif",
+            "uuid": "80881cf2-e075-446e-ae18-c834fbcf96c9",
+            "id": "image_source",
+            "versioned_id": "image_source",
+            "settings": {
+                "file": "C:/_git/twitch/obs/gifs/zebnat-dizzy.gif"
             },
             "mixers": 0,
             "sync": 0,
