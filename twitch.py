@@ -34,7 +34,8 @@ class Twitch():
         'chat:read',
         'chat:edit',
         'clips:edit',
-        'channel:manage:guest_star'
+        'channel:manage:guest_star',
+        'user:manage:whispers'
         # need affiliate
         # 'channel:manage:predictions',
         # 'channel:manage:polls'
@@ -337,6 +338,18 @@ class Twitch():
             except:
                 print(r.content)
 
+    def whisper(self, user_id, message):
+        base_url = 'https://api.twitch.tv/helix/whispers'
+        params = {
+            'from_user_id': self.broadcaster_id,
+            'to_user_id': user_id,
+        }
+        data = {
+            'message': message
+        }
+        with self.session.post(base_url, params=params, data=data) as r:
+            pass
+
     def send_guest_star_invite(self, stream_data):
         user_id = stream_data['user_id']
         user_name = stream_data['user_name']
@@ -352,3 +365,4 @@ class Twitch():
         }
         with self.session.post(base_url, params=params) as r:
             pass
+        self.whisper(user_id, 'https://www.twitch.tv/popout/nullptrrrrrrrrrrrrrrrrrrr/guest-star')
