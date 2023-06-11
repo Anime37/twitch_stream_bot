@@ -31,18 +31,19 @@ client.connect();
 
 last_receive_time = 0;
 last_send_time = 0;
-const comm_tmo_s = 5;
+const COMM_TMO = 5; // seconds
 function onMessageHandler(target, context, msg, self) {
     if (self) { return; } // Ignore messages from the bot
     const commandName = msg.trim();
     console.log(`${context.username}: ${commandName}`);
 
     const current_time = (Date.now() / 1000);
-    if ((last_receive_time && ((last_receive_time + comm_tmo_s) > current_time)) &&
-        ((last_send_time + comm_tmo_s) < current_time)) {
-        const msg = context.username + ', ' + getRandomThreat();
-        client.say(target, msg);
-        last_send_time = current_time;
+    if (last_receive_time && ((last_receive_time + COMM_TMO) > current_time)) {
+        if ((last_send_time + COMM_TMO) < current_time) {
+            const msg = context.username + ', ' + getRandomThreat();
+            client.say(target, msg);
+            last_send_time = current_time;
+        }
         return;
     }
     last_receive_time = current_time;
