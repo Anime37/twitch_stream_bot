@@ -1,9 +1,10 @@
-import utils
 import random
+import utils
+import twitch_irc
+from cli import CLI
 from time import sleep
 from twitch import Twitch
 from word_utfer import TextUTFy
-from cli import CLI
 
 
 def loop(twitch:Twitch):
@@ -32,6 +33,7 @@ def main():
     twitch.get_token()
     twitch.set_session_headers()
     twitch.get_broadcaster_id()
+    twitch_irc.start()
     # twitch.get_channel_stream_key()
     twitch.get_streams()
     loop(twitch)

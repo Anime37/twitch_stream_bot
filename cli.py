@@ -44,6 +44,7 @@ class CLI():
 
     # overrides
     def print(self, text):
-        new_color = TextColor.BLUE if (self.last_color == TextColor.RED) else TextColor.RED
-        print(f'{new_color}{text}')
-        self.last_color = new_color
+        with self.mutex:
+            new_color = TextColor.BLUE if (self.last_color == TextColor.RED) else TextColor.RED
+            print(f'{new_color}{text}')
+            self.last_color = new_color

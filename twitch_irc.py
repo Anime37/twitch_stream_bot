@@ -1,16 +1,18 @@
+import threading
 from irc import *
 from time import time
 import utils
 
 
-class TwitchIRC(IRC):
+class TwitchIRC(IRC, threading.Thread):
     COMM_TMO = 5
     last_receive_time = 0
     last_send_time = 0
     threat_format = "{}, if you don't stop spamming, I will {}"
 
     def __init__(self, channel='nullptrrrrrrrrrrrrrrrrrrr', url='wss://irc-ws.chat.twitch.tv:443'):
-        super().__init__(channel, url)
+        IRC.__init__(self, channel, url)
+        threading.Thread.__init__(self)
 
     def send_random_threat(self, priv_msg: PRIVMSG):
         self.send_privmsg(
@@ -26,7 +28,7 @@ class TwitchIRC(IRC):
             f.write(f'{priv_msg.sender}:\n{priv_msg.content}')
 
     def handle_privmsg(self, priv_msg: PRIVMSG):
-        print(f'{priv_msg.sender}: {priv_msg.content}')
+        self.cli.print(f'{priv_msg.sender}: {priv_msg.content}')
         current_time = int(time())
         if (self.last_receive_time and ((self.last_receive_time + self.COMM_TMO) > current_time)):
             if ((self.last_send_time + self.COMM_TMO) < current_time):
@@ -51,8 +53,18 @@ class TwitchIRC(IRC):
         ws.send(f'NICK {self.channel}')
         ws.send(f'JOIN #{self.channel}')
 
-    def start(self):
+    def run(self):
         self.ws.run_forever()
 
 
-TwitchIRC().start()
+def start():
+    global server
+    server = TwitchIRC()
+    server.start()
+    CLI().print('irc started')
+
+
+def stop():
+    global server
+    server.shutdown()
+    CLI().print('irc stopped')

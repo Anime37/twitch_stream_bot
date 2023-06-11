@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import websocket
 import re
+from cli import CLI
 
 
 @dataclass
@@ -13,6 +14,8 @@ class PRIVMSG():
 
 
 class IRC():
+    cli = CLI()
+
     def __init__(self, channel, url, debug=False):
         if debug:
             websocket.enableTrace(True)  # Enable trace for debugging purposes
@@ -41,7 +44,7 @@ class IRC():
     def handle_privmsg(self, priv_msg: PRIVMSG):
         for field in priv_msg.__dataclass_fields__:
             value = getattr(priv_msg, field)
-            print(f'{field}: {value}')
+            self.cli.print(f'{field}: {value}')
 
     def send_privmsg(self, channel, msg):
         self.ws.send(f'PRIVMSG #{channel} :{msg}')
@@ -50,16 +53,16 @@ class IRC():
         if 'PRIVMSG' in message:
             self.handle_privmsg(self.parse_privmsg(message))
         else:
-            print(f"Received message: {message}")
+            self.cli.print(f"Received message: {message}")
 
     def on_error(self, ws, error):
-        print(f"Error occurred: {error}")
+        self.cli.print(f"Error occurred: {error}")
 
     def on_close(self, ws):
-        print("WebSocket connection closed")
+        self.cli.print("WebSocket connection closed")
 
     def on_open(self, ws):
-        print("WebSocket connection opened")
+        self.cli.print("WebSocket connection opened")
 
-    def start(self):
+    def run(self):
         self.ws.run_forever()
