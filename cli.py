@@ -1,23 +1,15 @@
 import threading
-from time import sleep
 import utils
-
-
-class TextColor:
-    BLACK = '\033[30m'
-    RED = '\033[31m'
-    GREEN = '\033[32m'
-    YELLOW = '\033[33m'
-    BLUE = '\033[34m'
-    MAGENTA = '\033[35m'
-    CYAN = '\033[36m'
-    WHITE = '\033[37m'
-    RESET = '\033[0m'  # Reset the text color
+from colors import TextColor
 
 
 class CLI():
     instance = None
     HISTORY_LEN = 10
+    DEFAULT_COLORS = [
+        TextColor.RED,
+        TextColor.BLUE,
+    ]
 
     def __new__(cls):
         if cls.instance is None:
@@ -30,7 +22,6 @@ class CLI():
             return
         self.history = []
         self.mutex = threading.Lock()
-        self.last_color = TextColor.BLUE
         self.initialized = True
 
     def print(self, text):
@@ -42,9 +33,18 @@ class CLI():
             for history_item in self.history:
                 print(history_item)
 
+    def get_next_color(self):
+        try:
+            color = next(self.color_iter)
+        except:
+            self.color_iter = iter(self.DEFAULT_COLORS)
+            color = next(self.color_iter)
+        return color
+
     # overrides
-    def print(self, text):
+    def print(self, text, new_color=None):
         with self.mutex:
-            new_color = TextColor.BLUE if (self.last_color == TextColor.RED) else TextColor.RED
+            if not new_color:
+                new_color = self.get_next_color()
             print(f'{new_color}{text}')
             self.last_color = new_color

@@ -1,7 +1,8 @@
 import threading
+import utils
+from colors import TextColor
 from irc import *
 from time import time
-import utils
 
 
 class TwitchIRC(IRC, threading.Thread):
@@ -28,7 +29,7 @@ class TwitchIRC(IRC, threading.Thread):
             f.write(f'{priv_msg.sender}:\n{priv_msg.content}')
 
     def handle_privmsg(self, priv_msg: PRIVMSG):
-        self.cli.print(f'{priv_msg.sender}: {priv_msg.content}')
+        self.cli.print(f'#{priv_msg.sender}: {priv_msg.content}', TextColor.YELLOW)
         current_time = int(time())
         if (self.last_receive_time and ((self.last_receive_time + self.COMM_TMO) > current_time)):
             if ((self.last_send_time + self.COMM_TMO) < current_time):
@@ -38,9 +39,11 @@ class TwitchIRC(IRC, threading.Thread):
         self.last_receive_time = current_time
         self.update_chat(priv_msg)
 
-    def on_message(self, ws, message: str):
+    def on_message(self, ws, message):
         if 'PRIVMSG' in message:
             self.handle_privmsg(self.parse_privmsg(message))
+        elif 'PING' in message:
+            self.ws.send('PONG :tmi.twitch.tv')
         elif f':{self.channel}.tmi.twitch.tv 353' in message:
             self.send_privmsg(self.channel, 'connected')
 
@@ -66,5 +69,8 @@ def start():
 
 def stop():
     global server
-    server.shutdown()
+    server.ws.keep_running = False
+    # print(server.name)
+    # server.shutdown()
+    server.join()
     CLI().print('irc stopped')

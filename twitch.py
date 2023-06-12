@@ -2,6 +2,7 @@ import dataclasses
 import os
 import random
 from cli import CLI
+from colors import *
 import server
 import requests
 import utils
@@ -43,6 +44,7 @@ class Twitch():
     token = None
     broadcaster_id = None
     last_raid_time = 0
+    last_whisper_time = 0
     # prediction_files = []
 
     def __init__(self):
@@ -160,9 +162,11 @@ class Twitch():
                 self.cli.print(json_data)
 
     def raid(self, stream_data):
+        MIN_RAID_PERIOD = (60) # 1 minutes
         current_time = int(time())
-        if (self.last_raid_time and (self.last_raid_time + 60) > current_time):
-            self.cli.print(f'too soon for another raid ({(self.last_raid_time + 60)} < {current_time})')
+        if (self.last_raid_time and (self.last_raid_time + MIN_RAID_PERIOD) > current_time):
+            delta = (self.last_whisper_time + MIN_RAID_PERIOD) - current_time
+            self.cli.print(f'too soon for another raid ({delta} seconds left)')
             return True
         user_id = stream_data['user_id']
         user_name = stream_data['user_name']
@@ -182,28 +186,41 @@ class Twitch():
         self.cli.print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
         return True
 
-    def get_top_streams(self, params):
-        pass
+    def raid_random(self, data_entries):
+        MAX_TRIES = 3
+        retry_cnt = 0
+        rand_idx = random.randrange(len(data_entries))
+        rand_entry = data_entries[rand_idx]
+        while not self.raid(rand_entry) and retry_cnt < MAX_TRIES:
+            rand_user_id = rand_entry['user_id']
+            rand_user_name = rand_entry['user_name']
+            # self.cli.print(f'{rand_user_name} ({rand_user_id}) doenst want to be raided')
+            rand_idx = random.randrange(len(data_entries))
+            rand_entry = data_entries[rand_idx]
+            retry_cnt += 1
 
-    def get_mid_streams(self, params):
-        pass
+    # def get_top_streams(self, params):
+    #     pass
 
-    def get_low_streams(self, params):
-        pass
+    # def get_mid_streams(self, params):
+    #     pass
+
+    # def get_low_streams(self, params):
+    #     pass
 
     def get_streams(self):
-        self.cli.print(f'getting streams')
+        msg = 'getting streams'
         base_url = 'https://api.twitch.tv/helix/streams'
         params = {
             'first': 100,
             'after': ''
         }
         page_to_get = random.randint(5, 20)
-        if (random.randint(0, 10) == 0):
+        if (random.randint(0, 5) == 0):
             page_to_get = random.randint(3, 5)
-        if (random.randint(0, 20) == 0):
+        if (random.randint(0, 10) == 0):
             page_to_get = random.randint(1, 3)
-        self.cli.print(f'getting page {page_to_get}')
+        self.cli.print(f'{msg} (page {page_to_get})')
         json_data = {}
         for i in range(page_to_get):
             with self.session.get(base_url, params=params) as r:
@@ -217,23 +234,9 @@ class Twitch():
         data_entries = json_data['data']
 
         # Raid a random stream
-        rand_idx = random.randrange(len(data_entries))
-        rand_entry = data_entries[rand_idx]
-        rand_user_id = rand_entry['user_id']
-        rand_user_name = rand_entry['user_name']
-        retry_cnt = 0
-        while not self.raid(rand_entry) and retry_cnt < 3:
-            self.cli.print(f'{rand_user_name} ({rand_user_id}) doenst want to be raided')
-            rand_idx = random.randrange(len(data_entries))
-            rand_entry = data_entries[rand_idx]
-            rand_user_id = rand_entry['user_id']
-            rand_user_name = rand_entry['user_name']
-            retry_cnt += 1
-
+        self.raid_random(data_entries)
         # Invite a random streamer to a guest session
-        rand_idx = random.randrange(len(data_entries))
-        rand_entry = data_entries[rand_idx]
-        self.send_guest_star_invite(rand_entry)
+        self.send_guest_star_invite_random(data_entries)
 
         for entry in data_entries:
             if not entry['game_id']:
@@ -275,17 +278,17 @@ class Twitch():
             pass
 
     def create_clip(self):
-        self.cli.print(f'creating a clip')
-
+        msg = 'creating a clip'
         base_url = 'https://api.twitch.tv/helix/clips'
         params = {
             'broadcaster_id': self.broadcaster_id
         }
         with self.session.post(base_url, params=params) as r:
             try:
-                print(f"clip_id={r.json()['data'][0]['id']}")
+                msg += f"\nclip_id={r.json()['data'][0]['id']}"
+                self.cli.print(msg)
             except:
-                print(r.content)
+                self.cli.print(r.content, TextColor.WHITE)
 
     # def get_random_prediction_outcomes(self):
     #     PREDICTIONS_PATH = 'predictions/'
@@ -321,7 +324,7 @@ class Twitch():
                 json_data = r.json()
                 return json_data['data'][0]['id']
             except:
-                print(r.content)
+                self.cli.print(r.content)
 
     def get_guest_star_session(self):
         base_url = 'https://api.twitch.tv/helix/guest_star/session'
@@ -336,9 +339,16 @@ class Twitch():
                     return self.create_guest_star_session()
                 return json_data['data'][0]['id']
             except:
-                print(r.content)
+                self.cli.print(r.content)
 
     def whisper(self, user_id, message):
+        MIN_WHISPER_PERIOD = (60 * 40) # 40 minutes
+        current_time = int(time())
+        if (self.last_whisper_time and (self.last_whisper_time + MIN_WHISPER_PERIOD) > current_time):
+            delta = (self.last_whisper_time + MIN_WHISPER_PERIOD) - current_time
+            self.cli.print(f'too soon for another whisper ({delta} seconds left)')
+            return True
+
         base_url = 'https://api.twitch.tv/helix/whispers'
         params = {
             'from_user_id': self.broadcaster_id,
@@ -348,7 +358,13 @@ class Twitch():
             'message': message
         }
         with self.session.post(base_url, params=params, data=data) as r:
-            pass
+            status_code = r.status_code
+
+        if (status_code in [204, 429]):
+            self.last_whisper_time = current_time
+            return True
+
+        return False
 
     def send_guest_star_invite(self, stream_data):
         user_id = stream_data['user_id']
@@ -365,4 +381,18 @@ class Twitch():
         }
         with self.session.post(base_url, params=params) as r:
             pass
-        self.whisper(user_id, 'https://www.twitch.tv/popout/nullptrrrrrrrrrrrrrrrrrrr/guest-star')
+
+    def send_guest_star_invite_random(self, data_entries):
+        MAX_TRIES = 3
+        retry_cnt = 0
+        rand_idx = random.randrange(len(data_entries))
+        rand_entry = data_entries[rand_idx]
+        message = 'https://www.twitch.tv/popout/nullptrrrrrrrrrrrrrrrrrrr/guest-star'
+        while not self.whisper(rand_entry['user_id'], message) and retry_cnt < MAX_TRIES:
+            rand_idx = random.randrange(len(data_entries))
+            rand_entry = data_entries[rand_idx]
+            self.cli.print(f"{rand_entry['user_name']} doesn't want to be whispered")
+            retry_cnt += 1
+        if retry_cnt >= MAX_TRIES:
+            return
+        self.send_guest_star_invite(rand_entry)
