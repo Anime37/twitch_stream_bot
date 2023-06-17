@@ -52,6 +52,11 @@ class Twitch():
         self.cli = CLI()
         self.SCOPES = ' '.join(self.SCOPES)
         self.session = requests.Session()
+        self.load_stored_data()
+
+    def load_stored_data(self):
+        self.last_raid_time = int(fs.read('user_data/last_raid_time'))
+        self.last_whisper_time = int(fs.read('user_data/last_whisper_time'))
 
     def save_account_info(self):
         fs.write(self.ACCOUNT_PATH, dataclasses.asdict(self.account))
@@ -175,6 +180,7 @@ class Twitch():
             if r.status_code != 200:
                 return False
         self.last_raid_time = current_time
+        fs.write('user_data/last_raid_time', str(self.last_raid_time))
         self.cli.print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
         return True
 
@@ -353,6 +359,7 @@ class Twitch():
 
         if (status_code in [204, 429]):
             self.last_whisper_time = current_time
+            fs.write('user_data/last_whisper_time', str(self.last_whisper_time))
             return True
 
         return False
