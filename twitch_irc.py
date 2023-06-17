@@ -49,6 +49,7 @@ class TwitchIRC(IRC, threading.Thread):
         if 'PRIVMSG' in message:
             self.handle_privmsg(self.parse_privmsg(message))
         elif 'PING' in message:
+            self.cli.print('[IRC] Received PING, Sending PONG', TextColor.WHITE)
             self.ws.send('PONG :tmi.twitch.tv')
         elif f':{self.channel}.tmi.twitch.tv 353' in message:
             self.send_privmsg(self.channel, 'connected')

@@ -162,8 +162,8 @@ class Twitch():
     def raid(self, stream_data):
         MIN_RAID_PERIOD = (60) # 1 minutes
         current_time = int(time())
-        if (self.last_raid_time and (self.last_raid_time + MIN_RAID_PERIOD) > current_time):
-            delta = (self.last_whisper_time + MIN_RAID_PERIOD) - current_time
+        if (self.last_raid_time and ((self.last_raid_time + MIN_RAID_PERIOD) > current_time)):
+            delta = (self.last_raid_time + MIN_RAID_PERIOD) - current_time
             self.cli.print(f'too soon for another raid ({delta} seconds left)')
             return True
         user_id = stream_data['user_id']
@@ -191,13 +191,15 @@ class Twitch():
         retry_cnt = 0
         rand_idx = random.randrange(len(data_entries))
         rand_entry = data_entries[rand_idx]
-        while not self.raid(rand_entry) and retry_cnt < MAX_TRIES:
+        while (retry_cnt < MAX_TRIES) and (not self.raid(rand_entry)):
             rand_user_id = rand_entry['user_id']
             rand_user_name = rand_entry['user_name']
             # self.cli.print(f'{rand_user_name} ({rand_user_id}) doenst want to be raided')
             rand_idx = random.randrange(len(data_entries))
             rand_entry = data_entries[rand_idx]
             retry_cnt += 1
+        if retry_cnt >= MAX_TRIES:
+            self.cli.print('No one wants to be raided.')
 
     def get_top_streams(self):
         return random.randint(1, 3)
@@ -230,13 +232,9 @@ class Twitch():
         page_to_get = self.streams_page_to_get()
         self.cli.print(f'{msg} (page {page_to_get})')
         json_data = {}
-        for i in range(page_to_get):
+        for _ in range(page_to_get):
             with self.session.get(base_url, params=params) as r:
                 json_data = r.json()
-            if (i % 11) == 10:
-                sleep_time = 3 + (random.random() * 3)
-                self.cli.print(f'sleeping for {sleep_time:.2f} seconds')
-                sleep(sleep_time)
             params['after'] = json_data['pagination']['cursor']
         self.categories = []
         data_entries = json_data['data']
