@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import websocket
 import re
 from cli import CLI
+import threading
 
 
 @dataclass
@@ -15,6 +16,7 @@ class PRIVMSG():
 
 class IRC():
     cli = CLI()
+    mutex = threading.Lock()
 
     def __init__(self, channel, url, debug=False):
         if debug:
@@ -47,7 +49,9 @@ class IRC():
             self.cli.print(f'{field}: {value}')
 
     def send_privmsg(self, channel, msg):
-        self.ws.send(f'PRIVMSG #{channel} :{msg}')
+        with self.mutex:
+            self.cli.print(f'[IRC] >> PRIVMSG #{channel.lower()} :{msg}')
+            self.ws.send(f'PRIVMSG #{channel} :{msg}')
 
     def on_message(self, ws, message: str):
         if 'PRIVMSG' in message:

@@ -5,6 +5,7 @@ from cli import CLI
 from colors import *
 import server
 import requests
+import twitch_irc
 import utils
 from events import EventWrapper
 from time import sleep, time
@@ -182,6 +183,7 @@ class Twitch():
         self.last_raid_time = current_time
         fs.write('user_data/last_raid_time', str(self.last_raid_time))
         self.cli.print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
+        twitch_irc.send_random_compliment(user_name)
         return True
 
     def raid_random(self, data_entries):

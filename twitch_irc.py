@@ -1,3 +1,4 @@
+import fs
 import threading
 import utils
 from colors import TextColor
@@ -22,6 +23,12 @@ class TwitchIRC(IRC, threading.Thread):
                 priv_msg.sender,
                 utils.get_random_line('spam_threats.txt')
             )
+        )
+
+    def send_random_compliment(self, channel):
+        self.send_privmsg(
+            channel,
+            utils.get_random_line('compliments.txt')
         )
 
     def update_chat(self, priv_msg: PRIVMSG):
@@ -72,3 +79,8 @@ def stop():
     # server.shutdown()
     server.join()
     CLI().print('irc stopped')
+
+
+def send_random_compliment(channel):
+    global server
+    server.send_random_compliment(channel)
