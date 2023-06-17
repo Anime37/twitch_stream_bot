@@ -25,8 +25,7 @@ class TwitchIRC(IRC, threading.Thread):
         )
 
     def update_chat(self, priv_msg: PRIVMSG):
-        with open('chat.txt', 'w') as f:
-            f.write(f'{priv_msg.sender}:\n{priv_msg.content}')
+        fs.write('chat.txt', f'{priv_msg.sender}:\n{priv_msg.content}')
 
     def handle_privmsg(self, priv_msg: PRIVMSG):
         self.cli.print(f'#{priv_msg.sender}: {priv_msg.content}', TextColor.YELLOW)
@@ -49,8 +48,7 @@ class TwitchIRC(IRC, threading.Thread):
 
     def on_open(self, ws):
         super().on_open(ws)
-        with open('user_data/token') as f:
-            token = f.read()
+        token = fs.read('user_data/token')
         ws.send('CAP REQ :twitch.tv/commands')
         ws.send(f'PASS oauth:{token}')
         ws.send(f'NICK {self.channel}')

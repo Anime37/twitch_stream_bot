@@ -9,6 +9,7 @@ import utils
 from events import EventWrapper
 from time import sleep, time
 import json
+import fs
 
 
 @dataclasses.dataclass
@@ -53,8 +54,7 @@ class Twitch():
         self.session = requests.Session()
 
     def save_account_info(self):
-        with open(self.ACCOUNT_PATH, 'w') as f:
-            json.dump(dataclasses.asdict(self.account), f, indent=2)
+        fs.write(self.ACCOUNT_PATH, dataclasses.asdict(self.account))
 
     def load_account_info(self):
         self.account = Account()
@@ -62,9 +62,7 @@ class Twitch():
             self.save_account_info()
             self.cli.print(f'please fill out the account details in {self.ACCOUNT_PATH}')
             return False
-        with open(self.ACCOUNT_PATH, 'r') as f:
-            json_data = json.load(f)
-            self.account = Account(**json_data)
+        self.account = Account(**fs.read(self.ACCOUNT_PATH))
         return self.validate_account_info()
 
     def validate_account_info(self):
@@ -80,9 +78,7 @@ class Twitch():
 
         # Try loading existing token
         TOKEN_PATH = f'{self.USER_DATA_PATH}token'
-        if os.path.exists(TOKEN_PATH):
-            with open(TOKEN_PATH, 'r') as f:
-                self.token = f.read()
+        self.token = fs.read(TOKEN_PATH)
         if self.token:
             return
 
@@ -103,8 +99,7 @@ class Twitch():
         if EventWrapper().is_set():
             self.token = server.server.queue.get()
             EventWrapper().clear()
-        with open(TOKEN_PATH, 'w') as f:
-            f.write(self.token)
+        fs.write(TOKEN_PATH, self.token)
 
     def set_session_headers(self):
         self.session.headers = {
@@ -118,9 +113,7 @@ class Twitch():
 
         # Try loading existing broadcaster_id
         BROADCASTER_ID_PATH = f'{self.USER_DATA_PATH}broadcaster_id'
-        if os.path.exists(BROADCASTER_ID_PATH):
-            with open(BROADCASTER_ID_PATH, 'r') as f:
-                self.broadcaster_id = f.read()
+        self.broadcaster_id = fs.read(BROADCASTER_ID_PATH)
         if self.broadcaster_id:
             return
 
@@ -132,8 +125,7 @@ class Twitch():
             json_data = r.json()
         try:
             self.broadcaster_id = json_data['data'][0]['id']
-            with open(BROADCASTER_ID_PATH, 'w') as f:
-                f.write(self.broadcaster_id)
+            fs.write(BROADCASTER_ID_PATH, self.broadcaster_id)
         except:
             self.cli.print(json_data)
 
@@ -295,8 +287,7 @@ class Twitch():
     #     if not self.prediction_files:
     #         self.prediction_files = os.listdir(PREDICTIONS_PATH)
     #     prediction_list_path = f'{PREDICTIONS_PATH}{random.choice(self.prediction_files)}'
-    #     with open(prediction_list_path, 'r') as f:
-    #         random_prediction = random.choice(json.load(f)['predictions'])
+    #     random_prediction = fs.read(prediction_list_path)
     #     return random_prediction
 
     # def create_prediction(self):
