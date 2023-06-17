@@ -199,14 +199,26 @@ class Twitch():
             rand_entry = data_entries[rand_idx]
             retry_cnt += 1
 
-    # def get_top_streams(self, params):
-    #     pass
+    def get_top_streams(self):
+        return random.randint(1, 3)
 
-    # def get_mid_streams(self, params):
-    #     pass
+    def get_mid_streams(self):
+        return random.randint(3, 5)
 
-    # def get_low_streams(self, params):
-    #     pass
+    def get_low_streams(self):
+        return random.randint(5, 20)
+
+    def streams_page_to_get(self):
+        try:
+            page_to_get = next(self.page_to_get_iter)()
+        except:
+            self.page_to_get_iter = iter(
+                [self.get_low_streams]*4 +
+                [self.get_mid_streams]*2 +
+                [self.get_top_streams]*1
+            )
+            page_to_get = next(self.page_to_get_iter)()
+        return page_to_get
 
     def get_streams(self):
         msg = 'getting streams'
@@ -215,11 +227,7 @@ class Twitch():
             'first': 100,
             'after': ''
         }
-        page_to_get = random.randint(5, 20)
-        if (random.randint(0, 5) == 0):
-            page_to_get = random.randint(3, 5)
-        if (random.randint(0, 10) == 0):
-            page_to_get = random.randint(1, 3)
+        page_to_get = self.streams_page_to_get()
         self.cli.print(f'{msg} (page {page_to_get})')
         json_data = {}
         for i in range(page_to_get):
