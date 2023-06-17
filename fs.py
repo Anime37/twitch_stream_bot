@@ -50,8 +50,16 @@ def read(filepath: str):
             return func(f)
 
 
+def readint(filepath: str):
+    str_val = read(filepath)
+    try:
+        return int(str_val)
+    except:
+        return 0
+
+
 def write(filepath: str, data):
     func = get_func_tuple(filepath)[1]
     with mutex:
         with open(filepath, 'w', encoding='utf-8') as f:
-            func[1](f, data)
+            func(f, data)

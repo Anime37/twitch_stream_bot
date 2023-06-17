@@ -56,8 +56,8 @@ class Twitch():
         self.load_stored_data()
 
     def load_stored_data(self):
-        self.last_raid_time = int(fs.read('user_data/last_raid_time'))
-        self.last_whisper_time = int(fs.read('user_data/last_whisper_time'))
+        self.last_raid_time = fs.readint('user_data/last_raid_time')
+        self.last_whisper_time = fs.readint('user_data/last_whisper_time')
 
     def save_account_info(self):
         fs.write(self.ACCOUNT_PATH, dataclasses.asdict(self.account))
