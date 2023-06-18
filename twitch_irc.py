@@ -12,8 +12,8 @@ class TwitchIRC(IRC, threading.Thread):
     last_send_time = 0
     threat_format = "{}, if you don't stop spamming, I will {}"
 
-    def __init__(self, channel='nullptrrrrrrrrrrrrrrrrrrr', url='wss://irc-ws.chat.twitch.tv:443'):
-        IRC.__init__(self, channel, url)
+    def __init__(self, channel):
+        IRC.__init__(self, channel, 'wss://irc-ws.chat.twitch.tv:443')
         threading.Thread.__init__(self)
 
     def send_random_threat(self, priv_msg: PRIVMSG):
@@ -66,9 +66,9 @@ class TwitchIRC(IRC, threading.Thread):
         self.ws.run_forever()
 
 
-def start():
+def start(channel):
     global server
-    server = TwitchIRC()
+    server = TwitchIRC(channel)
     server.start()
     CLI().print('irc started')
 

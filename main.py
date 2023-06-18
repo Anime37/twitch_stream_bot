@@ -9,7 +9,7 @@ from word_utfer import TextUTFy
 
 def loop(twitch:Twitch):
     cli = CLI()
-    BASE_WORD = 'nullptr'
+    BASE_WORD = twitch.account.USER_NAME
     OFFSET = 3
     SPACES = ' ' * OFFSET
     MIN_SLEEP_TIME = 10
@@ -33,7 +33,7 @@ def main():
     twitch.get_token()
     twitch.set_session_headers()
     twitch.get_broadcaster_id()
-    twitch_irc.start()
+    twitch_irc.start(twitch.account.USER_NAME)
     # twitch.get_channel_stream_key()
     twitch.get_streams()
     loop(twitch)

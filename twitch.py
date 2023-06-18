@@ -393,7 +393,7 @@ class Twitch():
         retry_cnt = 0
         rand_idx = random.randrange(len(data_entries))
         rand_entry = data_entries[rand_idx]
-        message = 'https://www.twitch.tv/popout/nullptrrrrrrrrrrrrrrrrrrr/guest-star'
+        message = f'https://www.twitch.tv/popout/{self.account.USER_NAME}/guest-star'
         while not self.whisper(rand_entry['user_id'], message) and retry_cnt < MAX_TRIES:
             rand_idx = random.randrange(len(data_entries))
             rand_entry = data_entries[rand_idx]
