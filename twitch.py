@@ -22,9 +22,10 @@ class Account():
 
 
 @dataclasses.dataclass
-class CategoryInfo():
+class ChannelInfo():
     name: str
     id: str
+    tags: str
 
 
 class Twitch():
@@ -160,7 +161,7 @@ class Twitch():
                 self.cli.print(json_data)
 
     def raid(self, stream_data):
-        MIN_RAID_PERIOD = (60) # 1 minutes
+        MIN_RAID_PERIOD = (60)  # 1 minutes
         current_time = int(time())
         if (self.last_raid_time and ((self.last_raid_time + MIN_RAID_PERIOD) > current_time)):
             delta = (self.last_raid_time + MIN_RAID_PERIOD) - current_time
@@ -236,41 +237,41 @@ class Twitch():
             with self.session.get(base_url, params=params) as r:
                 json_data = r.json()
             params['after'] = json_data['pagination']['cursor']
-        self.categories = []
         data_entries = json_data['data']
 
         # Raid a random stream
         self.raid_random(data_entries)
         # Invite a random streamer to a guest session
-        self.send_guest_star_invite_random(data_entries)
+        # self.send_guest_star_invite_random(data_entries)
 
+        channels = []
         for entry in data_entries:
             if not entry['game_id']:
                 continue
-            category_info = CategoryInfo(entry['game_name'], entry['game_id'])
-            if category_info not in self.categories:
-                self.categories.append(category_info)
-        total_ids = len(self.categories)
+            channel_info = ChannelInfo(entry['game_name'], entry['game_id'], entry['tags'])
+            if channel_info not in channels:
+                channels.append(channel_info)
+        total_ids = len(channels)
         if total_ids > 10:
             from_left = random.randint(0, 1)
-            self.categories = self.categories[:10] if from_left else self.categories[-10:]
-        self.category_iter = iter(self.categories)
+            channels = channels[:10] if from_left else channels[-10:]
+        self.channel_info_iter = iter(channels)
 
-    def get_stream_category(self):
-        category: CategoryInfo
+    def get_stream_channel_info(self):
+        channel_info: ChannelInfo
         try:
-            category = next(self.category_iter)
+            channel_info = next(self.channel_info_iter)
         except StopIteration:
             self.get_streams()
-            category = next(self.category_iter)
-        return category
+            channel_info = next(self.channel_info_iter)
+        return channel_info
 
-    def modify_channel_title(self, title, category=None):
-        if not category:
-            category = self.get_stream_category()
+    def modify_channel_title(self, title, channel_info: ChannelInfo = None):
+        if not channel_info:
+            channel_info = self.get_stream_channel_info()
 
         self.cli.print(f'changing stream title to {title}')
-        self.cli.print(f'changing category to {category.name} (id={category.id})')
+        self.cli.print(f'changing category to {channel_info.name} (id={channel_info.id})')
 
         base_url = 'https://api.twitch.tv/helix/channels'
         params = {
@@ -278,7 +279,8 @@ class Twitch():
         }
         data = {
             'title': title,
-            'game_id': category.id
+            'game_id': channel_info.id,
+            'tags': channel_info.tags,
         }
         with self.session.patch(base_url, params=params, data=data) as r:
             pass
@@ -347,7 +349,7 @@ class Twitch():
                 self.cli.print(r.content)
 
     def whisper(self, user_id, message):
-        MIN_WHISPER_PERIOD = (60 * 40) # 40 minutes
+        MIN_WHISPER_PERIOD = (60 * 40)  # 40 minutes
         current_time = int(time())
         if (self.last_whisper_time and (self.last_whisper_time + MIN_WHISPER_PERIOD) > current_time):
             delta = (self.last_whisper_time + MIN_WHISPER_PERIOD) - current_time

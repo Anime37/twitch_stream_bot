@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import websocket
 import re
-from cli import CLI
+from cli import *
 import threading
 
 
@@ -50,7 +50,7 @@ class IRC():
 
     def send_privmsg(self, channel, msg):
         with self.mutex:
-            self.cli.print(f'[IRC] >> PRIVMSG #{channel.lower()} :{msg}')
+            self.cli.print(f'[IRC] >> PRIVMSG #{channel} :{msg}', TextColor.GREEN)
             self.ws.send(f'PRIVMSG #{channel} :{msg}')
 
     def on_message(self, ws, message: str):
