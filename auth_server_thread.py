@@ -46,7 +46,7 @@ def process_hash():
     return ""
 
 
-def start_server():
+def start():
     global server, app
     # App routes defined here
     server = ServerThread(app)
@@ -54,6 +54,6 @@ def start_server():
     CLI().print('server started')
 
 
-def stop_server():
+def stop():
     global server
     server.shutdown()

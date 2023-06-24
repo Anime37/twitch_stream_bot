@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Auto Play Audio on Update</title>
+</head>
+<body>
+  <audio id="audioPlayer" controls>
+    <source id="audioSource" src="chat.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    // Function to check for file update and play the audio
+    function checkForUpdateAndPlay() {
+      var audioElement = document.getElementById("audioPlayer");
+      var audioSource = document.getElementById("audioSource");
+
+      // Check if the audio file has been updated
+      var xhr = new XMLHttpRequest();
+      xhr.open("HEAD", "chat.mp3?_=" + new Date().getTime()); // Append cache-busting query parameter
+      xhr.onload = function() {
+        if (xhr.status === 200 && xhr.getResponseHeader("Last-Modified") !== audioElement.dataset.lastModified) {
+          audioElement.dataset.lastModified = xhr.getResponseHeader("Last-Modified");
+
+          // Update the audio source and play the audio
+          audioSource.src = "chat.mp3?_=" + new Date().getTime(); // Append cache-busting query parameter
+          audioElement.load();
+          audioElement.play();
+        }
+      };
+      xhr.send();
+
+      // Check for updates every 5 seconds
+      setTimeout(checkForUpdateAndPlay, 5000);
+    }
+
+    // Start checking for file update and play the audio
+    checkForUpdateAndPlay();
+  </script>
+</body>
+</html>

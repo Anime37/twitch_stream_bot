@@ -4,6 +4,7 @@ import utils
 from colors import TextColor
 from irc import *
 from time import time
+from tts import TTS
 
 
 class TwitchIRC(IRC, threading.Thread):
@@ -15,6 +16,11 @@ class TwitchIRC(IRC, threading.Thread):
     def __init__(self, channel):
         IRC.__init__(self, channel, 'wss://irc-ws.chat.twitch.tv:443')
         threading.Thread.__init__(self)
+        self.init_tts()
+
+    def init_tts(self):
+        self.tts = TTS()
+        self.tts.set_voices('Japanese')
 
     def send_random_threat(self, priv_msg: PRIVMSG):
         self.send_privmsg(
@@ -33,6 +39,7 @@ class TwitchIRC(IRC, threading.Thread):
 
     def update_chat(self, priv_msg: PRIVMSG):
         fs.write('chat.txt', f'{priv_msg.sender}:\n{priv_msg.content}')
+        self.tts.save_to_file(priv_msg.content, 'chat.mp3')
 
     def handle_privmsg(self, priv_msg: PRIVMSG):
         self.cli.print(f'#{priv_msg.sender}: {priv_msg.content}', TextColor.YELLOW)
@@ -67,23 +74,24 @@ class TwitchIRC(IRC, threading.Thread):
         ws.send(f'JOIN #{self.channel}')
 
     def run(self):
+        self.cli.print('starting irc')
         self.ws.run_forever()
+
+    def shutdown(self):
+        self.cli.print('stopping irc')
+        self.ws.keep_running = False
+        self.join()
 
 
 def start(channel):
     global server
     server = TwitchIRC(channel)
     server.start()
-    CLI().print('irc started')
 
 
 def stop():
     global server
-    server.ws.keep_running = False
-    # print(server.name)
-    # server.shutdown()
-    server.join()
-    CLI().print('irc stopped')
+    server.shutdown()
 
 
 def send_random_compliment(channel):

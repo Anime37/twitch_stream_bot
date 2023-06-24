@@ -3,7 +3,7 @@ import os
 import random
 from cli import CLI
 from colors import *
-import server
+import auth_server_thread
 import requests
 import twitch_irc
 import utils
@@ -99,12 +99,12 @@ class Twitch():
         }
         with self.session.get(base_url, params=params) as r:
             self.cli.print(r.url)
-        server.start_server()
+        auth_server_thread.start()
         EventWrapper().wait_and_clear()
         EventWrapper().wait(5)
-        server.stop_server()
+        auth_server_thread.stop()
         if EventWrapper().is_set():
-            self.token = server.server.queue.get()
+            self.token = auth_server_thread.server.queue.get()
             EventWrapper().clear()
         fs.write(TOKEN_PATH, self.token)
 
@@ -161,7 +161,7 @@ class Twitch():
                 self.cli.print(json_data)
 
     def raid(self, stream_data):
-        MIN_RAID_PERIOD = (60)  # 1 minutes
+        MIN_RAID_PERIOD = (90)  # 1 minutes
         current_time = int(time())
         if (self.last_raid_time and ((self.last_raid_time + MIN_RAID_PERIOD) > current_time)):
             delta = (self.last_raid_time + MIN_RAID_PERIOD) - current_time
@@ -175,16 +175,17 @@ class Twitch():
             'from_broadcaster_id': self.broadcaster_id,
             'to_broadcaster_id': user_id,
         }
+        self.cli.print(f'trying to raid {user_name}')
         with self.session.post(base_url, params=params) as r:
-            # self.cli.print(r.content)
-            if r.status_code == 429:
+            self.cli.print(r.content)
+            if r.status_code in [409, 429]:
                 return True
             if r.status_code != 200:
                 return False
         self.last_raid_time = current_time
         fs.write('user_data/last_raid_time', str(self.last_raid_time))
         self.cli.print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
-        twitch_irc.send_random_compliment(user_name)
+        twitch_irc.send_random_compliment(stream_data['user_login'])
         return True
 
     def raid_random(self, data_entries):
@@ -252,9 +253,9 @@ class Twitch():
             if channel_info not in channels:
                 channels.append(channel_info)
         total_ids = len(channels)
-        if total_ids > 10:
+        if total_ids > 5:
             from_left = random.randint(0, 1)
-            channels = channels[:10] if from_left else channels[-10:]
+            channels = channels[:5] if from_left else channels[-5:]
         self.channel_info_iter = iter(channels)
 
     def get_stream_channel_info(self):

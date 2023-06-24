@@ -2,6 +2,7 @@ import random
 import utils
 import twitch_irc
 from cli import CLI
+import http_server_thread
 from time import sleep
 from twitch import Twitch
 from word_utfer import TextUTFy
@@ -31,10 +32,12 @@ def main():
     if not twitch.load_account_info():
         return
     twitch.get_token()
+    http_server_thread.start()
     twitch.set_session_headers()
     twitch.get_broadcaster_id()
     twitch_irc.start(twitch.account.USER_NAME)
     # twitch.get_channel_stream_key()
+    # return
     twitch.get_streams()
     loop(twitch)
 
