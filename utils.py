@@ -29,3 +29,9 @@ def clamp_str(text, char_limit):
         except UnicodeDecodeError:
             encoded_text = encoded_text[:-1]
     return encoded_text.decode()  # Decode the clamped encoded text
+
+
+def clamp_str_list(str_list, char_limit):
+    if not str_list:
+        return str_list
+    return [clamp_str(entry, char_limit) for entry in str_list]

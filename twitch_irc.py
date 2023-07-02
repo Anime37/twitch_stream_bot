@@ -43,7 +43,7 @@ class TwitchIRC(IRC, threading.Thread):
 
     def handle_privmsg(self, priv_msg: PRIVMSG):
         self.cli.print(f'#{priv_msg.sender}: {priv_msg.content}', TextColor.YELLOW)
-        if priv_msg.sender == self.channel:
+        if (priv_msg.sender == self.channel) and priv_msg.content[0] != '!':
             return
         current_time = int(time())
         if (self.last_receive_time and ((self.last_receive_time + self.COMM_TMO) > current_time)):

@@ -295,7 +295,7 @@ class Twitch():
         data = {
             'title': title,
             'game_id': channel_info.id,
-            'tags': [utils.clamp_str(tag, MAX_TAG_LEN) for tag in channel_info.tags],
+            'tags': utils.clamp_str_list(channel_info.tags, MAX_TAG_LEN),
         }
         with self.session.patch(base_url, params=params, data=data) as r:
             if r.status_code != 204:
