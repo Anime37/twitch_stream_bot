@@ -11,6 +11,7 @@ from events import EventWrapper
 from time import sleep, time
 import json
 import fs
+from word_utfer import TextUTFy
 
 
 @dataclasses.dataclass
@@ -25,7 +26,12 @@ class Account():
 class ChannelInfo():
     name: str
     id: str
-    tags: str
+    tags: list
+    title: str
+    user_id: str
+    user_name: str
+    viewer_count: str
+    user_login: str
 
 
 class Twitch():
@@ -160,16 +166,16 @@ class Twitch():
             except:
                 self.cli.print(json_data)
 
-    def raid(self, stream_data):
-        MIN_RAID_PERIOD = (90)  # 1 minutes
+    def raid(self, channel_info: ChannelInfo):
+        MIN_RAID_PERIOD = (100)  # seconds
         current_time = int(time())
         if (self.last_raid_time and ((self.last_raid_time + MIN_RAID_PERIOD) > current_time)):
             delta = (self.last_raid_time + MIN_RAID_PERIOD) - current_time
-            self.cli.print(f'too soon for another raid ({delta} seconds left)')
+            self.cli.print(f'next raid in {delta} seconds')
             return True
-        user_id = stream_data['user_id']
-        user_name = stream_data['user_name']
-        viewer_count = stream_data['viewer_count']
+        user_id = channel_info.user_id
+        user_name = channel_info.user_name
+        viewer_count = channel_info.viewer_count
         base_url = 'https://api.twitch.tv/helix/raids'
         params = {
             'from_broadcaster_id': self.broadcaster_id,
@@ -177,28 +183,31 @@ class Twitch():
         }
         self.cli.print(f'trying to raid {user_name}')
         with self.session.post(base_url, params=params) as r:
-            self.cli.print(r.content)
-            if r.status_code in [409, 429]:
+            # self.cli.print(r.content, TextColor.WHITE)
+            if r.status_code in [409]:
                 return True
             if r.status_code != 200:
                 return False
         self.last_raid_time = current_time
         fs.write('user_data/last_raid_time', str(self.last_raid_time))
+        if r.status_code == 429:
+            self.cli.print(r.content, TextColor.WHITE)
+            return True
         self.cli.print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
-        twitch_irc.send_random_compliment(stream_data['user_login'])
+        twitch_irc.send_random_compliment(channel_info.user_login)
         return True
 
-    def raid_random(self, data_entries):
+    def raid_random(self):
         MAX_TRIES = 3
         retry_cnt = 0
-        rand_idx = random.randrange(len(data_entries))
-        rand_entry = data_entries[rand_idx]
-        while (retry_cnt < MAX_TRIES) and (not self.raid(rand_entry)):
-            rand_user_id = rand_entry['user_id']
-            rand_user_name = rand_entry['user_name']
+        rand_idx = random.randrange(len(self.channels))
+        rand_channel_info = self.channels[rand_idx]
+        while (retry_cnt < MAX_TRIES) and (not self.raid(rand_channel_info)):
+            # rand_user_id = rand_channel_info['user_id']
+            # rand_user_name = rand_channel_info['user_name']
             # self.cli.print(f'{rand_user_name} ({rand_user_id}) doenst want to be raided')
-            rand_idx = random.randrange(len(data_entries))
-            rand_entry = data_entries[rand_idx]
+            rand_idx = random.randrange(len(self.channels))
+            rand_channel_info = self.channels[rand_idx]
             retry_cnt += 1
         if retry_cnt >= MAX_TRIES:
             self.cli.print('No one wants to be raided.')
@@ -225,14 +234,13 @@ class Twitch():
         return page_to_get
 
     def get_streams(self):
-        msg = 'getting streams'
         base_url = 'https://api.twitch.tv/helix/streams'
         params = {
             'first': 100,
             'after': ''
         }
         page_to_get = self.streams_page_to_get()
-        self.cli.print(f'{msg} (page {page_to_get})')
+        self.cli.print(f'getting streams (page {page_to_get})')
         json_data = {}
         for _ in range(page_to_get):
             with self.session.get(base_url, params=params) as r:
@@ -240,23 +248,19 @@ class Twitch():
             params['after'] = json_data['pagination']['cursor']
         data_entries = json_data['data']
 
-        # Raid a random stream
-        self.raid_random(data_entries)
-        # Invite a random streamer to a guest session
-        # self.send_guest_star_invite_random(data_entries)
-
-        channels = []
+        self.channels = []
         for entry in data_entries:
             if not entry['game_id']:
                 continue
-            channel_info = ChannelInfo(entry['game_name'], entry['game_id'], entry['tags'])
-            if channel_info not in channels:
-                channels.append(channel_info)
-        total_ids = len(channels)
+            channel_info = ChannelInfo(entry['game_name'], entry['game_id'], entry['tags'], entry['title'],
+                                       entry['user_id'], entry['user_name'], entry['viewer_count'], entry['user_login'])
+            if channel_info not in self.channels:
+                self.channels.append(channel_info)
+        total_ids = len(self.channels)
         if total_ids > 5:
             from_left = random.randint(0, 1)
-            channels = channels[:5] if from_left else channels[-5:]
-        self.channel_info_iter = iter(channels)
+            self.channels = self.channels[:5] if from_left else self.channels[-5:]
+        self.channel_info_iter = iter(self.channels)
 
     def get_stream_channel_info(self):
         channel_info: ChannelInfo
@@ -267,12 +271,22 @@ class Twitch():
             channel_info = next(self.channel_info_iter)
         return channel_info
 
-    def modify_channel_title(self, title, channel_info: ChannelInfo = None):
+    def modify_channel_title(self, channel_info: ChannelInfo = None, title: str = None, utfy: bool = False):
+        MAX_TITLE_LEN = 140
+        MAX_TAG_LEN = 25
+
         if not channel_info:
             channel_info = self.get_stream_channel_info()
+        if not title:
+            title = channel_info.title
+        if utfy:
+            title = TextUTFy(title, 1, 2, False)[:MAX_TITLE_LEN]
 
-        self.cli.print(f'changing stream title to {title}')
-        self.cli.print(f'changing category to {channel_info.name} (id={channel_info.id})')
+        self.cli.print(
+            f'changing title to {title}\n'
+            f'changing tags to {channel_info.tags}\n'
+            f'changing category to {channel_info.name} (id={channel_info.id})'
+        )
 
         base_url = 'https://api.twitch.tv/helix/channels'
         params = {
@@ -281,21 +295,21 @@ class Twitch():
         data = {
             'title': title,
             'game_id': channel_info.id,
-            'tags': channel_info.tags,
+            'tags': [utils.clamp_str(tag, MAX_TAG_LEN) for tag in channel_info.tags],
         }
         with self.session.patch(base_url, params=params, data=data) as r:
-            pass
+            if r.status_code != 204:
+                self.cli.print(r.content, TextColor.WHITE)
 
     def create_clip(self):
-        msg = 'creating a clip'
         base_url = 'https://api.twitch.tv/helix/clips'
         params = {
             'broadcaster_id': self.broadcaster_id
         }
         with self.session.post(base_url, params=params) as r:
             try:
-                msg += f"\nclip_id={r.json()['data'][0]['id']}"
-                self.cli.print(msg)
+                id = r.json()['data'][0]['id']
+                self.cli.print(f'creating a clip ({id=})')
             except:
                 self.cli.print(r.content, TextColor.WHITE)
 
@@ -320,7 +334,7 @@ class Twitch():
     #         try:
     #             print(f"{r.json()}")
     #         except:
-    #             print(r.content)
+    #             print(r.content, TextColor.WHITE)
 
     def create_guest_star_session(self):
         base_url = 'https://api.twitch.tv/helix/guest_star/session'
@@ -332,7 +346,7 @@ class Twitch():
                 json_data = r.json()
                 return json_data['data'][0]['id']
             except:
-                self.cli.print(r.content)
+                self.cli.print(r.content, TextColor.WHITE)
 
     def get_guest_star_session(self):
         base_url = 'https://api.twitch.tv/helix/guest_star/session'
@@ -347,7 +361,7 @@ class Twitch():
                     return self.create_guest_star_session()
                 return json_data['data'][0]['id']
             except:
-                self.cli.print(r.content)
+                self.cli.print(r.content, TextColor.WHITE)
 
     def whisper(self, user_id, message):
         MIN_WHISPER_PERIOD = (60 * 40)  # 40 minutes

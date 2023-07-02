@@ -9,18 +9,18 @@ from word_utfer import TextUTFy
 
 
 def loop(twitch:Twitch):
+    # BASE_WORD = twitch.account.USER_NAME
+    # OFFSET = 3
+    # SPACES = ' ' * OFFSET
     cli = CLI()
-    BASE_WORD = twitch.account.USER_NAME
-    OFFSET = 3
-    SPACES = ' ' * OFFSET
     MIN_SLEEP_TIME = 10
     MAX_SLEEP_DELTA = 10
-    word = ''
-    utfed_word = ''
     while(True):
-        word = utils.get_random_string(3) + SPACES + BASE_WORD + SPACES + utils.get_random_string(3)
-        utfed_word = TextUTFy(word, 1, 5, False)
-        twitch.modify_channel_title(utfed_word)
+        # word = utils.get_random_string(3) + SPACES + BASE_WORD + SPACES + utils.get_random_string(3)
+        # utfed_word = TextUTFy(word, 1, 5, False)
+        # twitch.modify_channel_title(utfed_word)
+        twitch.modify_channel_title(utfy=True)
+        twitch.raid_random()
         twitch.create_clip()
         sleep_time = MIN_SLEEP_TIME + (random.random() * MAX_SLEEP_DELTA)
         cli.print(f'sleeping for {sleep_time:.2f} seconds')

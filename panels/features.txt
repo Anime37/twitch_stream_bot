@@ -1,12 +1,9 @@
 API/Periodic (1st/main thread):
-- Stream title changing
-- Stream category changing
 - Getting random streams info
+- Stream title changing (utfied other stream titles)
+- Stream category changing (from other streams)
 - Raiding random streams (which want to be)
 - Clip creation
-- Guest invites
-- Whisper link to guest session
-(for invitees that are 40 minutes apart due to rate limits)
 
 ================================
 
@@ -32,6 +29,13 @@ Stream related:
 - Goals
 - Custom TTS
 - Controller overlay (when playing something)
+
+================================
+
+Done, but turned off:
+- API/Periodic:
+  - Guest invites (doesn't seem to do anything?)
+  - Whisper channels (too annoying to others)
 
 ================================
 

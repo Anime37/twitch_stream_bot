@@ -22,6 +22,7 @@ class CLI():
             return
         self.history = []
         self.mutex = threading.Lock()
+        utils.clear_terminal()
         self.initialized = True
 
     def print(self, text):
@@ -29,7 +30,6 @@ class CLI():
             self.history.append(text)
             if len(self.history) > self.HISTORY_LEN:
                 self.history = self.history[-self.HISTORY_LEN:]
-            utils.clear_terminal()
             for history_item in self.history:
                 print(history_item)
 
