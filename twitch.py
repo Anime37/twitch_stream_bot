@@ -8,10 +8,10 @@ import requests
 import twitch_irc
 import utils
 from events import EventWrapper
-from time import sleep, time
-import json
+from time import time
 import fs
 from word_utfer import TextUTFy
+import webbrowser
 
 
 @dataclasses.dataclass
@@ -45,7 +45,8 @@ class Twitch():
         'chat:edit',
         'clips:edit',
         'channel:manage:guest_star',
-        'user:manage:whispers'
+        'user:manage:whispers',
+        'moderator:manage:shoutouts'
         # need affiliate
         # 'channel:manage:predictions',
         # 'channel:manage:polls'
@@ -54,6 +55,7 @@ class Twitch():
     broadcaster_id = None
     last_raid_time = 0
     last_whisper_time = 0
+    last_shoutout_time = 0
     # prediction_files = []
 
     def __init__(self):
@@ -65,6 +67,7 @@ class Twitch():
     def load_stored_data(self):
         self.last_raid_time = fs.readint('user_data/last_raid_time')
         self.last_whisper_time = fs.readint('user_data/last_whisper_time')
+        self.last_shoutout_time = fs.readint('user_data/last_shoutout_time')
 
     def save_account_info(self):
         fs.write(self.ACCOUNT_PATH, dataclasses.asdict(self.account))
@@ -105,6 +108,7 @@ class Twitch():
         }
         with self.session.get(base_url, params=params) as r:
             self.cli.print(r.url)
+            webbrowser.open(r.url)
         auth_server_thread.start()
         EventWrapper().wait_and_clear()
         EventWrapper().wait(5)
@@ -168,10 +172,10 @@ class Twitch():
 
     def raid(self, channel_info: ChannelInfo):
         MIN_RAID_PERIOD = (100)  # seconds
-        current_time = int(time())
-        if (self.last_raid_time and ((self.last_raid_time + MIN_RAID_PERIOD) > current_time)):
-            delta = (self.last_raid_time + MIN_RAID_PERIOD) - current_time
-            self.cli.print(f'next raid in {delta} seconds')
+        current_time = utils.get_current_time()
+        time_remaining = (self.last_raid_time + MIN_RAID_PERIOD) - current_time
+        if time_remaining > 0:
+            self.cli.print(f'next raid in {time_remaining} seconds')
             return True
         user_id = channel_info.user_id
         user_name = channel_info.user_name
@@ -181,7 +185,6 @@ class Twitch():
             'from_broadcaster_id': self.broadcaster_id,
             'to_broadcaster_id': user_id,
         }
-        self.cli.print(f'trying to raid {user_name}')
         with self.session.post(base_url, params=params) as r:
             # self.cli.print(r.content, TextColor.WHITE)
             if r.status_code in [409]:
@@ -203,9 +206,6 @@ class Twitch():
         rand_idx = random.randrange(len(self.channels))
         rand_channel_info = self.channels[rand_idx]
         while (retry_cnt < MAX_TRIES) and (not self.raid(rand_channel_info)):
-            # rand_user_id = rand_channel_info['user_id']
-            # rand_user_name = rand_channel_info['user_name']
-            # self.cli.print(f'{rand_user_name} ({rand_user_id}) doenst want to be raided')
             rand_idx = random.randrange(len(self.channels))
             rand_channel_info = self.channels[rand_idx]
             retry_cnt += 1
@@ -271,16 +271,14 @@ class Twitch():
             channel_info = next(self.channel_info_iter)
         return channel_info
 
-    def modify_channel_title(self, channel_info: ChannelInfo = None, title: str = None, utfy: bool = False):
+    def modify_channel_title(self, channel_info: ChannelInfo, utfy: bool = False):
         MAX_TITLE_LEN = 140
         MAX_TAG_LEN = 25
 
-        if not channel_info:
-            channel_info = self.get_stream_channel_info()
-        if not title:
-            title = channel_info.title
         if utfy:
-            title = TextUTFy(title, 1, 2, False)[:MAX_TITLE_LEN]
+            title = TextUTFy(channel_info.title, 1, 2, False)[:MAX_TITLE_LEN]
+        else:
+            title = channel_info.title
 
         self.cli.print(
             f'changing title to {title}\n'
@@ -365,10 +363,10 @@ class Twitch():
 
     def whisper(self, user_id, message):
         MIN_WHISPER_PERIOD = (60 * 40)  # 40 minutes
-        current_time = int(time())
-        if (self.last_whisper_time and (self.last_whisper_time + MIN_WHISPER_PERIOD) > current_time):
-            delta = (self.last_whisper_time + MIN_WHISPER_PERIOD) - current_time
-            self.cli.print(f'too soon for another whisper ({delta} seconds left)')
+        current_time = utils.get_current_time()
+        time_remaining = (self.last_whisper_time + MIN_WHISPER_PERIOD) - current_time
+        if time_remaining > 0:
+            self.cli.print(f'too soon for another whisper ({time_remaining} seconds left)')
             return True
 
         base_url = 'https://api.twitch.tv/helix/whispers'
@@ -419,3 +417,25 @@ class Twitch():
         if retry_cnt >= MAX_TRIES:
             return
         self.send_guest_star_invite(rand_entry)
+
+    def shoutout(self, channel_info: ChannelInfo):
+        MIN_SHOUTOUT_PERIOD = (150)  # seconds
+        current_time = utils.get_current_time()
+        time_remaining = (self.last_shoutout_time + MIN_SHOUTOUT_PERIOD) - current_time
+        if time_remaining > 0:
+            self.cli.print(f'next shoutout in {time_remaining} seconds')
+            return
+
+        url = 'https://api.twitch.tv/helix/chat/shoutouts'
+        params = {
+            'from_broadcaster_id': self.broadcaster_id,
+            'to_broadcaster_id': channel_info.user_id,
+            'moderator_id': self.broadcaster_id,
+        }
+        with self.session.post(url, params=params) as r:
+            if r.status_code == 204:
+                self.cli.print(f'shouting out {channel_info.user_name}')
+            else:
+                self.cli.print(r.content, TextColor.WHITE)
+        self.last_shoutout_time = current_time
+        fs.write('user_data/last_shoutout_time', str(self.last_shoutout_time))

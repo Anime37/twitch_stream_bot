@@ -1,6 +1,7 @@
 import os
 import random
 import string
+from time import time
 
 
 def get_random_string(length):
@@ -35,3 +36,7 @@ def clamp_str_list(str_list, char_limit):
     if not str_list:
         return str_list
     return [clamp_str(entry, char_limit) for entry in str_list]
+
+
+def get_current_time():
+    return int(time())

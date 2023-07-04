@@ -3,6 +3,7 @@ API/Periodic (1st/main thread):
 - Stream title changing (utfied other stream titles)
 - Stream category changing (from other streams)
 - Raiding random streams (which want to be)
+- Shouting out random streams
 - Clip creation
 
 ================================

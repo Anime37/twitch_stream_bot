@@ -1,25 +1,19 @@
 import random
-import utils
 import twitch_irc
 from cli import CLI
 import http_server_thread
 from time import sleep
 from twitch import Twitch
-from word_utfer import TextUTFy
 
 
 def loop(twitch:Twitch):
-    # BASE_WORD = twitch.account.USER_NAME
-    # OFFSET = 3
-    # SPACES = ' ' * OFFSET
     cli = CLI()
     MIN_SLEEP_TIME = 10
     MAX_SLEEP_DELTA = 10
     while(True):
-        # word = utils.get_random_string(3) + SPACES + BASE_WORD + SPACES + utils.get_random_string(3)
-        # utfed_word = TextUTFy(word, 1, 5, False)
-        # twitch.modify_channel_title(utfed_word)
-        twitch.modify_channel_title(utfy=True)
+        channel_info = twitch.get_stream_channel_info()
+        twitch.modify_channel_title(channel_info, True)
+        twitch.shoutout(channel_info)
         twitch.raid_random()
         twitch.create_clip()
         sleep_time = MIN_SLEEP_TIME + (random.random() * MAX_SLEEP_DELTA)

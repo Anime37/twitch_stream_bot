@@ -45,7 +45,7 @@ class TwitchIRC(IRC, threading.Thread):
         self.cli.print(f'#{priv_msg.sender}: {priv_msg.content}', TextColor.YELLOW)
         if (priv_msg.sender == self.channel) and priv_msg.content[0] != '!':
             return
-        current_time = int(time())
+        current_time = utils.get_current_time()
         if (self.last_receive_time and ((self.last_receive_time + self.COMM_TMO) > current_time)):
             if ((self.last_send_time + self.COMM_TMO) < current_time):
                 self.send_random_threat(priv_msg)
