@@ -2,6 +2,7 @@ import os
 import random
 import string
 from time import time
+import datetime
 
 
 def get_random_string(length):
@@ -40,3 +41,10 @@ def clamp_str_list(str_list, char_limit):
 
 def get_current_time():
     return int(time())
+
+
+def get_rfc3339_time(minute_offset: int = 0):
+    current_time = datetime.datetime.now()
+    duration = datetime.timedelta(minutes=minute_offset)
+    offset_time = current_time + duration
+    return offset_time.replace(microsecond=0).isoformat("T") + "Z"

@@ -1,3 +1,4 @@
+import json
 import dataclasses
 import os
 import random
@@ -38,15 +39,18 @@ class Twitch():
     USER_DATA_PATH = 'user_data/'
     ACCOUNT_PATH = f'{USER_DATA_PATH}account.json'
     SCOPES = [
-        'channel:read:stream_key',
         'channel:manage:broadcast',
-        'channel:manage:raids',
-        'chat:read',
-        'chat:edit',
-        'clips:edit',
         'channel:manage:guest_star',
+        'channel:manage:raids',
+        'channel:manage:schedule',
+        'channel:read:stream_key',
+        'chat:edit',
+        'chat:read',
+        'clips:edit',
+        'moderator:manage:announcements',
+        'moderator:manage:shoutouts',
+        'user:edit',
         'user:manage:whispers',
-        'moderator:manage:shoutouts'
         # need affiliate
         # 'channel:manage:predictions',
         # 'channel:manage:polls'
@@ -56,6 +60,8 @@ class Twitch():
     last_raid_time = 0
     last_whisper_time = 0
     last_shoutout_time = 0
+    last_announcement_time = 0
+    schedule_stream_start_time = 0
     # prediction_files = []
 
     def __init__(self):
@@ -68,6 +74,7 @@ class Twitch():
         self.last_raid_time = fs.readint('user_data/last_raid_time')
         self.last_whisper_time = fs.readint('user_data/last_whisper_time')
         self.last_shoutout_time = fs.readint('user_data/last_shoutout_time')
+        self.last_announcement_time = fs.readint('user_data/last_announcement_time')
 
     def save_account_info(self):
         fs.write(self.ACCOUNT_PATH, dataclasses.asdict(self.account))
@@ -98,7 +105,7 @@ class Twitch():
         if self.token:
             return
 
-        base_url = 'https://id.twitch.tv/oauth2/authorize'
+        url = 'https://id.twitch.tv/oauth2/authorize'
         params = {
             'response_type': 'token',
             'client_id': self.account.CLIENT_ID,
@@ -106,8 +113,7 @@ class Twitch():
             'scope': self.SCOPES,
             'state': utils.get_random_string(32)
         }
-        with self.session.get(base_url, params=params) as r:
-            self.cli.print(r.url)
+        with self.session.get(url, params=params) as r:
             webbrowser.open(r.url)
         auth_server_thread.start()
         EventWrapper().wait_and_clear()
@@ -134,11 +140,11 @@ class Twitch():
         if self.broadcaster_id:
             return
 
-        base_url = 'https://api.twitch.tv/helix/users'
+        url = 'https://api.twitch.tv/helix/users'
         params = {
             'login': f'{self.account.USER_NAME}'
         }
-        with self.session.get(base_url, params=params) as r:
+        with self.session.get(url, params=params) as r:
             json_data = r.json()
         try:
             self.broadcaster_id = json_data['data'][0]['id']
@@ -149,20 +155,20 @@ class Twitch():
     def get_channel_info(self):
         self.cli.print('getting channel_info')
 
-        base_url = 'https://api.twitch.tv'
+        url = 'https://api.twitch.tv'
         params = {
             'broadcaster_id': self.broadcaster_id
         }
-        with self.session.get(base_url, params=params) as r:
+        with self.session.get(url, params=params) as r:
             self.cli.print(r.json())
 
     def get_channel_stream_key(self):
         self.cli.print('getting channel_stream_key')
-        base_url = 'https://api.twitch.tv/helix/streams/key'
+        url = 'https://api.twitch.tv/helix/streams/key'
         params = {
             'broadcaster_id': self.broadcaster_id
         }
-        with self.session.get(base_url, params=params) as r:
+        with self.session.get(url, params=params) as r:
             json_data = r.json()
             try:
                 self.stream_key = json_data['data'][0]['stream_key']
@@ -180,12 +186,12 @@ class Twitch():
         user_id = channel_info.user_id
         user_name = channel_info.user_name
         viewer_count = channel_info.viewer_count
-        base_url = 'https://api.twitch.tv/helix/raids'
+        url = 'https://api.twitch.tv/helix/raids'
         params = {
             'from_broadcaster_id': self.broadcaster_id,
             'to_broadcaster_id': user_id,
         }
-        with self.session.post(base_url, params=params) as r:
+        with self.session.post(url, params=params) as r:
             # self.cli.print(r.content, TextColor.WHITE)
             if r.status_code in [409]:
                 return True
@@ -234,7 +240,7 @@ class Twitch():
         return page_to_get
 
     def get_streams(self):
-        base_url = 'https://api.twitch.tv/helix/streams'
+        url = 'https://api.twitch.tv/helix/streams'
         params = {
             'first': 100,
             'after': ''
@@ -243,7 +249,7 @@ class Twitch():
         self.cli.print(f'getting streams (page {page_to_get})')
         json_data = {}
         for _ in range(page_to_get):
-            with self.session.get(base_url, params=params) as r:
+            with self.session.get(url, params=params) as r:
                 json_data = r.json()
             params['after'] = json_data['pagination']['cursor']
         data_entries = json_data['data']
@@ -271,7 +277,7 @@ class Twitch():
             channel_info = next(self.channel_info_iter)
         return channel_info
 
-    def modify_channel_title(self, channel_info: ChannelInfo, utfy: bool = False):
+    def modify_channel_info(self, channel_info: ChannelInfo, utfy: bool = False):
         MAX_TITLE_LEN = 140
         MAX_TAG_LEN = 25
 
@@ -280,13 +286,7 @@ class Twitch():
         else:
             title = channel_info.title
 
-        self.cli.print(
-            f'changing title to {title}\n'
-            f'changing tags to {channel_info.tags}\n'
-            f'changing category to {channel_info.name} (id={channel_info.id})'
-        )
-
-        base_url = 'https://api.twitch.tv/helix/channels'
+        url = 'https://api.twitch.tv/helix/channels'
         params = {
             'broadcaster_id': self.broadcaster_id
         }
@@ -295,16 +295,22 @@ class Twitch():
             'game_id': channel_info.id,
             'tags': utils.clamp_str_list(channel_info.tags, MAX_TAG_LEN),
         }
-        with self.session.patch(base_url, params=params, data=data) as r:
-            if r.status_code != 204:
+        with self.session.patch(url, params=params, data=data) as r:
+            if r.status_code == 204:
+                self.cli.print(
+                    f'changing title to: {channel_info.title}\n'
+                    f'changing tags to: {channel_info.tags}\n'
+                    f'changing category to: {channel_info.name} (id={channel_info.id})'
+                )
+            else:
                 self.cli.print(r.content, TextColor.WHITE)
 
     def create_clip(self):
-        base_url = 'https://api.twitch.tv/helix/clips'
+        url = 'https://api.twitch.tv/helix/clips'
         params = {
             'broadcaster_id': self.broadcaster_id
         }
-        with self.session.post(base_url, params=params) as r:
+        with self.session.post(url, params=params) as r:
             try:
                 id = r.json()['data'][0]['id']
                 self.cli.print(f'creating a clip ({id=})')
@@ -320,14 +326,14 @@ class Twitch():
     #     return random_prediction
 
     # def create_prediction(self):
-    #     base_url = 'https://api.twitch.tv/helix/predictions'
-    #     base_url = 'https://api.twitch.tv/helix/polls'
+    #     url = 'https://api.twitch.tv/helix/predictions'
+    #     url = 'https://api.twitch.tv/helix/polls'
     #     data = {
     #         "broadcaster_id": self.broadcaster_id,
     #         "duration": 300,
     #     }
     #     data.update(self.get_random_prediction_outcomes())
-    #     with self.session.post(base_url, data=json.dumps(data)) as r:
+    #     with self.session.post(url, data=json.dumps(data)) as r:
     #         print(r.request.body)
     #         try:
     #             print(f"{r.json()}")
@@ -335,11 +341,11 @@ class Twitch():
     #             print(r.content, TextColor.WHITE)
 
     def create_guest_star_session(self):
-        base_url = 'https://api.twitch.tv/helix/guest_star/session'
+        url = 'https://api.twitch.tv/helix/guest_star/session'
         params = {
             'broadcaster_id': self.broadcaster_id
         }
-        with self.session.post(base_url, params=params) as r:
+        with self.session.post(url, params=params) as r:
             try:
                 json_data = r.json()
                 return json_data['data'][0]['id']
@@ -347,12 +353,12 @@ class Twitch():
                 self.cli.print(r.content, TextColor.WHITE)
 
     def get_guest_star_session(self):
-        base_url = 'https://api.twitch.tv/helix/guest_star/session'
+        url = 'https://api.twitch.tv/helix/guest_star/session'
         params = {
             'broadcaster_id': self.broadcaster_id,
             'moderator_id': self.broadcaster_id,
         }
-        with self.session.get(base_url, params=params) as r:
+        with self.session.get(url, params=params) as r:
             try:
                 json_data = r.json()
                 if not json_data['data']:
@@ -369,7 +375,7 @@ class Twitch():
             self.cli.print(f'too soon for another whisper ({time_remaining} seconds left)')
             return True
 
-        base_url = 'https://api.twitch.tv/helix/whispers'
+        url = 'https://api.twitch.tv/helix/whispers'
         params = {
             'from_user_id': self.broadcaster_id,
             'to_user_id': user_id,
@@ -377,7 +383,7 @@ class Twitch():
         data = {
             'message': message
         }
-        with self.session.post(base_url, params=params, data=data) as r:
+        with self.session.post(url, params=params, data=data) as r:
             status_code = r.status_code
 
         if (status_code in [204, 429]):
@@ -393,14 +399,14 @@ class Twitch():
         viewer_count = stream_data['viewer_count']
         self.cli.print(f'inviting {user_name} ({user_id=}, {viewer_count=})')
 
-        base_url = 'https://api.twitch.tv/helix/guest_star/invites'
+        url = 'https://api.twitch.tv/helix/guest_star/invites'
         params = {
             'broadcaster_id': self.broadcaster_id,
             'moderator_id': self.broadcaster_id,
             'session_id': self.get_guest_star_session(),
             'guest_id': user_id,
         }
-        with self.session.post(base_url, params=params) as r:
+        with self.session.post(url, params=params) as r:
             pass
 
     def send_guest_star_invite_random(self, data_entries):
@@ -432,10 +438,83 @@ class Twitch():
             'to_broadcaster_id': channel_info.user_id,
             'moderator_id': self.broadcaster_id,
         }
+        user_name = channel_info.user_name
+        user_id = channel_info.user_id
+        viewer_count = channel_info.viewer_count
         with self.session.post(url, params=params) as r:
             if r.status_code == 204:
-                self.cli.print(f'shouting out {channel_info.user_name}')
+                self.cli.print(f'shouting out {user_name} ({user_id=}, {viewer_count=})')
             else:
                 self.cli.print(r.content, TextColor.WHITE)
         self.last_shoutout_time = current_time
         fs.write('user_data/last_shoutout_time', str(self.last_shoutout_time))
+        twitch_irc.send_random_compliment(channel_info.user_login)
+
+    def send_announcement(self):
+        MIN_ANNOUNCEMENT_PERIOD = (600)  # seconds
+        current_time = utils.get_current_time()
+        time_remaining = (self.last_announcement_time + MIN_ANNOUNCEMENT_PERIOD) - current_time
+        if time_remaining > 0:
+            self.cli.print(f'next announcement in {time_remaining} seconds')
+            return
+
+        COLORS = [
+            'blue',
+            'green',
+            'orange',
+            'purple',
+            'primary',
+        ]
+        url = 'https://api.twitch.tv/helix/chat/announcements'
+        params = {
+            'broadcaster_id': self.broadcaster_id,
+            'moderator_id': self.broadcaster_id,
+        }
+        data = {
+            'message': utils.get_random_line('announcements.txt'),
+            'color': random.choice(COLORS),
+        }
+        with self.session.post(url, params=params, data=data) as r:
+            if r.status_code == 204:
+                self.cli.print('making an announcement!')
+            else:
+                self.cli.print(r.content, TextColor.WHITE)
+        self.last_announcement_time = current_time
+        fs.write('user_data/last_announcement_time', str(self.last_announcement_time))
+
+    def update_channel_description(self, description: str, utfy: bool = False):
+        MAX_DESCRIPTION_LEN = 300
+        url = 'https://api.twitch.tv/helix/users'
+        if utfy:
+            description = TextUTFy(description, 5, 10, False)[:MAX_DESCRIPTION_LEN]
+        params = {
+            'description': description
+        }
+        with self.session.put(url, params=params) as r:
+            if r.status_code == 200:
+                self.cli.print(f'changing channel description')
+            else:
+                self.cli.print(r.content, TextColor.WHITE)
+
+    def create_stream_schedule_segment(self):
+        # TIME_ZONES = [
+        # ]
+
+        url = 'https://api.twitch.tv/helix/schedule/segment'
+        params = {
+            'broadcaster_id': self.broadcaster_id
+        }
+        duration = random.randint(30, 60)
+        start_time = utils.get_rfc3339_time(self.schedule_stream_start_time)
+        self.schedule_stream_start_time += duration
+        data = {
+            'start_time': start_time,
+            'timezone': 'America/New_York',
+            'duration': duration,
+            'is_recurring': True,
+        }
+        with self.session.post(url, params=params, data=data) as r:
+            if r.status_code == 200:
+                self.cli.print(f'creating a stream schedule {duration} minute segment at {start_time}')
+            else:
+                self.cli.print(r.content, TextColor.WHITE)

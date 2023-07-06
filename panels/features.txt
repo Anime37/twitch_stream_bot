@@ -1,10 +1,16 @@
 API/Periodic (1st/main thread):
-- Getting random streams info
-- Stream title changing (utfied other stream titles)
-- Stream category changing (from other streams)
-- Raiding random streams (which want to be)
-- Shouting out random streams
-- Clip creation
+- Changing channel info:
+  - Title (utfied other streams)
+  - Category (other streams)
+  - Tags (other streams)
+  - Description (channel name utfied)
+- Interacting with random streams:
+  - Raiding (if streamer allows it)
+  - Shouting out
+- Other actions:
+  - Clip creation
+  - Announcements in chat
+  - Schedule weekly streams (no gaps)
 
 ================================
 

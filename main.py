@@ -12,9 +12,12 @@ def loop(twitch:Twitch):
     MAX_SLEEP_DELTA = 10
     while(True):
         channel_info = twitch.get_stream_channel_info()
-        twitch.modify_channel_title(channel_info, True)
+        twitch.modify_channel_info(channel_info, True)
+        twitch.update_channel_description(twitch.account.USER_NAME, True)
         twitch.shoutout(channel_info)
         twitch.raid_random()
+        twitch.send_announcement()
+        twitch.create_stream_schedule_segment()
         twitch.create_clip()
         sleep_time = MIN_SLEEP_TIME + (random.random() * MAX_SLEEP_DELTA)
         cli.print(f'sleeping for {sleep_time:.2f} seconds')
