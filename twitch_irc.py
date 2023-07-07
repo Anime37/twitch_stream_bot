@@ -8,15 +8,26 @@ from tts import TTS
 
 
 class TwitchIRC(IRC, threading.Thread):
+    instance = None
+
     COMM_TMO = 5
     last_receive_time = 0
     last_send_time = 0
     threat_format = "{}, if you don't stop spamming, I will {}"
 
-    def __init__(self, channel):
-        IRC.__init__(self, channel, 'wss://irc-ws.chat.twitch.tv:443')
+    def __new__(cls, *args, **kwargs):
+        if cls.instance is None:
+            cls.instance = super().__new__(cls)
+            cls.instance.initialized = False
+        return cls.instance
+
+    def __init__(self, channel='', debug=False):
+        if self.initialized:
+            return
+        IRC.__init__(self, channel, 'wss://irc-ws.chat.twitch.tv:443', debug)
         threading.Thread.__init__(self)
         self.init_tts()
+        self.initialized = True
 
     def init_tts(self):
         self.tts = TTS()
@@ -35,6 +46,12 @@ class TwitchIRC(IRC, threading.Thread):
         self.send_privmsg(
             channel,
             utils.get_random_line('compliments.txt')
+        )
+
+    def send_thx_for_follow(self, user_name):
+        self.send_privmsg(
+            self.channel,
+            f'@{user_name}, thanks for a follow!'
         )
 
     def update_chat(self, priv_msg: PRIVMSG):
@@ -83,19 +100,3 @@ class TwitchIRC(IRC, threading.Thread):
         self.cli.print('stopping irc')
         self.ws.keep_running = False
         self.join()
-
-
-def start(channel):
-    global server
-    server = TwitchIRC(channel)
-    server.start()
-
-
-def stop():
-    global server
-    server.shutdown()
-
-
-def send_random_compliment(channel):
-    global server
-    server.send_random_compliment(channel)

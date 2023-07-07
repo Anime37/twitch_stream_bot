@@ -1,5 +1,4 @@
 import random
-import twitch_irc
 from cli import CLI
 import http_server_thread
 from time import sleep
@@ -31,8 +30,10 @@ def main():
     twitch.get_token()
     twitch.set_session_headers()
     twitch.get_broadcaster_id()
+    twitch.start_websockets()
+    twitch.subscribe_to_follow_events()
+    twitch.subscribe_to_shoutout_received_events()
     http_server_thread.start()
-    twitch_irc.start(twitch.account.USER_NAME)
     # twitch.get_channel_stream_key()
     # return
     twitch.get_streams()

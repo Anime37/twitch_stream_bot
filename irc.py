@@ -20,7 +20,7 @@ class IRC():
 
     def __init__(self, channel, url, debug=False):
         if debug:
-            websocket.enableTrace(True)  # Enable trace for debugging purposes
+            websocket.enableTrace(True)
         self.ws = websocket.WebSocketApp(url,
                                          on_message=self.on_message,
                                          on_error=self.on_error,

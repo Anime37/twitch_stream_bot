@@ -1,12 +1,12 @@
-import json
 import dataclasses
+import json
 import os
 import random
 from cli import CLI
 from colors import *
 import auth_server_thread
 import requests
-import twitch_irc
+from twitch_websockets import TwitchWebSockets
 import utils
 from events import EventWrapper
 from time import time
@@ -44,10 +44,12 @@ class Twitch():
         'channel:manage:raids',
         'channel:manage:schedule',
         'channel:read:stream_key',
+        'channel:read:subscriptions',
         'chat:edit',
         'chat:read',
         'clips:edit',
         'moderator:manage:announcements',
+        'moderator:read:followers',
         'moderator:manage:shoutouts',
         'user:edit',
         'user:manage:whispers',
@@ -62,6 +64,7 @@ class Twitch():
     last_shoutout_time = 0
     last_announcement_time = 0
     schedule_stream_start_time = 0
+    scheduled_segments_counter = 0
     # prediction_files = []
 
     def __init__(self):
@@ -69,6 +72,10 @@ class Twitch():
         self.SCOPES = ' '.join(self.SCOPES)
         self.session = requests.Session()
         self.load_stored_data()
+
+    def start_websockets(self):
+        self.websockets = TwitchWebSockets(self.account.USER_NAME)
+        self.websockets.start_all()
 
     def load_stored_data(self):
         self.last_raid_time = fs.readint('user_data/last_raid_time')
@@ -203,7 +210,7 @@ class Twitch():
             self.cli.print(r.content, TextColor.WHITE)
             return True
         self.cli.print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
-        twitch_irc.send_random_compliment(channel_info.user_login)
+        self.websockets.irc.send_random_compliment(channel_info.user_login)
         return True
 
     def raid_random(self):
@@ -448,7 +455,7 @@ class Twitch():
                 self.cli.print(r.content, TextColor.WHITE)
         self.last_shoutout_time = current_time
         fs.write('user_data/last_shoutout_time', str(self.last_shoutout_time))
-        twitch_irc.send_random_compliment(channel_info.user_login)
+        self.websockets.irc.send_random_compliment(channel_info.user_login)
 
     def send_announcement(self):
         MIN_ANNOUNCEMENT_PERIOD = (600)  # seconds
@@ -530,7 +537,8 @@ class Twitch():
         }
         with self.session.post(url, params=params, data=data) as r:
             if r.status_code == 200:
-                self.cli.print(f'creating a stream schedule {duration} minute segment at {start_time}')
+                self.scheduled_segments_counter += 1
+                self.cli.print(f'creating a stream schedule {duration} minute segment at {start_time} ({self.scheduled_segments_counter})')
             elif r.status_code == 400 and r.json()['message'] == 'Segment cannot create overlapping segment':
                 self.delete_all_stream_schedule_segments()
             else:
@@ -543,9 +551,7 @@ class Twitch():
             'id': id,
         }
         with self.session.delete(url, params=params) as r:
-            # if r.status_code == 204:
-            #     self.cli.print(f'deleting a stream schedule segment {id=}')
-            if r.status_code != 204:
+            if r.status_code not in [204, 404]:
                 self.cli.print(r.content, TextColor.WHITE)
         return (r.status_code == 204)
 
@@ -562,5 +568,51 @@ class Twitch():
                     cursor = ''
                     break
                 del_counter += 1
-            self.cli.print(f'deleted scheduled stream segments: {del_counter}')
-        self.cli.print(f'deleted all scheduled stream segments ({del_counter})!')
+            self.cli.print(f'deleted scheduled stream segments: {del_counter}/{self.scheduled_segments_counter}')
+        self.cli.print(f'deleted all scheduled stream segments!')
+        self.scheduled_segments_counter = 0
+
+    def create_eventsub_subscription(self, type: str, version: str, conditions: dict):
+        url = 'https://api.twitch.tv/helix/eventsub/subscriptions'
+        data = {
+            'type': type,
+            'version': version,
+            'condition': conditions,
+            'transport': {
+                'method': 'websocket',
+                'session_id': self.websockets.eventsub.session_id,
+            },
+        }
+        headers = self.session.headers
+        with self.session.post(url, json=data) as r:
+            if r.status_code == 202:
+                self.cli.print(f'subscribed to {type} events')
+            else:
+                self.cli.print(r.content)
+
+    def subscribe_to_follow_events(self):
+        self.create_eventsub_subscription(
+            'channel.follow', '2',
+            {
+                "broadcaster_user_id": self.broadcaster_id,
+                "moderator_user_id": self.broadcaster_id
+            }
+        )
+
+    def subscribe_to_shoutout_create_events(self):
+        self.create_eventsub_subscription(
+            'channel.shoutout.create', '1',
+            {
+                "broadcaster_user_id": self.broadcaster_id,
+                "moderator_user_id": self.broadcaster_id
+            }
+        )
+
+    def subscribe_to_shoutout_received_events(self):
+        self.create_eventsub_subscription(
+            'channel.shoutout.receive', '1',
+            {
+                "broadcaster_user_id": self.broadcaster_id,
+                "moderator_user_id": self.broadcaster_id
+            }
+        )
