@@ -29,9 +29,9 @@ def main():
     if not twitch.load_account_info():
         return
     twitch.get_token()
-    http_server_thread.start()
     twitch.set_session_headers()
     twitch.get_broadcaster_id()
+    http_server_thread.start()
     twitch_irc.start(twitch.account.USER_NAME)
     # twitch.get_channel_stream_key()
     # return

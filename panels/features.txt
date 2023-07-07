@@ -7,10 +7,12 @@ API/Periodic (1st/main thread):
 - Interacting with random streams:
   - Raiding (if streamer allows it)
   - Shouting out
+- Stream weekly schedule segment generation:
+  - Create weekly schedule segments (no gaps)
+  - Delete whole schedule when it becomes full
 - Other actions:
   - Clip creation
   - Announcements in chat
-  - Schedule weekly streams (no gaps)
 
 ================================
 

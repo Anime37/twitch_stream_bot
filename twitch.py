@@ -496,10 +496,25 @@ class Twitch():
             else:
                 self.cli.print(r.content, TextColor.WHITE)
 
-    def create_stream_schedule_segment(self):
-        # TIME_ZONES = [
-        # ]
+    def get_stream_scheduled_segments_page(self, cursor=None):
+        url = 'https://api.twitch.tv/helix/schedule'
+        params = {
+            'broadcaster_id': self.broadcaster_id,
+            'after': cursor,
+        }
+        with self.session.get(url, params=params) as r:
+            return r.json()
 
+    def get_all_stream_scheduled_segments(self):
+        json_data = self.get_stream_scheduled_segments_page()
+        cursor = json_data['pagination']['cursor']
+        while cursor:
+            json_data = self.get_stream_scheduled_segments_page(cursor)
+            cursor = json_data['pagination']['cursor']
+            for entry in json_data['data']['segments']:
+                print(entry['start_time'])
+
+    def create_stream_schedule_segment(self):
         url = 'https://api.twitch.tv/helix/schedule/segment'
         params = {
             'broadcaster_id': self.broadcaster_id
@@ -516,5 +531,36 @@ class Twitch():
         with self.session.post(url, params=params, data=data) as r:
             if r.status_code == 200:
                 self.cli.print(f'creating a stream schedule {duration} minute segment at {start_time}')
+            elif r.status_code == 400 and r.json()['message'] == 'Segment cannot create overlapping segment':
+                self.delete_all_stream_schedule_segments()
             else:
                 self.cli.print(r.content, TextColor.WHITE)
+
+    def delete_stream_schedule_segment(self, id):
+        url = 'https://api.twitch.tv/helix/schedule/segment'
+        params = {
+            'broadcaster_id': self.broadcaster_id,
+            'id': id,
+        }
+        with self.session.delete(url, params=params) as r:
+            # if r.status_code == 204:
+            #     self.cli.print(f'deleting a stream schedule segment {id=}')
+            if r.status_code != 204:
+                self.cli.print(r.content, TextColor.WHITE)
+        return (r.status_code == 204)
+
+    def delete_all_stream_schedule_segments(self):
+        del_counter = 0
+        self.cli.print('deleting all scheduled stream segments...')
+        json_data = self.get_stream_scheduled_segments_page()
+        cursor = json_data['pagination']['cursor']
+        while cursor:
+            json_data = self.get_stream_scheduled_segments_page(cursor)
+            cursor = json_data['pagination']['cursor']
+            for entry in json_data['data']['segments']:
+                if not self.delete_stream_schedule_segment(entry['id']):
+                    cursor = ''
+                    break
+                del_counter += 1
+            self.cli.print(f'deleted scheduled stream segments: {del_counter}')
+        self.cli.print(f'deleted all scheduled stream segments ({del_counter})!')
