@@ -15,6 +15,8 @@ class PRIVMSG():
 
 
 class IRC():
+    PRINT_TAG = 'IRC'
+
     cli = CLI()
     mutex = threading.Lock()
 
@@ -27,6 +29,18 @@ class IRC():
                                          on_close=self.on_close,
                                          on_open=self.on_open)
         self.channel = channel
+
+    def print(self, text: str):
+        self.cli.print(f'[{self.PRINT_TAG}] {text}')
+
+    def print_err(self, text: str):
+        self.cli.print(f'[{self.PRINT_TAG}] {text}', TextColor.WHITE)
+
+    def print_rx(self, text: str):
+        self.cli.print(f'[{self.PRINT_TAG}] << {text}', TextColor.YELLOW)
+
+    def print_tx(self, text: str):
+        self.cli.print(f'[{self.PRINT_TAG}] >> {text}', TextColor.GREEN)
 
     def parse_privmsg(self, message):
         pattern = r'^:(?P<sender>[^!]+)!(?P<user>[^@]+)@(?P<host>[^ ]+) PRIVMSG (?P<target>[^ ]+) :(?P<content>.*)$'
@@ -46,27 +60,27 @@ class IRC():
     def handle_privmsg(self, priv_msg: PRIVMSG):
         for field in priv_msg.__dataclass_fields__:
             value = getattr(priv_msg, field)
-            self.cli.print(f'{field}: {value}')
+            self.print(f'{field}: {value}')
 
     def send_privmsg(self, channel, msg):
         with self.mutex:
-            self.cli.print(f'[IRC] >> PRIVMSG #{channel} :{msg}', TextColor.GREEN)
+            self.print_tx(f'PRIVMSG #{channel} :{msg}')
             self.ws.send(f'PRIVMSG #{channel} :{msg}')
 
     def on_message(self, ws, message: str):
         if 'PRIVMSG' in message:
             self.handle_privmsg(self.parse_privmsg(message))
         else:
-            self.cli.print(f"Received message: {message}")
+            self.print_rx(f"Received message: {message}")
 
     def on_error(self, ws, error):
-        self.cli.print(f"Error occurred: {error}")
+        self.print_err(f"Error occurred: {error}")
 
-    def on_close(self, ws):
-        self.cli.print("WebSocket connection closed")
+    def on_close(self, ws, status_code, close_msg):
+        self.print_err(f"WebSocket connection closed ({status_code}: {close_msg})")
 
     def on_open(self, ws):
-        self.cli.print("WebSocket connection opened")
+        self.print("WebSocket connection opened")
 
     def run(self):
         self.ws.run_forever()

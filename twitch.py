@@ -36,6 +36,7 @@ class ChannelInfo():
 
 
 class Twitch():
+    PRINT_TAG = 'API'
     USER_DATA_PATH = 'user_data/'
     ACCOUNT_PATH = f'{USER_DATA_PATH}account.json'
     SCOPES = [
@@ -60,8 +61,10 @@ class Twitch():
     token = None
     broadcaster_id = None
     last_raid_time = 0
+    last_raided_channel = ''
     last_whisper_time = 0
     last_shoutout_time = 0
+    last_shouted_out_channel = ''
     last_announcement_time = 0
     schedule_stream_start_time = 0
     scheduled_segments_counter = 0
@@ -72,6 +75,12 @@ class Twitch():
         self.SCOPES = ' '.join(self.SCOPES)
         self.session = requests.Session()
         self.load_stored_data()
+
+    def print(self, text: str):
+        self.cli.print(f'[{self.PRINT_TAG}] {text}')
+
+    def print_err(self, text: str):
+        self.cli.print(f'[{self.PRINT_TAG}] {text}', TextColor.WHITE)
 
     def start_websockets(self):
         self.websockets = TwitchWebSockets(self.account.USER_NAME)
@@ -90,7 +99,7 @@ class Twitch():
         self.account = Account()
         if not os.path.exists(self.ACCOUNT_PATH):
             self.save_account_info()
-            self.cli.print(f'please fill out the account details in {self.ACCOUNT_PATH}')
+            self.print(f'please fill out the account details in {self.ACCOUNT_PATH}')
             return False
         self.account = Account(**fs.read(self.ACCOUNT_PATH))
         return self.validate_account_info()
@@ -99,12 +108,12 @@ class Twitch():
         for field in self.account.__dataclass_fields__:
             value = getattr(self.account, field)
             if not value:
-                self.cli.print(f'missing {field} value in {self.ACCOUNT_PATH}')
+                self.print(f'missing {field} value in {self.ACCOUNT_PATH}')
                 return False
         return True
 
     def get_token(self):
-        self.cli.print('getting token')
+        self.print('getting token')
 
         # Try loading existing token
         TOKEN_PATH = f'{self.USER_DATA_PATH}token'
@@ -139,7 +148,7 @@ class Twitch():
         }
 
     def get_broadcaster_id(self):
-        self.cli.print('getting broadcaster_id')
+        self.print('getting broadcaster_id')
 
         # Try loading existing broadcaster_id
         BROADCASTER_ID_PATH = f'{self.USER_DATA_PATH}broadcaster_id'
@@ -157,20 +166,20 @@ class Twitch():
             self.broadcaster_id = json_data['data'][0]['id']
             fs.write(BROADCASTER_ID_PATH, self.broadcaster_id)
         except:
-            self.cli.print(json_data)
+            self.print(json_data)
 
     def get_channel_info(self):
-        self.cli.print('getting channel_info')
+        self.print('getting channel_info')
 
         url = 'https://api.twitch.tv'
         params = {
             'broadcaster_id': self.broadcaster_id
         }
         with self.session.get(url, params=params) as r:
-            self.cli.print(r.json())
+            self.print(r.json())
 
     def get_channel_stream_key(self):
-        self.cli.print('getting channel_stream_key')
+        self.print('getting channel_stream_key')
         url = 'https://api.twitch.tv/helix/streams/key'
         params = {
             'broadcaster_id': self.broadcaster_id
@@ -179,16 +188,16 @@ class Twitch():
             json_data = r.json()
             try:
                 self.stream_key = json_data['data'][0]['stream_key']
-                self.cli.print(self.stream_key)
+                self.print(self.stream_key)
             except:
-                self.cli.print(json_data)
+                self.print(json_data)
 
     def raid(self, channel_info: ChannelInfo):
         MIN_RAID_PERIOD = (100)  # seconds
         current_time = utils.get_current_time()
         time_remaining = (self.last_raid_time + MIN_RAID_PERIOD) - current_time
         if time_remaining > 0:
-            self.cli.print(f'next raid in {time_remaining} seconds')
+            self.print(f'next raid in {time_remaining} seconds')
             return True
         user_id = channel_info.user_id
         user_name = channel_info.user_name
@@ -199,31 +208,35 @@ class Twitch():
             'to_broadcaster_id': user_id,
         }
         with self.session.post(url, params=params) as r:
-            # self.cli.print(r.content, TextColor.WHITE)
+            # self.print_err(r.content)
             if r.status_code in [409]:
                 return True
             if r.status_code != 200:
                 return False
+        self.last_raided_channel = user_name
         self.last_raid_time = current_time
         fs.write('user_data/last_raid_time', str(self.last_raid_time))
         if r.status_code == 429:
-            self.cli.print(r.content, TextColor.WHITE)
+            self.print_err(r.content)
             return True
-        self.cli.print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
+        self.print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
         self.websockets.irc.send_random_compliment(channel_info.user_login)
         return True
 
     def raid_random(self):
+        rand_channel_info: ChannelInfo
+
         MAX_TRIES = 3
-        retry_cnt = 0
-        rand_idx = random.randrange(len(self.channels))
-        rand_channel_info = self.channels[rand_idx]
-        while (retry_cnt < MAX_TRIES) and (not self.raid(rand_channel_info)):
-            rand_idx = random.randrange(len(self.channels))
-            rand_channel_info = self.channels[rand_idx]
+        retry_cnt = -1 # first loop always fails
+        raid_user_name = self.last_shouted_out_channel
+        while (self.last_shouted_out_channel == raid_user_name) or \
+              ((retry_cnt < MAX_TRIES) and \
+              (not self.raid(rand_channel_info))):
+            rand_channel_info = random.choice(self.channels)
+            raid_user_name = rand_channel_info.user_name
             retry_cnt += 1
         if retry_cnt >= MAX_TRIES:
-            self.cli.print('No one wants to be raided.')
+            self.print('No one wants to be raided.')
 
     def get_top_streams(self):
         return random.randint(1, 3)
@@ -247,13 +260,15 @@ class Twitch():
         return page_to_get
 
     def get_streams(self):
+        MAX_IDS = 5
+
         url = 'https://api.twitch.tv/helix/streams'
         params = {
             'first': 100,
             'after': ''
         }
         page_to_get = self.streams_page_to_get()
-        self.cli.print(f'getting streams (page {page_to_get})')
+        self.print(f'getting streams (page {page_to_get})')
         json_data = {}
         for _ in range(page_to_get):
             with self.session.get(url, params=params) as r:
@@ -270,9 +285,9 @@ class Twitch():
             if channel_info not in self.channels:
                 self.channels.append(channel_info)
         total_ids = len(self.channels)
-        if total_ids > 5:
+        if total_ids > MAX_IDS:
             from_left = random.randint(0, 1)
-            self.channels = self.channels[:5] if from_left else self.channels[-5:]
+            self.channels = self.channels[:MAX_IDS] if from_left else self.channels[-MAX_IDS:]
         self.channel_info_iter = iter(self.channels)
 
     def get_stream_channel_info(self):
@@ -304,13 +319,13 @@ class Twitch():
         }
         with self.session.patch(url, params=params, data=data) as r:
             if r.status_code == 204:
-                self.cli.print(
+                self.print(
                     f'changing title to: {channel_info.title}\n'
-                    f'changing tags to: {channel_info.tags}\n'
-                    f'changing category to: {channel_info.name} (id={channel_info.id})'
+                    f'[{self.PRINT_TAG}] changing tags to: {channel_info.tags}\n'
+                    f'[{self.PRINT_TAG}] changing category to: {channel_info.name} (id={channel_info.id})'
                 )
             else:
-                self.cli.print(r.content, TextColor.WHITE)
+                self.print_err(r.content)
 
     def create_clip(self):
         url = 'https://api.twitch.tv/helix/clips'
@@ -320,9 +335,9 @@ class Twitch():
         with self.session.post(url, params=params) as r:
             try:
                 id = r.json()['data'][0]['id']
-                self.cli.print(f'creating a clip ({id=})')
+                self.print(f'creating a clip ({id=})')
             except:
-                self.cli.print(r.content, TextColor.WHITE)
+                self.print_err(r.content)
 
     # def get_random_prediction_outcomes(self):
     #     PREDICTIONS_PATH = 'predictions/'
@@ -341,11 +356,11 @@ class Twitch():
     #     }
     #     data.update(self.get_random_prediction_outcomes())
     #     with self.session.post(url, data=json.dumps(data)) as r:
-    #         print(r.request.body)
+    #         self.print(r.request.body)
     #         try:
-    #             print(f"{r.json()}")
+    #             self.print(f"{r.json()}")
     #         except:
-    #             print(r.content, TextColor.WHITE)
+    #             self.print_err(r.content)
 
     def create_guest_star_session(self):
         url = 'https://api.twitch.tv/helix/guest_star/session'
@@ -357,7 +372,7 @@ class Twitch():
                 json_data = r.json()
                 return json_data['data'][0]['id']
             except:
-                self.cli.print(r.content, TextColor.WHITE)
+                self.print_err(r.content)
 
     def get_guest_star_session(self):
         url = 'https://api.twitch.tv/helix/guest_star/session'
@@ -372,14 +387,14 @@ class Twitch():
                     return self.create_guest_star_session()
                 return json_data['data'][0]['id']
             except:
-                self.cli.print(r.content, TextColor.WHITE)
+                self.print_err(r.content)
 
     def whisper(self, user_id, message):
         MIN_WHISPER_PERIOD = (60 * 40)  # 40 minutes
         current_time = utils.get_current_time()
         time_remaining = (self.last_whisper_time + MIN_WHISPER_PERIOD) - current_time
         if time_remaining > 0:
-            self.cli.print(f'too soon for another whisper ({time_remaining} seconds left)')
+            self.print(f'too soon for another whisper ({time_remaining} seconds left)')
             return True
 
         url = 'https://api.twitch.tv/helix/whispers'
@@ -404,7 +419,7 @@ class Twitch():
         user_id = stream_data['user_id']
         user_name = stream_data['user_name']
         viewer_count = stream_data['viewer_count']
-        self.cli.print(f'inviting {user_name} ({user_id=}, {viewer_count=})')
+        self.print(f'inviting {user_name} ({user_id=}, {viewer_count=})')
 
         url = 'https://api.twitch.tv/helix/guest_star/invites'
         params = {
@@ -425,7 +440,7 @@ class Twitch():
         while not self.whisper(rand_entry['user_id'], message) and retry_cnt < MAX_TRIES:
             rand_idx = random.randrange(len(data_entries))
             rand_entry = data_entries[rand_idx]
-            self.cli.print(f"{rand_entry['user_name']} doesn't want to be whispered")
+            self.print(f"{rand_entry['user_name']} doesn't want to be whispered")
             retry_cnt += 1
         if retry_cnt >= MAX_TRIES:
             return
@@ -436,23 +451,25 @@ class Twitch():
         current_time = utils.get_current_time()
         time_remaining = (self.last_shoutout_time + MIN_SHOUTOUT_PERIOD) - current_time
         if time_remaining > 0:
-            self.cli.print(f'next shoutout in {time_remaining} seconds')
+            self.print(f'next shoutout in {time_remaining} seconds')
             return
-
+        user_name = channel_info.user_name
+        if self.last_raided_channel == user_name:
+            return
         url = 'https://api.twitch.tv/helix/chat/shoutouts'
         params = {
             'from_broadcaster_id': self.broadcaster_id,
             'to_broadcaster_id': channel_info.user_id,
             'moderator_id': self.broadcaster_id,
         }
-        user_name = channel_info.user_name
         user_id = channel_info.user_id
         viewer_count = channel_info.viewer_count
         with self.session.post(url, params=params) as r:
             if r.status_code == 204:
-                self.cli.print(f'shouting out {user_name} ({user_id=}, {viewer_count=})')
+                self.print(f'shouting out {user_name} ({user_id=}, {viewer_count=})')
+                self.last_shouted_out_channel = user_name
             else:
-                self.cli.print(r.content, TextColor.WHITE)
+                self.print_err(r.content)
         self.last_shoutout_time = current_time
         fs.write('user_data/last_shoutout_time', str(self.last_shoutout_time))
         self.websockets.irc.send_random_compliment(channel_info.user_login)
@@ -462,7 +479,7 @@ class Twitch():
         current_time = utils.get_current_time()
         time_remaining = (self.last_announcement_time + MIN_ANNOUNCEMENT_PERIOD) - current_time
         if time_remaining > 0:
-            self.cli.print(f'next announcement in {time_remaining} seconds')
+            self.print(f'next announcement in {time_remaining} seconds')
             return
 
         COLORS = [
@@ -483,9 +500,9 @@ class Twitch():
         }
         with self.session.post(url, params=params, data=data) as r:
             if r.status_code == 204:
-                self.cli.print('making an announcement!')
+                self.print('making an announcement!')
             else:
-                self.cli.print(r.content, TextColor.WHITE)
+                self.print_err(r.content)
         self.last_announcement_time = current_time
         fs.write('user_data/last_announcement_time', str(self.last_announcement_time))
 
@@ -499,9 +516,9 @@ class Twitch():
         }
         with self.session.put(url, params=params) as r:
             if r.status_code == 200:
-                self.cli.print(f'changing channel description')
+                self.print(f'changing channel description')
             else:
-                self.cli.print(r.content, TextColor.WHITE)
+                self.print_err(r.content)
 
     def get_stream_scheduled_segments_page(self, cursor=None):
         url = 'https://api.twitch.tv/helix/schedule'
@@ -519,7 +536,7 @@ class Twitch():
             json_data = self.get_stream_scheduled_segments_page(cursor)
             cursor = json_data['pagination']['cursor']
             for entry in json_data['data']['segments']:
-                print(entry['start_time'])
+                self.print(entry['start_time'])
 
     def create_stream_schedule_segment(self):
         url = 'https://api.twitch.tv/helix/schedule/segment'
@@ -538,11 +555,11 @@ class Twitch():
         with self.session.post(url, params=params, data=data) as r:
             if r.status_code == 200:
                 self.scheduled_segments_counter += 1
-                self.cli.print(f'creating a stream schedule {duration} minute segment at {start_time} ({self.scheduled_segments_counter})')
+                self.print(f'creating a stream schedule {duration} minute segment at {start_time} ({self.scheduled_segments_counter})')
             elif r.status_code == 400 and r.json()['message'] == 'Segment cannot create overlapping segment':
                 self.delete_all_stream_schedule_segments()
             else:
-                self.cli.print(r.content, TextColor.WHITE)
+                self.print_err(r.content)
 
     def delete_stream_schedule_segment(self, id):
         url = 'https://api.twitch.tv/helix/schedule/segment'
@@ -552,12 +569,12 @@ class Twitch():
         }
         with self.session.delete(url, params=params) as r:
             if r.status_code not in [204, 404]:
-                self.cli.print(r.content, TextColor.WHITE)
+                self.print_err(r.content)
         return (r.status_code == 204)
 
     def delete_all_stream_schedule_segments(self):
         del_counter = 0
-        self.cli.print('deleting all scheduled stream segments...')
+        self.print('deleting all scheduled stream segments...')
         json_data = self.get_stream_scheduled_segments_page()
         cursor = json_data['pagination']['cursor']
         while cursor:
@@ -568,8 +585,8 @@ class Twitch():
                     cursor = ''
                     break
                 del_counter += 1
-            self.cli.print(f'deleted scheduled stream segments: {del_counter}/{self.scheduled_segments_counter}')
-        self.cli.print(f'deleted all scheduled stream segments!')
+            self.print(f'deleted scheduled stream segments: {del_counter}/{self.scheduled_segments_counter}')
+        self.print(f'deleted all scheduled stream segments!')
         self.scheduled_segments_counter = 0
 
     def create_eventsub_subscription(self, type: str, version: str, conditions: dict):
@@ -586,9 +603,9 @@ class Twitch():
         headers = self.session.headers
         with self.session.post(url, json=data) as r:
             if r.status_code == 202:
-                self.cli.print(f'subscribed to {type} events')
+                self.print(f'subscribed to {type} events')
             else:
-                self.cli.print(r.content)
+                self.print(r.content)
 
     def subscribe_to_follow_events(self):
         self.create_eventsub_subscription(

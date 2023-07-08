@@ -5,16 +5,22 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from colors import TextColor
 
 
-class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
-    cli = CLI()
+PRINT_TAG = 'SRV'
+cli = CLI()
 
+
+def print(text: str):
+    cli.print(f'[{PRINT_TAG}] {text}')
+
+
+class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
         try:
             if 'chat.mp3' in args[0]:
                 return
         except:
             pass
-        self.cli.print(args, TextColor.WHITE)
+        print(args, TextColor.WHITE)
 
 
 class HTTPServerThread(HTTPServer, threading.Thread):
@@ -25,11 +31,11 @@ class HTTPServerThread(HTTPServer, threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        self.cli.print('starting HTTP server...')
+        print('starting HTTP server...')
         self.serve_forever()
 
     def shutdown(self):
-        self.cli.print('stopping HTTP server')
+        print('stopping HTTP server...')
         super().shutdown()
 
 

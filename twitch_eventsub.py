@@ -8,6 +8,7 @@ from twitch_irc import TwitchIRC
 
 
 class TwitchEventSub(threading.Thread):
+    PRINT_TAG = 'EVT'
     cli = CLI()
     mutex = threading.Lock()
     keepalive_counter = 0
@@ -25,6 +26,15 @@ class TwitchEventSub(threading.Thread):
                                          on_close=self.on_close,
                                          on_open=self.on_open)
 
+    def print(self, text: str):
+        self.cli.print(f'[{self.PRINT_TAG}] {text}')
+
+    def print_rx(self, text: str):
+        self.cli.print(f'[{self.PRINT_TAG}] << {text}', TextColor.MAGENTA)
+
+    def print_err(self, text: str):
+        self.cli.print(f'[{self.PRINT_TAG}] {text}', TextColor.WHITE)
+
     def session_welcome_handler(self, message: dict):
         self.session_id = message['payload']['session']['id']
         EventWrapper().set()
@@ -35,14 +45,14 @@ class TwitchEventSub(threading.Thread):
         match(event_type):
             case 'channel.follow':
                 user_name = event_payload['user_name']
-                self.cli.print(f'received a follow from {user_name}')
+                self.print_rx(f'a follow from {user_name}!')
                 self.irc.send_thx_for_follow(user_name)
             case 'channel.shoutout.receive':
                 user_name = event_payload['from_broadcaster_user_name']
                 user_login = event_payload['from_broadcaster_user_login']
                 viewer_count = event_payload['viewer_count']
                 started_at = event_payload['started_at']
-                self.cli.print(f'received a shoutout from {user_name} ({viewer_count=})!')
+                self.print_rx(f'a shoutout from {user_name} ({viewer_count=})!')
                 self.irc.send_privmsg(
                     user_login,
                     f'THANKS FOR A SHOUTOUT AT {started_at}!\n'
@@ -50,9 +60,9 @@ class TwitchEventSub(threading.Thread):
                     'WHATS YOUR FAVORITE ANIME??? MINE IS NEO GENETICS EVENGALIST...'
                 )
             case 'channel.shoutout.create':
-                self.cli.print(f'created a shoutout notification')
+                self.print_rx(f'created a shoutout')
             case _:
-                self.cli.print(f'{message}')
+                self.print_rx(f'{message}')
 
 
     def on_message(self, ws, message: str):
@@ -62,23 +72,23 @@ class TwitchEventSub(threading.Thread):
             case 'session_keepalive':
                 # self.keepalive_counter += 1
                 # if (self.keepalive_counter % 30) == 0:
-                #     self.cli.print(f'EventSub is still alive')
+                #     self.print(f'EventSub is still alive')
                 pass
             case 'notification':
                 self.notification_handler(json_message)
             case 'session_welcome':
                 self.session_welcome_handler(json_message)
             case _:
-                self.cli.print(json_message, TextColor.WHITE)
+                self.print_err(json_message)
 
     def on_error(self, ws, error):
-        self.cli.print(f"Error occurred: {error}")
+        self.print_err(f"Error occurred: {error}")
 
     def on_close(self, ws, status_code, close_msg):
-        self.cli.print(f"WebSocket connection closed ({status_code}: {close_msg})")
+        self.print_err(f"WebSocket connection closed ({status_code}: {close_msg})")
 
     def on_open(self, ws):
-        self.cli.print("WebSocket connection opened")
+        self.print("WebSocket connection opened")
 
     def run(self):
         self.ws.run_forever()

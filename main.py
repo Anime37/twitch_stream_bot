@@ -4,9 +4,15 @@ import http_server_thread
 from time import sleep
 from twitch import Twitch
 
+PRINT_TAG = 'APP'
+cli = CLI()
+
+
+def print(text: str):
+    cli.print(f'[{PRINT_TAG}] {text}')
+
 
 def loop(twitch:Twitch):
-    cli = CLI()
     MIN_SLEEP_TIME = 10
     MAX_SLEEP_DELTA = 10
     while(True):
@@ -19,7 +25,7 @@ def loop(twitch:Twitch):
         twitch.create_stream_schedule_segment()
         twitch.create_clip()
         sleep_time = MIN_SLEEP_TIME + (random.random() * MAX_SLEEP_DELTA)
-        cli.print(f'sleeping for {sleep_time:.2f} seconds')
+        print(f'sleeping for {sleep_time:.2f} seconds')
         sleep(sleep_time)
 
 

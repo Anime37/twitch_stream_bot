@@ -1,7 +1,6 @@
 import fs
 import threading
 import utils
-from colors import TextColor
 from irc import *
 from time import time
 from tts import TTS
@@ -59,7 +58,7 @@ class TwitchIRC(IRC, threading.Thread):
         self.tts.save_to_file(priv_msg.content, 'chat.mp3')
 
     def handle_privmsg(self, priv_msg: PRIVMSG):
-        self.cli.print(f'#{priv_msg.sender}: {priv_msg.content}', TextColor.YELLOW)
+        self.print_rx(f'#{priv_msg.sender}: {priv_msg.content}')
         if (priv_msg.sender == self.channel) and priv_msg.content[0] != '!':
             return
         current_time = utils.get_current_time()
@@ -75,14 +74,15 @@ class TwitchIRC(IRC, threading.Thread):
         if 'PRIVMSG' in message:
             self.handle_privmsg(self.parse_privmsg(message))
         elif 'PING' in message:
-            self.cli.print('[IRC] Received PING, Sending PONG', TextColor.WHITE)
+            self.print_rx('PING')
+            self.print_tx('PONG')
             self.ws.send('PONG :tmi.twitch.tv')
         # elif 'ROOMSTATE' in message:
-        #     self.cli.print(f'[IRC] {message}', TextColor.WHITE)
+        #     self.print_rx(f'{message}')
         elif f':{self.channel}.tmi.twitch.tv 353' in message:
             self.send_privmsg(self.channel, 'connected')
         # else:
-        #     self.cli.print(f'[IRC] {message}', TextColor.WHITE)
+        #     self.print_rx(f'{message}')
 
     def on_open(self, ws):
         super().on_open(ws)
@@ -93,10 +93,8 @@ class TwitchIRC(IRC, threading.Thread):
         ws.send(f'JOIN #{self.channel}')
 
     def run(self):
-        self.cli.print('starting irc')
         self.ws.run_forever()
 
     def shutdown(self):
-        self.cli.print('stopping irc')
         self.ws.keep_running = False
         self.join()
