@@ -467,10 +467,10 @@ class Twitch():
         with self.session.post(url, params=params) as r:
             if r.status_code == 204:
                 self.print(f'shouting out {user_name} ({user_id=}, {viewer_count=})')
-                self.last_shouted_out_channel = user_name
             else:
                 self.print_err(r.content)
         self.last_shoutout_time = current_time
+        self.last_shouted_out_channel = user_name
         fs.write('user_data/last_shoutout_time', str(self.last_shoutout_time))
         self.websockets.irc.send_random_compliment(channel_info.user_login)
 
@@ -572,14 +572,21 @@ class Twitch():
                 self.print_err(r.content)
         return (r.status_code == 204)
 
+    def _get_cursor_from_json(self, json_data: dict):
+        try:
+            cursor = json_data['pagination']['cursor']
+        except:
+            cursor = ''
+        return cursor
+
     def delete_all_stream_schedule_segments(self):
         del_counter = 0
         self.print('deleting all scheduled stream segments...')
         json_data = self.get_stream_scheduled_segments_page()
-        cursor = json_data['pagination']['cursor']
+        cursor = self._get_cursor_from_json(json_data)
         while cursor:
             json_data = self.get_stream_scheduled_segments_page(cursor)
-            cursor = json_data['pagination']['cursor']
+            cursor = self._get_cursor_from_json(json_data)
             for entry in json_data['data']['segments']:
                 if not self.delete_stream_schedule_segment(entry['id']):
                     cursor = ''

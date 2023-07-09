@@ -20,7 +20,7 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
                 return
         except:
             pass
-        print(args, TextColor.WHITE)
+        print(args)
 
 
 class HTTPServerThread(HTTPServer, threading.Thread):

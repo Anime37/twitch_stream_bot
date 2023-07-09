@@ -73,27 +73,35 @@ class TwitchIRC(IRC, threading.Thread):
     def on_message(self, ws, message):
         if 'PRIVMSG' in message:
             self.handle_privmsg(self.parse_privmsg(message))
+        elif 'JOIN' in message:
+            channel = message.split('\n')[0].split('#')[1].strip()
+            self.print_rx(f'joined {channel}')
+            if channel == self.channel:
+                self.send_privmsg(self.channel, 'connected')
+            elif self.JOIN_CHANNELS:
+                self.join_event.set()
         elif 'PING' in message:
             self.print_rx('PING')
             self.print_tx('PONG')
-            self.ws.send('PONG :tmi.twitch.tv')
+            self._send('PONG :tmi.twitch.tv')
         # elif 'ROOMSTATE' in message:
         #     self.print_rx(f'{message}')
-        elif f':{self.channel}.tmi.twitch.tv 353' in message:
-            self.send_privmsg(self.channel, 'connected')
         # else:
         #     self.print_rx(f'{message}')
 
+    def authenticate(self):
+        token = fs.read('user_data/token_bot')
+        self._send('CAP REQ :twitch.tv/commands')
+        self._send(f'PASS oauth:{token}')
+        self._send(f'NICK {self.channel}')
+
     def on_open(self, ws):
         super().on_open(ws)
-        token = fs.read('user_data/token')
-        ws.send('CAP REQ :twitch.tv/commands')
-        ws.send(f'PASS oauth:{token}')
-        ws.send(f'NICK {self.channel}')
-        ws.send(f'JOIN #{self.channel}')
+        self.authenticate()
+        self.join_channel(self.channel)
 
     def run(self):
-        self.ws.run_forever()
+        self.ws.run_forever(reconnect=3)
 
     def shutdown(self):
         self.ws.keep_running = False

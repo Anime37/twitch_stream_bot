@@ -91,7 +91,7 @@ class TwitchEventSub(threading.Thread):
         self.print("WebSocket connection opened")
 
     def run(self):
-        self.ws.run_forever()
+        self.ws.run_forever(reconnect=3)
 
     def start(self):
         super().start()

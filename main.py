@@ -1,6 +1,7 @@
 import random
-from cli import CLI
+import threading
 import http_server_thread
+from cli import CLI
 from time import sleep
 from twitch import Twitch
 
@@ -12,10 +13,24 @@ def print(text: str):
     cli.print(f'[{PRINT_TAG}] {text}')
 
 
-def loop(twitch:Twitch):
+def start_twitch_threads(twitch: Twitch):
+    if not twitch.load_account_info():
+        return
+    twitch.get_token()
+    twitch.set_session_headers()
+    twitch.get_broadcaster_id()
+    twitch.start_websockets()
+    twitch.subscribe_to_follow_events()
+    twitch.subscribe_to_shoutout_received_events()
+    twitch.get_streams()
+    twitch_api_thread = threading.Thread(target=twitch_api_loop, args=(twitch,))
+    twitch_api_thread.start()
+
+
+def twitch_api_loop(twitch: Twitch):
     MIN_SLEEP_TIME = 10
     MAX_SLEEP_DELTA = 10
-    while(True):
+    while True:
         channel_info = twitch.get_stream_channel_info()
         twitch.modify_channel_info(channel_info, True)
         twitch.update_channel_description(twitch.account.USER_NAME, True)
@@ -29,21 +44,17 @@ def loop(twitch:Twitch):
         sleep(sleep_time)
 
 
+def chat_input(twitch: Twitch):
+    while True:
+        msg = input()
+        twitch.websockets.irc.send_chat(msg)
+
+
 def main():
     twitch = Twitch()
-    if not twitch.load_account_info():
-        return
-    twitch.get_token()
-    twitch.set_session_headers()
-    twitch.get_broadcaster_id()
-    twitch.start_websockets()
-    twitch.subscribe_to_follow_events()
-    twitch.subscribe_to_shoutout_received_events()
+    start_twitch_threads(twitch)
     http_server_thread.start()
-    # twitch.get_channel_stream_key()
-    # return
-    twitch.get_streams()
-    loop(twitch)
+    chat_input(twitch)
 
 
 if __name__ == '__main__':
