@@ -2,6 +2,7 @@ import random
 import threading
 import http_server_thread
 from cli import CLI
+from irc import PRIVMSG
 from time import sleep
 from twitch import Twitch
 
@@ -46,8 +47,15 @@ def twitch_api_loop(twitch: Twitch):
 
 def chat_input(twitch: Twitch):
     while True:
-        msg = input()
+        msg = cli.input(f'[{PRINT_TAG}] Enter message: ')
+        update_chat = (msg and (msg[0] == '!'))
         twitch.websockets.irc.send_chat(msg)
+        if update_chat:
+            twitch.websockets.irc.update_chat(PRIVMSG(
+                twitch.account.USER_NAME,
+                '', '', '',
+                msg
+            ))
 
 
 def main():

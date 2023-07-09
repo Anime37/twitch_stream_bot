@@ -1,3 +1,5 @@
+from time import sleep
+import msvcrt
 import threading
 import utils
 from colors import TextColor
@@ -25,14 +27,6 @@ class CLI():
         utils.clear_terminal()
         self.initialized = True
 
-    def print(self, text):
-        with self.mutex:
-            self.history.append(text)
-            if len(self.history) > self.HISTORY_LEN:
-                self.history = self.history[-self.HISTORY_LEN:]
-            for history_item in self.history:
-                print(history_item)
-
     def get_next_color(self):
         try:
             color = next(self.color_iter)
@@ -41,10 +35,16 @@ class CLI():
             color = next(self.color_iter)
         return color
 
-    # overrides
     def print(self, text, new_color=None):
         with self.mutex:
             if not new_color:
                 new_color = self.get_next_color()
             print(f'{new_color}{text}')
             self.last_color = new_color
+
+    def input(self, input_text=''):
+        while not msvcrt.kbhit():
+            sleep(0.1)
+        with self.mutex:
+            msg = input(input_text)
+        return msg

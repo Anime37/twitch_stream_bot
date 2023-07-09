@@ -1,6 +1,7 @@
 import dataclasses
 import os
 import random
+import threading
 import pyttsx3
 
 
@@ -15,6 +16,8 @@ class TTS():
 
     def __init__(self):
         self.engine = pyttsx3.init()
+        self.mutex = threading.Lock()
+
         self._init_voices()
 
     def _init_voices(self):
@@ -43,8 +46,9 @@ class TTS():
         self.engine.runAndWait()
 
     def save_to_file(self, text: str, output: str):
-        if os.path.exists(output):
-            os.remove(output)
-        self._set_rand_voice()
-        self.engine.save_to_file(text, output)
-        self.engine.runAndWait()
+        with self.mutex:
+            if os.path.exists(output):
+                os.remove(output)
+            self._set_rand_voice()
+            self.engine.save_to_file(text, output)
+            self.engine.runAndWait()
