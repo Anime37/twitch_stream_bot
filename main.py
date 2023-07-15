@@ -3,7 +3,7 @@ import threading
 import http_server_thread
 from cli import CLI
 from time import sleep
-from twitch_api import Twitch
+from twitch import TwitchAPP
 
 PRINT_TAG = 'APP'
 cli = CLI()
@@ -13,7 +13,7 @@ def print(text: str):
     cli.print(f'[{PRINT_TAG}] {text}')
 
 
-def start_twitch_threads(twitch: Twitch):
+def start_twitch_threads(twitch: TwitchAPP):
     if not twitch.load_account_info():
         return
     twitch.get_token()
@@ -28,7 +28,7 @@ def start_twitch_threads(twitch: Twitch):
     twitch_api_thread.start()
 
 
-def twitch_api_loop(twitch: Twitch):
+def twitch_api_loop(twitch: TwitchAPP):
     MIN_SLEEP_TIME = 10
     MAX_SLEEP_DELTA = 10
     while True:
@@ -45,7 +45,7 @@ def twitch_api_loop(twitch: Twitch):
         sleep(sleep_time)
 
 
-def chat_input(twitch: Twitch):
+def chat_input(twitch: TwitchAPP):
     user_name = twitch.account.USER_NAME
     while True:
         msg = cli.input(f'[{PRINT_TAG}] Enter message: ')
@@ -57,7 +57,7 @@ def chat_input(twitch: Twitch):
 
 
 def main():
-    twitch = Twitch()
+    twitch = TwitchAPP()
     start_twitch_threads(twitch)
     http_server_thread.start()
     chat_input(twitch)

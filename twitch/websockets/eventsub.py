@@ -1,10 +1,11 @@
+from .irc import TwitchIRC
+
 import json
 import threading
 import websocket
 from cli import CLI
 from colors import TextColor
 from events import EventWrapper
-from twitch_irc import TwitchIRC
 
 
 class TwitchEventSub(threading.Thread):

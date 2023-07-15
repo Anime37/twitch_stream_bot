@@ -1,9 +1,8 @@
-from .eventsub import TwitchEventSub
+from .api import TwitchAPI
+from .websockets import TwitchWebSockets
 
-from twitch_websockets import TwitchWebSockets
 
-
-class Twitch(TwitchEventSub):
+class TwitchAPP(TwitchAPI):
     def __init__(self):
         super().__init__()
 

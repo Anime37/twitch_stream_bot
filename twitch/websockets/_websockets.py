@@ -1,8 +1,9 @@
 import websocket
 from cli import CLI
+from .eventsub import TwitchEventSub
+from .irc import TwitchIRC
+
 from colors import TextColor
-from twitch_eventsub import TwitchEventSub
-from twitch_irc import TwitchIRC
 
 
 class TwitchWebSockets():

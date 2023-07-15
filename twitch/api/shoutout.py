@@ -1,5 +1,5 @@
-from twitch_api.channel_info import ChannelInfo
-from twitch_api.raid import TwitchRaid
+from .channel_info import ChannelInfo
+from .raid import TwitchRaid
 
 import fs
 import utils

@@ -1,8 +1,8 @@
+from .irc import *
+
 import fs
 import threading
 import utils
-from irc import *
-from time import time
 from tts import TTS
 
 

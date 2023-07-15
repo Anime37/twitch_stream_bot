@@ -1,17 +1,9 @@
-from dataclasses import dataclass
+from .priv_msg import PRIVMSG
+
 import websocket
 import re
-from cli import *
 import threading
-
-
-@dataclass
-class PRIVMSG():
-    sender: str
-    user: str
-    host: str
-    target: str
-    content: str
+from cli import *
 
 
 class IRC():
