@@ -2,9 +2,8 @@ import random
 import threading
 import http_server_thread
 from cli import CLI
-from irc import PRIVMSG
 from time import sleep
-from twitch import Twitch
+from twitch_api import Twitch
 
 PRINT_TAG = 'APP'
 cli = CLI()
