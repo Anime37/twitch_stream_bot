@@ -1082,12 +1082,12 @@
                         "locked": true,
                         "rot": 0.0,
                         "pos": {
-                            "x": 1196.0,
-                            "y": 705.0
+                            "x": 949.0,
+                            "y": 565.0
                         },
                         "scale": {
-                            "x": 0.26406249403953552,
-                            "y": 0.2638888955116272
+                            "x": 0.39270833134651184,
+                            "y": 0.39315447211265564
                         },
                         "align": 5,
                         "bounds_type": 0,
@@ -1190,7 +1190,7 @@
                 "id_counter": 0,
                 "items": [
                     {
-                        "name": "learningTXT",
+                        "name": "Chat",
                         "source_uuid": "e7474df3-1381-4f15-8618-96927f0e87c7",
                         "visible": true,
                         "locked": true,
@@ -1355,8 +1355,8 @@
             "push-to-talk": false,
             "push-to-talk-delay": 0,
             "hotkeys": {
-                "libobs.show_scene_item.learningTXT": [],
-                "libobs.hide_scene_item.learningTXT": [],
+                "libobs.show_scene_item.Chat": [],
+                "libobs.hide_scene_item.Chat": [],
                 "libobs.show_scene_item.Alerts": [],
                 "libobs.hide_scene_item.Alerts": [],
                 "libobs.show_scene_item.Guest": [],
@@ -1547,8 +1547,8 @@
             "settings": {
                 "id_counter": 0,
                 "custom_size": true,
-                "cx": 1934,
-                "cy": 1094,
+                "cx": 1940,
+                "cy": 1154,
                 "items": [
                     {
                         "name": "VSCodeTerminal",
@@ -1558,7 +1558,7 @@
                         "rot": 0.0,
                         "pos": {
                             "x": 0.0,
-                            "y": 0.0
+                            "y": 52.0
                         },
                         "scale": {
                             "x": 3.1851239204406738,
@@ -1596,7 +1596,7 @@
                         "rot": 0.0,
                         "pos": {
                             "x": 11.0,
-                            "y": 8.0
+                            "y": 60.0
                         },
                         "scale": {
                             "x": 1.4139705896377563,
@@ -1625,6 +1625,44 @@
                             "duration": 0
                         },
                         "private_settings": {}
+                    },
+                    {
+                        "name": "PowerShell",
+                        "source_uuid": "d2da483a-9479-445f-b421-b70bcaf0914f",
+                        "visible": true,
+                        "locked": true,
+                        "rot": 0.0,
+                        "pos": {
+                            "x": 11.0,
+                            "y": 0.0
+                        },
+                        "scale": {
+                            "x": 1.2284069061279297,
+                            "y": 1.2280701398849487
+                        },
+                        "align": 5,
+                        "bounds_type": 0,
+                        "bounds_align": 0,
+                        "bounds": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "crop_left": 0,
+                        "crop_top": 0,
+                        "crop_right": 0,
+                        "crop_bottom": 0,
+                        "id": 57,
+                        "group_item_backup": false,
+                        "scale_filter": "disable",
+                        "blend_method": "default",
+                        "blend_type": "normal",
+                        "show_transition": {
+                            "duration": 0
+                        },
+                        "hide_transition": {
+                            "duration": 0
+                        },
+                        "private_settings": {}
                     }
                 ]
             },
@@ -1642,10 +1680,10 @@
             "hotkeys": {
                 "libobs.show_scene_item.VSCodeTerminal": [],
                 "libobs.hide_scene_item.VSCodeTerminal": [],
-                "libobs.show_scene_item.VSCodeEditor": [],
-                "libobs.hide_scene_item.VSCodeEditor": [],
                 "libobs.show_scene_item.CmdPrompt": [],
-                "libobs.hide_scene_item.CmdPrompt": []
+                "libobs.hide_scene_item.CmdPrompt": [],
+                "libobs.show_scene_item.PowerShell": [],
+                "libobs.hide_scene_item.PowerShell": []
             },
             "deinterlace_mode": 0,
             "deinterlace_field_order": 0,
@@ -2245,18 +2283,129 @@
         },
         {
             "prev_ver": 486604803,
+            "name": "Chat",
+            "uuid": "e7474df3-1381-4f15-8618-96927f0e87c7",
+            "id": "text_gdiplus",
+            "versioned_id": "text_gdiplus_v2",
+            "settings": {
+                "chatlog": false,
+                "extents": true,
+                "gradient": false,
+                "read_from_file": true,
+                "text": "LEARNING ABOUT APIS\n    DONT BAN\n          THX",
+                "vertical": false,
+                "font": {
+                    "face": "Segoe UI Emoji",
+                    "flags": 0,
+                    "size": 256,
+                    "style": "Regular"
+                },
+                "color": 4294967295,
+                "opacity": 40,
+                "gradient_color": 4278255611,
+                "gradient_opacity": 73,
+                "gradient_dir": 100.2,
+                "bk_color": 4279769112,
+                "bk_opacity": 10,
+                "chatlog_lines": 3,
+                "extents_cx": 2400,
+                "extents_cy": 2803,
+                "transform": 0,
+                "file": "C:/_git/twitch/user_data/chat/chat.txt"
+            },
+            "mixers": 0,
+            "sync": 0,
+            "flags": 0,
+            "volume": 1.0,
+            "balance": 0.5,
+            "enabled": true,
+            "muted": false,
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "hotkeys": {},
+            "deinterlace_mode": 0,
+            "deinterlace_field_order": 0,
+            "monitoring_type": 0,
+            "private_settings": {},
+            "filters": [
+                {
+                    "prev_ver": 486604803,
+                    "name": "Scroll",
+                    "uuid": "b3b19491-f343-4f23-a34f-98afd898e586",
+                    "id": "scroll_filter",
+                    "versioned_id": "scroll_filter",
+                    "settings": {
+                        "limit_cx": false,
+                        "limit_cy": false,
+                        "speed_x": 0,
+                        "speed_y": -200,
+                        "cy": 1000
+                    },
+                    "mixers": 0,
+                    "sync": 0,
+                    "flags": 0,
+                    "volume": 1.0,
+                    "balance": 0.5,
+                    "enabled": true,
+                    "muted": false,
+                    "push-to-mute": false,
+                    "push-to-mute-delay": 0,
+                    "push-to-talk": false,
+                    "push-to-talk-delay": 0,
+                    "hotkeys": {},
+                    "deinterlace_mode": 0,
+                    "deinterlace_field_order": 0,
+                    "monitoring_type": 0,
+                    "private_settings": {}
+                },
+                {
+                    "prev_ver": 486604803,
+                    "name": "Image Mask/Blend",
+                    "uuid": "c73c3c9d-31ae-4665-8c54-b71dbb6173cc",
+                    "id": "mask_filter",
+                    "versioned_id": "mask_filter_v2",
+                    "settings": {
+                        "image_path": "C:/Users/benas/Desktop/pexels-codioful-(formerly-gradienta)-7135121.jpg",
+                        "stretch": true,
+                        "type": "blend_mul_filter.effect",
+                        "color": 4294967295,
+                        "opacity": 1
+                    },
+                    "mixers": 0,
+                    "sync": 0,
+                    "flags": 0,
+                    "volume": 1.0,
+                    "balance": 0.5,
+                    "enabled": true,
+                    "muted": false,
+                    "push-to-mute": false,
+                    "push-to-mute-delay": 0,
+                    "push-to-talk": false,
+                    "push-to-talk-delay": 0,
+                    "hotkeys": {},
+                    "deinterlace_mode": 0,
+                    "deinterlace_field_order": 0,
+                    "monitoring_type": 0,
+                    "private_settings": {}
+                }
+            ]
+        },
+        {
+            "prev_ver": 486604803,
             "name": "Chrome",
             "uuid": "9a161b9b-8a5d-453c-8ecc-1991de727624",
             "id": "wasapi_process_output_capture",
             "versioned_id": "wasapi_process_output_capture",
             "settings": {
-                "window": "again - YouTube Music - Google Chrome:Chrome_WidgetWin_1:chrome.exe",
+                "window": "Twitch - Google Chrome:Chrome_WidgetWin_1:chrome.exe",
                 "priority": 2
             },
             "mixers": 255,
             "sync": 0,
             "flags": 0,
-            "volume": 0.57384085655212402,
+            "volume": 0.69383794069290161,
             "balance": 0.5,
             "enabled": true,
             "muted": false,
@@ -2310,7 +2459,7 @@
             "versioned_id": "scene",
             "settings": {
                 "custom_size": false,
-                "id_counter": 55,
+                "id_counter": 57,
                 "items": [
                     {
                         "name": "TTS",
@@ -2543,6 +2692,44 @@
                         "private_settings": {}
                     },
                     {
+                        "name": "PowerShell",
+                        "source_uuid": "d2da483a-9479-445f-b421-b70bcaf0914f",
+                        "visible": true,
+                        "locked": true,
+                        "rot": 0.0,
+                        "pos": {
+                            "x": 0.0,
+                            "y": -60.0
+                        },
+                        "scale": {
+                            "x": 1.2284069061279297,
+                            "y": 1.2280701398849487
+                        },
+                        "align": 5,
+                        "bounds_type": 0,
+                        "bounds_align": 0,
+                        "bounds": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "crop_left": 0,
+                        "crop_top": 0,
+                        "crop_right": 0,
+                        "crop_bottom": 0,
+                        "id": 57,
+                        "group_item_backup": true,
+                        "scale_filter": "disable",
+                        "blend_method": "default",
+                        "blend_type": "normal",
+                        "show_transition": {
+                            "duration": 0
+                        },
+                        "hide_transition": {
+                            "duration": 0
+                        },
+                        "private_settings": {}
+                    },
+                    {
                         "name": "Terminal",
                         "source_uuid": "d2b1f3f2-853b-443e-bbc4-126b76213c73",
                         "visible": true,
@@ -2550,7 +2737,7 @@
                         "rot": 0.0,
                         "pos": {
                             "x": -11.0,
-                            "y": -8.0
+                            "y": -60.0
                         },
                         "scale": {
                             "x": 1.0,
@@ -2581,6 +2768,44 @@
                         "private_settings": {
                             "collapsed": true
                         }
+                    },
+                    {
+                        "name": "SubwaySurfers",
+                        "source_uuid": "7f31877b-8428-4687-9c35-62e86fddca43",
+                        "visible": true,
+                        "locked": false,
+                        "rot": 0.0,
+                        "pos": {
+                            "x": 1410.0,
+                            "y": 661.0
+                        },
+                        "scale": {
+                            "x": 0.328125,
+                            "y": 0.32734376192092896
+                        },
+                        "align": 5,
+                        "bounds_type": 0,
+                        "bounds_align": 0,
+                        "bounds": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "crop_left": 0,
+                        "crop_top": 0,
+                        "crop_right": 0,
+                        "crop_bottom": 0,
+                        "id": 56,
+                        "group_item_backup": false,
+                        "scale_filter": "disable",
+                        "blend_method": "default",
+                        "blend_type": "normal",
+                        "show_transition": {
+                            "duration": 0
+                        },
+                        "hide_transition": {
+                            "duration": 0
+                        },
+                        "private_settings": {}
                     },
                     {
                         "name": "VSCodeEditor",
@@ -2665,12 +2890,12 @@
                         "locked": true,
                         "rot": 0.0,
                         "pos": {
-                            "x": 1196.0,
-                            "y": 705.0
+                            "x": 949.0,
+                            "y": 565.0
                         },
                         "scale": {
-                            "x": 0.26406249403953552,
-                            "y": 0.2638888955116272
+                            "x": 0.39270833134651184,
+                            "y": 0.39315447211265564
                         },
                         "align": 5,
                         "bounds_type": 0,
@@ -2775,7 +3000,7 @@
                         }
                     },
                     {
-                        "name": "learningTXT",
+                        "name": "Chat",
                         "source_uuid": "e7474df3-1381-4f15-8618-96927f0e87c7",
                         "visible": true,
                         "locked": true,
@@ -3312,7 +3537,7 @@
                         "name": "gifs",
                         "source_uuid": "9ee260ef-dc1f-44e9-b216-5ab93466fb32",
                         "visible": true,
-                        "locked": false,
+                        "locked": true,
                         "rot": 0.0,
                         "pos": {
                             "x": 0.0,
@@ -3405,6 +3630,22 @@
                 "libobs.hide_scene_item.Audio": [],
                 "libobs.show_scene_item.Terminal": [],
                 "libobs.hide_scene_item.Terminal": [],
+                "libobs.show_scene_item.SubwaySurfers": [
+                    {
+                        "shift": true,
+                        "control": true,
+                        "key": "OBS_KEY_NUMMINUS"
+                    }
+                ],
+                "libobs.hide_scene_item.SubwaySurfers": [
+                    {
+                        "shift": true,
+                        "control": true,
+                        "key": "OBS_KEY_NUMPLUS"
+                    }
+                ],
+                "libobs.show_scene_item.VSCodeEditor": [],
+                "libobs.hide_scene_item.VSCodeEditor": [],
                 "libobs.show_scene_item.GameGroup": [
                     {
                         "shift": true,
@@ -3624,7 +3865,7 @@
             "versioned_id": "wasapi_process_output_capture",
             "settings": {
                 "priority": 2,
-                "window": "Sausage:UnityWndClass:Sausage.exe"
+                "window": "yuzu Early Access 3728 | The Legend of Zelda#3A Tears of the Kingdom (64-bit) | 1.1.2 | NVIDIA:Qt5152QWindowIcon:yuzu.exe"
             },
             "mixers": 255,
             "sync": 0,
@@ -3866,117 +4107,6 @@
         },
         {
             "prev_ver": 486604803,
-            "name": "learningTXT",
-            "uuid": "e7474df3-1381-4f15-8618-96927f0e87c7",
-            "id": "text_gdiplus",
-            "versioned_id": "text_gdiplus_v2",
-            "settings": {
-                "chatlog": false,
-                "extents": true,
-                "file": "C:/_git/twitch/chat.txt",
-                "gradient": false,
-                "read_from_file": true,
-                "text": "LEARNING ABOUT APIS\n    DONT BAN\n          THX",
-                "vertical": false,
-                "font": {
-                    "face": "Segoe UI Emoji",
-                    "flags": 0,
-                    "size": 256,
-                    "style": "Regular"
-                },
-                "color": 4294967295,
-                "opacity": 40,
-                "gradient_color": 4278255611,
-                "gradient_opacity": 73,
-                "gradient_dir": 100.2,
-                "bk_color": 4279769112,
-                "bk_opacity": 10,
-                "chatlog_lines": 3,
-                "extents_cx": 2400,
-                "extents_cy": 2803,
-                "transform": 0
-            },
-            "mixers": 0,
-            "sync": 0,
-            "flags": 0,
-            "volume": 1.0,
-            "balance": 0.5,
-            "enabled": true,
-            "muted": false,
-            "push-to-mute": false,
-            "push-to-mute-delay": 0,
-            "push-to-talk": false,
-            "push-to-talk-delay": 0,
-            "hotkeys": {},
-            "deinterlace_mode": 0,
-            "deinterlace_field_order": 0,
-            "monitoring_type": 0,
-            "private_settings": {},
-            "filters": [
-                {
-                    "prev_ver": 486604803,
-                    "name": "Scroll",
-                    "uuid": "b3b19491-f343-4f23-a34f-98afd898e586",
-                    "id": "scroll_filter",
-                    "versioned_id": "scroll_filter",
-                    "settings": {
-                        "limit_cx": false,
-                        "limit_cy": false,
-                        "speed_x": 0,
-                        "speed_y": -200,
-                        "cy": 1000
-                    },
-                    "mixers": 0,
-                    "sync": 0,
-                    "flags": 0,
-                    "volume": 1.0,
-                    "balance": 0.5,
-                    "enabled": true,
-                    "muted": false,
-                    "push-to-mute": false,
-                    "push-to-mute-delay": 0,
-                    "push-to-talk": false,
-                    "push-to-talk-delay": 0,
-                    "hotkeys": {},
-                    "deinterlace_mode": 0,
-                    "deinterlace_field_order": 0,
-                    "monitoring_type": 0,
-                    "private_settings": {}
-                },
-                {
-                    "prev_ver": 486604803,
-                    "name": "Image Mask/Blend",
-                    "uuid": "c73c3c9d-31ae-4665-8c54-b71dbb6173cc",
-                    "id": "mask_filter",
-                    "versioned_id": "mask_filter_v2",
-                    "settings": {
-                        "image_path": "C:/Users/benas/Desktop/pexels-codioful-(formerly-gradienta)-7135121.jpg",
-                        "stretch": true,
-                        "type": "blend_mul_filter.effect",
-                        "color": 4294967295,
-                        "opacity": 1
-                    },
-                    "mixers": 0,
-                    "sync": 0,
-                    "flags": 0,
-                    "volume": 1.0,
-                    "balance": 0.5,
-                    "enabled": true,
-                    "muted": false,
-                    "push-to-mute": false,
-                    "push-to-mute-delay": 0,
-                    "push-to-talk": false,
-                    "push-to-talk-delay": 0,
-                    "hotkeys": {},
-                    "deinterlace_mode": 0,
-                    "deinterlace_field_order": 0,
-                    "monitoring_type": 0,
-                    "private_settings": {}
-                }
-            ]
-        },
-        {
-            "prev_ver": 486604803,
             "name": "Music",
             "uuid": "977b19bf-675c-4282-970c-d53d5f6dc99c",
             "id": "ffmpeg_source",
@@ -4036,6 +4166,34 @@
             "private_settings": {
                 "volume_locked": false
             }
+        },
+        {
+            "prev_ver": 486604803,
+            "name": "PowerShell",
+            "uuid": "d2da483a-9479-445f-b421-b70bcaf0914f",
+            "id": "window_capture",
+            "versioned_id": "window_capture",
+            "settings": {
+                "window": "Windows PowerShell:CASCADIA_HOSTING_WINDOW_CLASS:WindowsTerminal.exe",
+                "priority": 2,
+                "method": 2
+            },
+            "mixers": 0,
+            "sync": 0,
+            "flags": 0,
+            "volume": 1.0,
+            "balance": 0.5,
+            "enabled": true,
+            "muted": false,
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "hotkeys": {},
+            "deinterlace_mode": 0,
+            "deinterlace_field_order": 0,
+            "monitoring_type": 0,
+            "private_settings": {}
         },
         {
             "prev_ver": 486604803,
@@ -4191,6 +4349,42 @@
                     "private_settings": {}
                 }
             ]
+        },
+        {
+            "prev_ver": 486604803,
+            "name": "SubwaySurfers",
+            "uuid": "7f31877b-8428-4687-9c35-62e86fddca43",
+            "id": "ffmpeg_source",
+            "versioned_id": "ffmpeg_source",
+            "settings": {
+                "local_file": "C:/_git/twitch/obs/subway_surfers.mp4",
+                "looping": true
+            },
+            "mixers": 255,
+            "sync": 0,
+            "flags": 0,
+            "volume": 0.080864608287811279,
+            "balance": 0.5,
+            "enabled": true,
+            "muted": false,
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "hotkeys": {
+                "libobs.mute": [],
+                "libobs.unmute": [],
+                "libobs.push-to-mute": [],
+                "libobs.push-to-talk": [],
+                "MediaSource.Restart": [],
+                "MediaSource.Play": [],
+                "MediaSource.Pause": [],
+                "MediaSource.Stop": []
+            },
+            "deinterlace_mode": 0,
+            "deinterlace_field_order": 0,
+            "monitoring_type": 0,
+            "private_settings": {}
         },
         {
             "prev_ver": 486604803,
