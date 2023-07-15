@@ -1,8 +1,9 @@
-from time import sleep
+from .colors import TextColor
+
 import msvcrt
 import threading
 import utils
-from colors import TextColor
+from time import sleep
 
 
 class CLI():

@@ -3,8 +3,7 @@ from .irc import TwitchIRC
 import json
 import threading
 import websocket
-from cli import CLI
-from colors import TextColor
+from cli import *
 from events import EventWrapper
 
 

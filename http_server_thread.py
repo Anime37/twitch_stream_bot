@@ -2,8 +2,6 @@ import threading
 from cli import CLI
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
-from colors import TextColor
-
 
 PRINT_TAG = 'SRV'
 cli = CLI()

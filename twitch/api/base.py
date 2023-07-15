@@ -1,10 +1,5 @@
-import dataclasses
-import json
-import os
-
 import requests
-from cli import CLI
-from colors import *
+from cli import *
 
 
 class TwitchBase():
