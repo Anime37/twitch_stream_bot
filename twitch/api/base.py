@@ -5,6 +5,8 @@ from cli import *
 class TwitchBase():
     PRINT_TAG = 'API'
     USER_DATA_PATH = 'user_data/'
+    MESSAGES_PATH = f'{USER_DATA_PATH}config/messages/'
+
 
     def __init__(self):
         self.cli = CLI()

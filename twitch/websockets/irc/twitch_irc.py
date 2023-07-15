@@ -9,6 +9,7 @@ from tts import TTS
 class TwitchIRC(IRC, threading.Thread):
     instance = None
 
+    MESSAGES_PATH = 'user_data/config/messages/'
     COMM_TMO = 5
     last_receive_time = 0
     last_send_time = 0
@@ -37,14 +38,14 @@ class TwitchIRC(IRC, threading.Thread):
             self.channel,
             self.threat_format.format(
                 priv_msg.sender,
-                utils.get_random_line('spam_threats.txt')
+                utils.get_random_line(f'{self.MESSAGES_PATH}spam_threats.txt')
             )
         )
 
     def send_random_compliment(self, channel):
         self.send_privmsg(
             channel,
-            utils.get_random_line('compliments.txt')
+            utils.get_random_line(f'{self.MESSAGES_PATH}compliments.txt')
         )
 
     def send_thx_for_follow(self, user_name):
@@ -53,8 +54,12 @@ class TwitchIRC(IRC, threading.Thread):
             f'@{user_name}, thanks for a follow!'
         )
 
+    def _save_chat_message(self, sender: str, msg: str):
+        OUTPUT_PATH = 'user_data/chat/chat.txt'
+        fs.write(OUTPUT_PATH, f'{sender}:\n{msg}')
+
     def update_chat(self, sender: str, msg: str):
-        fs.write('chat.txt', f'{sender}:\n{msg}')
+        self._save_chat_message(sender, msg)
         self.tts.save_to_file(msg, 'chat.mp3')
 
     def handle_privmsg(self, priv_msg: PRIVMSG):

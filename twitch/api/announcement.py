@@ -33,7 +33,7 @@ class TwitchAnnouncement(TwitchShoutout):
             'moderator_id': self.broadcaster_id,
         }
         data = {
-            'message': utils.get_random_line('announcements.txt'),
+            'message': utils.get_random_line(f'{self.MESSAGES_PATH}announcements.txt'),
             'color': random.choice(COLORS),
         }
         with self.session.post(url, params=params, data=data) as r:
