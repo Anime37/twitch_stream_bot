@@ -20,6 +20,7 @@ def start_twitch_threads(twitch: Twitch):
     twitch.get_token()
     twitch.set_session_headers()
     twitch.get_broadcaster_id()
+    twitch.delete_all_eventsub_subscriptions()
     twitch.start_websockets()
     twitch.subscribe_to_follow_events()
     twitch.subscribe_to_shoutout_received_events()
@@ -46,16 +47,14 @@ def twitch_api_loop(twitch: Twitch):
 
 
 def chat_input(twitch: Twitch):
+    user_name = twitch.account.USER_NAME
     while True:
         msg = cli.input(f'[{PRINT_TAG}] Enter message: ')
-        update_chat = (msg and (msg[0] == '!'))
-        twitch.websockets.irc.send_chat(msg)
+        update_chat = (msg and (msg[0] == '.'))
         if update_chat:
-            twitch.websockets.irc.update_chat(PRIVMSG(
-                twitch.account.USER_NAME,
-                '', '', '',
-                msg
-            ))
+            msg = msg[1:]
+            twitch.websockets.irc.update_chat(user_name, msg)
+        twitch.websockets.irc.send_chat(msg)
 
 
 def main():

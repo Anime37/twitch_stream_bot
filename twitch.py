@@ -586,8 +586,14 @@ class Twitch():
         cursor = self._get_cursor_from_json(json_data)
         while cursor:
             json_data = self.get_stream_scheduled_segments_page(cursor)
+            try:
+                data_entries = json_data['data']['segments']
+            except:
+                break
+            if self.scheduled_segments_counter == 0:
+                self.scheduled_segments_counter = 'x'
             cursor = self._get_cursor_from_json(json_data)
-            for entry in json_data['data']['segments']:
+            for entry in data_entries:
                 if not self.delete_stream_schedule_segment(entry['id']):
                     cursor = ''
                     break
@@ -595,6 +601,36 @@ class Twitch():
             self.print(f'deleted scheduled stream segments: {del_counter}/{self.scheduled_segments_counter}')
         self.print(f'deleted all scheduled stream segments!')
         self.scheduled_segments_counter = 0
+
+    def get_eventsub_subscriptions(self):
+        url = 'https://api.twitch.tv/helix/eventsub/subscriptions'
+        with self.session.get(url) as r:
+            if r.status_code != 200:
+                self.print_err(r.content)
+                return None
+        return r.json()
+
+    def delete_eventsub_subscription(self, id):
+        url = 'https://api.twitch.tv/helix/eventsub/subscriptions'
+        params = {
+            'id': id
+        }
+        with self.session.delete(url, params=params) as r:
+            is_success = (r.status_code == 204)
+            if not is_success:
+                self.print_err(r.content)
+        return is_success
+
+    def delete_all_eventsub_subscriptions(self):
+        subscriptions_json = self.get_eventsub_subscriptions()
+        if not subscriptions_json:
+            return
+        total = subscriptions_json['total']
+        del_counter = 0
+        self.print(f'deleting eventsub subscriptions: {del_counter}/{total}')
+        for entry in subscriptions_json['data']:
+            del_counter += self.delete_eventsub_subscription(entry['id'])
+        self.print(f'deleted eventsub subscriptions: {del_counter}/{total}')
 
     def create_eventsub_subscription(self, type: str, version: str, conditions: dict):
         url = 'https://api.twitch.tv/helix/eventsub/subscriptions'
@@ -611,8 +647,10 @@ class Twitch():
         with self.session.post(url, json=data) as r:
             if r.status_code == 202:
                 self.print(f'subscribed to {type} events')
+            # elif r.status_code == 429:
+            #     self.print(r.headers)
             else:
-                self.print(r.content)
+                self.print_err(r.content)
 
     def subscribe_to_follow_events(self):
         self.create_eventsub_subscription(

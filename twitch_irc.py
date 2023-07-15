@@ -53,9 +53,9 @@ class TwitchIRC(IRC, threading.Thread):
             f'@{user_name}, thanks for a follow!'
         )
 
-    def update_chat(self, priv_msg: PRIVMSG):
-        fs.write('chat.txt', f'{priv_msg.sender}:\n{priv_msg.content}')
-        self.tts.save_to_file(priv_msg.content, 'chat.mp3')
+    def update_chat(self, sender: str, msg: str):
+        fs.write('chat.txt', f'{sender}:\n{msg}')
+        self.tts.save_to_file(msg, 'chat.mp3')
 
     def handle_privmsg(self, priv_msg: PRIVMSG):
         self.print_rx(f'#{priv_msg.sender}: {priv_msg.content}')
@@ -68,7 +68,7 @@ class TwitchIRC(IRC, threading.Thread):
                 self.last_send_time = current_time
             return
         self.last_receive_time = current_time
-        self.update_chat(priv_msg)
+        self.update_chat(priv_msg.sender, priv_msg.content)
 
     def on_message(self, ws, message):
         if 'PRIVMSG' in message:
