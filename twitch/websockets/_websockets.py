@@ -31,6 +31,7 @@ class TwitchWebSockets():
         if debug:
             websocket.enableTrace(True)
         self.init_sockets(channel)
+        self.initialized = True
 
     def init_sockets(self, channel):
         self.irc = TwitchIRC(channel)

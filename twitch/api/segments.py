@@ -11,7 +11,7 @@ class TwitchSegments(TwitchAnnouncement):
     def __init__(self):
         super().__init__()
 
-    def get_stream_scheduled_segments_page(self, cursor=None):
+    def _get_stream_scheduled_segments_page(self, cursor=None):
         url = 'https://api.twitch.tv/helix/schedule'
         params = {
             'broadcaster_id': self.broadcaster_id,
@@ -21,10 +21,10 @@ class TwitchSegments(TwitchAnnouncement):
             return r.json()
 
     def get_all_stream_scheduled_segments(self):
-        json_data = self.get_stream_scheduled_segments_page()
+        json_data = self._get_stream_scheduled_segments_page()
         cursor = json_data['pagination']['cursor']
         while cursor:
-            json_data = self.get_stream_scheduled_segments_page(cursor)
+            json_data = self._get_stream_scheduled_segments_page(cursor)
             cursor = json_data['pagination']['cursor']
             for entry in json_data['data']['segments']:
                 self.print(entry['start_time'])
@@ -73,10 +73,10 @@ class TwitchSegments(TwitchAnnouncement):
     def delete_all_stream_schedule_segments(self):
         del_counter = 0
         self.print('deleting all scheduled stream segments...')
-        json_data = self.get_stream_scheduled_segments_page()
+        json_data = self._get_stream_scheduled_segments_page()
         cursor = self._get_cursor_from_json(json_data)
         while cursor:
-            json_data = self.get_stream_scheduled_segments_page(cursor)
+            json_data = self._get_stream_scheduled_segments_page(cursor)
             try:
                 data_entries = json_data['data']['segments']
             except:

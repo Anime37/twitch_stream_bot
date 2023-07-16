@@ -1,8 +1,9 @@
+import os
 import random
 import threading
-import http_server_thread
 from cli import CLI
 from time import sleep
+from tts import TTSServerThread
 from twitch import TwitchAPP
 
 PRINT_TAG = 'APP'
@@ -59,8 +60,13 @@ def chat_input(twitch: TwitchAPP):
 def main():
     twitch = TwitchAPP()
     start_twitch_threads(twitch)
-    http_server_thread.start()
-    chat_input(twitch)
+    TTSServerThread().start()
+    try:
+        chat_input(twitch)
+    except KeyboardInterrupt:
+        pass
+    print('Shutting down...')
+    os._exit(0)
 
 
 if __name__ == '__main__':

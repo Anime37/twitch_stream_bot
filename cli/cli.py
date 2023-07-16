@@ -8,6 +8,7 @@ from time import sleep
 
 class CLI():
     instance = None
+
     HISTORY_LEN = 10
     DEFAULT_COLORS = [
         TextColor.RED,
