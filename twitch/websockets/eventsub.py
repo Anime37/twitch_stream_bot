@@ -55,9 +55,7 @@ class TwitchEventSub(threading.Thread):
                 self.print_rx(f'a shoutout from {user_name} ({viewer_count=})!')
                 self.irc.send_privmsg(
                     user_login,
-                    f'THANKS FOR A SHOUTOUT AT {started_at}!\n'
-                    f'{viewer_count} VIEWERS??? VERY NICE!!!\n'
-                    'WHATS YOUR FAVORITE ANIME??? MINE IS NEO GENETICS EVENGALIST...'
+                    self.irc.tts.ai.generate_shoutout_thx()
                 )
             case 'channel.shoutout.create':
                 self.print_rx(f'created a shoutout')

@@ -51,7 +51,13 @@ class TwitchIRC(IRC, threading.Thread):
     def send_thx_for_follow(self, user_name):
         self.send_privmsg(
             self.channel,
-            f'@{user_name}, thanks for a follow!'
+            self.tts.ai.generate_follow_thx(user_name)
+        )
+
+    def send_thx_for_shoutout(self, channel):
+        self.send_privmsg(
+            channel,
+            self.tts.ai.generate_shoutout_thx(channel)
         )
 
     def _save_chat_message(self, sender: str, msg: str):
@@ -74,6 +80,8 @@ class TwitchIRC(IRC, threading.Thread):
             return
         self.last_receive_time = current_time
         self.update_chat(priv_msg.sender, priv_msg.content)
+        ai_response = self.tts.ai.get_response(priv_msg.sender, priv_msg.content)
+        self.send_chat(ai_response)
 
     def on_message(self, ws, message):
         if 'PRIVMSG' in message:

@@ -48,13 +48,17 @@ def twitch_api_loop(twitch: TwitchAPP):
 
 def chat_input(twitch: TwitchAPP):
     user_name = twitch.account.USER_NAME
+    irc = twitch.websockets.irc
     while True:
         msg = cli.input(f'[{PRINT_TAG}] Enter message: ')
         update_chat = (msg and (msg[0] == '.'))
         if update_chat:
             msg = msg[1:]
-            twitch.websockets.irc.update_chat(user_name, msg)
-        twitch.websockets.irc.send_chat(msg)
+        irc.send_chat(msg)
+        if update_chat:
+            irc.update_chat(user_name, msg)
+            ai_response = irc.tts.ai.get_response(user_name, msg)
+            irc.send_chat(ai_response)
 
 
 def main():

@@ -71,6 +71,8 @@ class IRC():
         self._send(f'PART #{channel}')
 
     def send_privmsg(self, channel, msg):
+        if not msg:
+            return
         with self.mutex:
             if (msg == self.last_privmsg):
                 return
