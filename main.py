@@ -36,8 +36,7 @@ def twitch_api_loop(twitch: TwitchAPP):
         channel_info = twitch.get_stream_channel_info()
         twitch.modify_channel_info(channel_info, True)
         twitch.update_channel_description(twitch.account.USER_NAME, True)
-        twitch.shoutout(channel_info)
-        twitch.raid_random()
+        twitch.shoutout(channel_info) or twitch.raid_random()
         twitch.send_announcement()
         twitch.create_stream_schedule_segment()
         twitch.create_clip()
@@ -57,7 +56,7 @@ def chat_input(twitch: TwitchAPP):
         irc.send_chat(msg)
         if update_chat:
             irc.update_chat(user_name, msg)
-            ai_response = irc.tts.ai.get_response(user_name, msg)
+            ai_response = irc.ai.get_response(user_name, msg)
             irc.send_chat(ai_response)
 
 

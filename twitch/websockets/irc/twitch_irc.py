@@ -3,6 +3,7 @@ from .irc import *
 import fs
 import threading
 import utils
+from chat_ai import ChatAI
 from tts import TTS
 
 
@@ -14,6 +15,8 @@ class TwitchIRC(IRC, threading.Thread):
     last_receive_time = 0
     last_send_time = 0
     threat_format = "{}, if you don't stop spamming, I will {}"
+    last_follow_thx_time = 0
+    followbot_counter = 0
 
     def __new__(cls, *args, **kwargs):
         if cls.instance is None:
@@ -27,6 +30,7 @@ class TwitchIRC(IRC, threading.Thread):
         IRC.__init__(self, channel, 'wss://irc-ws.chat.twitch.tv:443', debug)
         threading.Thread.__init__(self)
         self.init_tts()
+        self.ai = ChatAI()
         self.initialized = True
 
     def init_tts(self):
@@ -48,16 +52,44 @@ class TwitchIRC(IRC, threading.Thread):
             utils.get_random_line(f'{self.MESSAGES_PATH}compliments.txt')
         )
 
+    def _is_followbotting(self):
+        MIN_THX_PERIOD = (2)  # seconds
+        current_time = utils.get_current_time()
+        time_remaining = (self.last_follow_thx_time + MIN_THX_PERIOD) - current_time
+        is_followbotting = time_remaining > 0
+        if is_followbotting:
+            self.followbot_counter += 1
+        else:
+            self.last_follow_thx_time = current_time
+            self.followbot_counter = 0
+        return is_followbotting
+
+    def _followbotting_response(self, user_name):
+        FOLLOWBOT_DETECTION_COUNT = (5)
+        if self.followbot_counter == FOLLOWBOT_DETECTION_COUNT:
+            self.send_privmsg(
+                self.channel,
+                self.ai.generate_followbot_response(user_name)
+            )
+
+    def _handle_followbotting(self, user_name):
+        if not self._is_followbotting():
+            return False
+        self._followbotting_response(user_name)
+        return True
+
     def send_thx_for_follow(self, user_name):
+        if self._handle_followbotting(user_name):
+            return
         self.send_privmsg(
             self.channel,
-            self.tts.ai.generate_follow_thx(user_name)
+            self.ai.generate_follow_thx(user_name)
         )
 
-    def send_thx_for_shoutout(self, channel):
+    def send_thx_for_shoutout(self, user_login, user_name, viewer_count):
         self.send_privmsg(
-            channel,
-            self.tts.ai.generate_shoutout_thx(channel)
+            user_login,
+            self.ai.generate_shoutout_thx(user_name, viewer_count)
         )
 
     def _save_chat_message(self, sender: str, msg: str):
@@ -80,7 +112,7 @@ class TwitchIRC(IRC, threading.Thread):
             return
         self.last_receive_time = current_time
         self.update_chat(priv_msg.sender, priv_msg.content)
-        ai_response = self.tts.ai.get_response(priv_msg.sender, priv_msg.content)
+        ai_response = self.ai.get_response(priv_msg.sender, priv_msg.content)
         self.send_chat(ai_response)
 
     def on_message(self, ws, message):
@@ -103,7 +135,7 @@ class TwitchIRC(IRC, threading.Thread):
         #     self.print_rx(f'{message}')
 
     def authenticate(self):
-        token = fs.read('user_data/token_bot')
+        token = fs.read('user_data/token')
         self._send('CAP REQ :twitch.tv/commands')
         self._send(f'PASS oauth:{token}')
         self._send(f'NICK {self.channel}')

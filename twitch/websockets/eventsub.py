@@ -51,12 +51,8 @@ class TwitchEventSub(threading.Thread):
                 user_name = event_payload['from_broadcaster_user_name']
                 user_login = event_payload['from_broadcaster_user_login']
                 viewer_count = event_payload['viewer_count']
-                started_at = event_payload['started_at']
                 self.print_rx(f'a shoutout from {user_name} ({viewer_count=})!')
-                self.irc.send_privmsg(
-                    user_login,
-                    self.irc.tts.ai.generate_shoutout_thx()
-                )
+                self.irc.send_thx_for_shoutout(user_login, user_name, viewer_count)
             case 'channel.shoutout.create':
                 self.print_rx(f'created a shoutout')
             case _:

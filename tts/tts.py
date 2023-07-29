@@ -1,5 +1,3 @@
-from .chat_ai import ChatAI
-
 import dataclasses
 import os
 import random
@@ -20,7 +18,6 @@ class TTS():
     def __init__(self):
         self.engine = pyttsx3.init()
         self.mutex = threading.Lock()
-        self.ai = ChatAI()
         self._init_voices()
 
     def _init_voices(self):

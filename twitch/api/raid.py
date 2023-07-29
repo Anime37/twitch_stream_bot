@@ -30,7 +30,6 @@ class TwitchRaid(TwitchChannel):
             'to_broadcaster_id': user_id,
         }
         with self.session.post(url, params=params) as r:
-            # self.print_err(r.content)
             if r.status_code in [409]:
                 return True
             if r.status_code != 200:
@@ -47,7 +46,6 @@ class TwitchRaid(TwitchChannel):
 
     def raid_random(self):
         rand_channel_info: ChannelInfo
-
         MAX_TRIES = 3
         retry_cnt = -1 # first loop always fails
         raid_user_name = self.last_shouted_out_channel
@@ -57,5 +55,7 @@ class TwitchRaid(TwitchChannel):
             rand_channel_info = random.choice(self.channels)
             raid_user_name = rand_channel_info.user_name
             retry_cnt += 1
-        if retry_cnt >= MAX_TRIES:
+        is_success = (retry_cnt < MAX_TRIES)
+        if not is_success:
             self.print('No one wants to be raided.')
+        return is_success
