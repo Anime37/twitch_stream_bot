@@ -1,7 +1,6 @@
 import flask
 import threading
 from cli import CLI
-from events import EventWrapper
 from queue import Queue
 from urllib.parse import parse_qs
 from werkzeug.serving import make_server
@@ -32,7 +31,6 @@ class ServerThread(threading.Thread):
 
 @app.route('/')
 def index():
-    EventWrapper().set()
     return flask.render_template('index.html')
 
 
@@ -42,7 +40,6 @@ def process_hash():
     query_params = parse_qs(url_hash_str)
     url_hash = {key: value[0] for key, value in query_params.items()}
     server.queue.put(url_hash["access_token"])
-    EventWrapper().set()
     return ""
 
 

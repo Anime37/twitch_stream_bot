@@ -4,7 +4,7 @@ import json
 import threading
 import websocket
 from cli import *
-from events import EventWrapper
+from event_handler import EventHandler
 
 
 class TwitchEventSub(threading.Thread):
@@ -14,12 +14,15 @@ class TwitchEventSub(threading.Thread):
     keepalive_counter = 0
     # KEEPALIVE_FREQUENCY = 10 + 5 # seconds (documented + safety)
     # NO_KEEPALIVE_FAIL_AMOUNT = 5 # how many to miss before reconnecting
+    WELCOME_EVENT_NAME = 'evtsub_welcome'
 
     def __init__(self, debug=False):
         threading.Thread.__init__(self)
         if debug:
             websocket.enableTrace(True)
         self.irc = TwitchIRC()
+        self.event_handler = EventHandler()
+        self.welcome_event = self.event_handler.create_event(self.WELCOME_EVENT_NAME)
         self.ws = websocket.WebSocketApp("wss://eventsub.wss.twitch.tv/ws",
                                          on_message=self.on_message,
                                          on_error=self.on_error,
@@ -37,7 +40,7 @@ class TwitchEventSub(threading.Thread):
 
     def session_welcome_handler(self, message: dict):
         self.session_id = message['payload']['session']['id']
-        EventWrapper().set()
+        self.welcome_event.set()
 
     def notification_handler(self, message: dict):
         event_type = message['payload']['subscription']['type']
@@ -57,7 +60,6 @@ class TwitchEventSub(threading.Thread):
                 self.print_rx(f'created a shoutout')
             case _:
                 self.print_rx(f'{message}')
-
 
     def on_message(self, ws, message: str):
         json_message = json.loads(message)
@@ -87,6 +89,11 @@ class TwitchEventSub(threading.Thread):
     def run(self):
         self.ws.run_forever(reconnect=3)
 
+    def _wait_for_welcome(self):
+        self.welcome_event.wait()
+        self.event_handler.delete_event(self.WELCOME_EVENT_NAME)
+        del self.welcome_event
+
     def start(self):
         super().start()
-        EventWrapper().wait_and_clear()
+        self._wait_for_welcome()

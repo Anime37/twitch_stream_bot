@@ -4,7 +4,6 @@ import auth_server_thread
 import fs
 import utils
 import webbrowser
-from events import EventWrapper
 
 
 class TwitchOAuth(TwitchAccount):
@@ -34,15 +33,7 @@ class TwitchOAuth(TwitchAccount):
         super().__init__()
         self.SCOPES = ' '.join(self.SCOPES)
 
-    def get_token(self):
-        self.print('getting token')
-
-        # Try loading existing token
-        TOKEN_PATH = f'{self.USER_DATA_PATH}token'
-        self.token = fs.read(TOKEN_PATH)
-        if self.token:
-            return
-
+    def _request_token(self):
         url = 'https://id.twitch.tv/oauth2/authorize'
         params = {
             'response_type': 'token',
@@ -54,12 +45,19 @@ class TwitchOAuth(TwitchAccount):
         with self.session.get(url, params=params) as r:
             webbrowser.open(r.url)
         auth_server_thread.start()
-        EventWrapper().wait_and_clear()
-        EventWrapper().wait(5)
+        self.token = auth_server_thread.server.queue.get()
         auth_server_thread.stop()
-        if EventWrapper().is_set():
-            self.token = auth_server_thread.server.queue.get()
-            EventWrapper().clear()
+
+    def get_token(self):
+        self.print('getting token')
+
+        # Try loading existing token
+        TOKEN_PATH = f'{self.USER_DATA_PATH}token'
+        self.token = fs.read(TOKEN_PATH)
+        if self.token:
+            return
+        # Otherwise, request and store new token
+        self._request_token()
         fs.write(TOKEN_PATH, self.token)
 
     def get_broadcaster_id(self):
