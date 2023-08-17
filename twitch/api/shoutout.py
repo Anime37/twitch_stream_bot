@@ -1,11 +1,13 @@
 from .channel_info import ChannelInfo
 from .raid import TwitchRaid
+from ..websockets import TwitchWebSockets
 
 import fs
 import utils
 
 
 class TwitchShoutout(TwitchRaid):
+    websockets: TwitchWebSockets
     last_shoutout_time = 0
     last_shouted_out_channel = ''
 

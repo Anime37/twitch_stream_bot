@@ -8,15 +8,12 @@ from cli import *
 
 class IRC():
     PRINT_TAG = 'IRC'
-    JOIN_CHANNELS = False
 
     cli = CLI()
     mutex = threading.Lock()
     last_privmsg = ''
 
     def __init__(self, channel, url, debug=False):
-        if self.JOIN_CHANNELS:
-            self.join_event = threading.Event()
         if debug:
             websocket.enableTrace(True)
         self.ws = websocket.WebSocketApp(url,
@@ -63,9 +60,6 @@ class IRC():
 
     def join_channel(self, channel):
         self._send(f'JOIN #{channel}')
-        if self.JOIN_CHANNELS and (channel != self.channel):
-            self.join_event.wait(3)
-            self.join_event.clear()
 
     def part_channel(self, channel):
         self._send(f'PART #{channel}')
@@ -76,13 +70,8 @@ class IRC():
         with self.mutex:
             if (msg == self.last_privmsg):
                 return
-            join_channel = (self.JOIN_CHANNELS and (channel != self.channel))
-            if join_channel:
-                self.join_channel(channel)
             self.print_tx(f'PRIVMSG #{channel} :{msg}')
             self._send(f'PRIVMSG #{channel} :{msg}')
-            if join_channel:
-                self.part_channel(channel)
             self.last_privmsg = msg
 
     def send_chat(self, msg):

@@ -37,7 +37,7 @@ class CLI():
             color = next(self.color_iter)
         return color
 
-    def print(self, text, new_color=None):
+    def print(self, text='', new_color=None):
         with self.mutex:
             if not new_color:
                 new_color = self.get_next_color()

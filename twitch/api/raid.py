@@ -1,5 +1,6 @@
 from .channel import TwitchChannel
 from .channel_info import ChannelInfo
+from ..websockets import TwitchWebSockets
 
 import fs
 import random
@@ -7,6 +8,7 @@ import utils
 
 
 class TwitchRaid(TwitchChannel):
+    websockets: TwitchWebSockets
     last_raid_time = 0
     last_raided_channel = ''
 

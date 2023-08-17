@@ -18,7 +18,7 @@ class TwitchIRC(IRC, threading.Thread):
     last_follow_thx_time = 0
     followbot_counter = 0
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args):
         if cls.instance is None:
             cls.instance = super().__new__(cls)
             cls.instance.initialized = False
@@ -123,8 +123,6 @@ class TwitchIRC(IRC, threading.Thread):
             self.print_rx(f'joined {channel}')
             if channel == self.channel:
                 self.send_privmsg(self.channel, 'connected')
-            elif self.JOIN_CHANNELS:
-                self.join_event.set()
         elif 'PING' in message:
             self.print_rx('PING')
             self.print_tx('PONG')
