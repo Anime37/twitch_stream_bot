@@ -1,3 +1,4 @@
+from .commands.command_list import CommandList
 from .irc import *
 
 import fs
@@ -31,6 +32,7 @@ class TwitchIRC(IRC, threading.Thread):
         threading.Thread.__init__(self)
         self.init_tts()
         self.ai = ChatAI()
+        self.commands = CommandList()
         self.initialized = True
 
     def init_tts(self):
@@ -100,20 +102,36 @@ class TwitchIRC(IRC, threading.Thread):
         self._save_chat_message(sender, msg)
         self.tts.save_to_file(msg, 'chat.mp3')
 
-    def handle_privmsg(self, priv_msg: PRIVMSG):
-        self.print_rx(f'#{priv_msg.sender}: {priv_msg.content}')
-        if (priv_msg.sender == self.channel) and priv_msg.content[0] != '!':
+    def _handle_chat_message(self, priv_msg: PRIVMSG):
+        if (priv_msg.sender == self.channel) and priv_msg.content[0] != '.':
             return
+        self.update_chat(priv_msg.sender, priv_msg.content)
+        ai_response = self.ai.get_response(priv_msg.sender, priv_msg.content)
+        self.send_chat(ai_response)
+
+    def _handle_chat_command(self, priv_msg: PRIVMSG):
+        result = self.commands.execute(priv_msg.content[1:])
+        self.send_chat(f'@{priv_msg.sender}, {result}')
+
+    def _spam_handler(self, priv_msg: PRIVMSG) -> bool:
         current_time = utils.get_current_time()
         if (self.last_receive_time and ((self.last_receive_time + self.COMM_TMO) > current_time)):
             if ((self.last_send_time + self.COMM_TMO) < current_time):
                 self.send_random_threat(priv_msg)
                 self.last_send_time = current_time
-            return
+            return True
         self.last_receive_time = current_time
-        self.update_chat(priv_msg.sender, priv_msg.content)
-        ai_response = self.ai.get_response(priv_msg.sender, priv_msg.content)
-        self.send_chat(ai_response)
+        return False
+
+    def handle_privmsg(self, priv_msg: PRIVMSG):
+        self.print_rx(f'#{priv_msg.sender}: {priv_msg.content}')
+        if self._spam_handler(priv_msg):
+            return
+        match(priv_msg.content[0]):
+            case '!':
+                self._handle_chat_command(priv_msg)
+            case _:
+                self._handle_chat_message(priv_msg)
 
     def on_message(self, ws, message):
         if 'PRIVMSG' in message:
