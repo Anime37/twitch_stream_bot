@@ -1,173 +1,93 @@
 {
     "predictions": [
         {
-            "title": "The future of YouTube monetization",
+            "title": "YouTube Monetization",
             "outcomes": [
-                {
-                    "title": "Introduction of new revenue streams for creators"
-                },
-                {
-                    "title": "Expansion of advertising options and formats"
-                },
-                {
-                    "title": "Implementation of subscription-based models for exclusive content"
-                },
-                {
-                    "title": "Limited changes to YouTube's monetization model"
-                }
+                {"title": "New Revenue for Creators"},
+                {"title": "Ad Options & Formats"},
+                {"title": "Subscription Models"},
+                {"title": "Limited Monetization"}
             ]
         },
         {
-            "title": "The future of YouTube content discovery",
+            "title": "YouTube Content",
             "outcomes": [
-                {
-                    "title": "Improvement of personalized recommendation algorithms"
-                },
-                {
-                    "title": "Introduction of advanced search and filtering options"
-                },
-                {
-                    "title": "Integration of AI-powered content discovery features"
-                },
-                {
-                    "title": "Limited changes to YouTube's current content discovery mechanisms"
-                }
+                {"title": "Improved Algorithms"},
+                {"title": "Advanced Search"},
+                {"title": "AI Content Discovery"},
+                {"title": "Limited Content Evol."}
             ]
         },
         {
-            "title": "The future of YouTube live streaming",
+            "title": "YouTube Live Stream",
             "outcomes": [
-                {
-                    "title": "Enhancement of live streaming features and capabilities"
-                },
-                {
-                    "title": "Integration with virtual reality platforms for immersive streaming experiences"
-                },
-                {
-                    "title": "Expansion of live chat and interaction options"
-                },
-                {
-                    "title": "Limited changes to YouTube's current live streaming functionality"
-                }
+                {"title": "Stream Features Boost"},
+                {"title": "VR Streaming"},
+                {"title": "Live Chat Expansion"},
+                {"title": "Limited Stream Evol."}
             ]
         },
         {
-            "title": "The future of YouTube community and engagement",
+            "title": "YouTube Community",
             "outcomes": [
-                {
-                    "title": "Development of more interactive community features"
-                },
-                {
-                    "title": "Enhanced moderation tools to foster a positive community environment"
-                },
-                {
-                    "title": "Integration of social media-like engagement features"
-                },
-                {
-                    "title": "Limited changes to the structure and dynamics of YouTube communities"
-                }
+                {"title": "Interactive Features"},
+                {"title": "Better Moderation"},
+                {"title": "Social Engagement"},
+                {"title": "Limited Community Evol."}
             ]
         },
         {
-            "title": "The future of YouTube original content",
+            "title": "YouTube Originals",
             "outcomes": [
-                {
-                    "title": "Increased investment in original content production"
-                },
-                {
-                    "title": "Partnerships with major studios and production companies"
-                },
-                {
-                    "title": "Expansion of YouTube's original content library"
-                },
-                {
-                    "title": "Limited growth and changes to YouTube's original content offerings"
-                }
+                {"title": "Original Content Invest"},
+                {"title": "Major Studio Partners"},
+                {"title": "Content Library Growth"},
+                {"title": "Limited Originals Evol."}
             ]
         },
         {
-            "title": "The future of YouTube mobile experience",
+            "title": "YouTube Mobile",
             "outcomes": [
-                {
-                    "title": "Enhancement of YouTube's mobile app with new features and capabilities"
-                },
-                {
-                    "title": "Improved video streaming quality and stability on mobile devices"
-                },
-                {
-                    "title": "Integration with emerging mobile technologies like augmented reality"
-                },
-                {
-                    "title": "Limited changes to the current YouTube mobile experience"
-                }
+                {"title": "Mobile App Boost"},
+                {"title": "Mobile Stream Quality"},
+                {"title": "AR Integration"},
+                {"title": "Limited Mobile Evol."}
             ]
         },
         {
-            "title": "The future of YouTube advertising",
+            "title": "YouTube Advertising",
             "outcomes": [
-                {
-                    "title": "Introduction of new ad formats and targeting options"
-                },
-                {
-                    "title": "Enhancement of ad personalization and relevance"
-                },
-                {
-                    "title": "Integration of interactive and immersive ad experiences"
-                },
-                {
-                    "title": "Limited changes to YouTube's current advertising practices"
-                }
+                {"title": "New Ad Formats"},
+                {"title": "Ad Personalization"},
+                {"title": "Immersive Ads"},
+                {"title": "Limited Ad Evol."}
             ]
         },
         {
-            "title": "The future of YouTube analytics and data insights",
+            "title": "YouTube Analytics",
             "outcomes": [
-                {
-                    "title": "Expansion of analytics tools for creators and channel owners"
-                },
-                {
-                    "title": "Deeper insights into viewer demographics and engagement metrics"
-                },
-                {
-                    "title": "Integration of AI-powered data analysis and recommendations"
-                },
-                {
-                    "title": "Limited changes to YouTube's current analytics and data insights"
-                }
+                {"title": "Analytics Tool Boost"},
+                {"title": "Deeper Viewer Insights"},
+                {"title": "AI-Powered Analysis"},
+                {"title": "Limited Data Evol."}
             ]
         },
         {
-            "title": "The future of YouTube music and streaming",
+            "title": "YouTube Music",
             "outcomes": [
-                {
-                    "title": "Development of a dedicated music streaming platform"
-                },
-                {
-                    "title": "Expansion of YouTube's partnerships with music labels and artists"
-                },
-                {
-                    "title": "Integration of personalized music recommendations and playlists"
-                },
-                {
-                    "title": "Limited changes to YouTube's current music and streaming offerings"
-                }
+                {"title": "Dedicated Music Platform"},
+                {"title": "Music Label Partners"},
+                {"title": "Music Recommendations"},
+                {"title": "Limited Music Evol."}
             ]
         },
         {
-            "title": "The future of YouTube's interaction and engagement features",
+            "title": "YouTube Interaction",
             "outcomes": [
-                {
-                    "title": "Introduction of new interactive elements for viewer participation"
-                },
-                {
-                    "title": "Enhancement of comment features to facilitate better community engagement"
-                },
-                {
-                    "title": "Integration of virtual currency and rewards system for viewer interactions"
-                },
-                {
-                    "title": "Limited changes to the current interaction and engagement features"
-                }
+                {"title": "New Interactive Elements"},
+                {"title": "Comment Features Boost"},
+                {"title": "Virtual Currency"},
+                {"title": "Limited Interaction Evol."}
             ]
         }
     ]

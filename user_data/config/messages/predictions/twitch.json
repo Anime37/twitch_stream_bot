@@ -1,173 +1,93 @@
 {
     "predictions": [
         {
-            "title": "The future of Twitch monetization",
+            "title": "Twitch Monetization",
             "outcomes": [
-                {
-                    "title": "Introduction of new revenue streams for streamers"
-                },
-                {
-                    "title": "Implementation of microtransactions for viewer interactions"
-                },
-                {
-                    "title": "Expansion of Twitch's advertising platform"
-                },
-                {
-                    "title": "Limited changes to Twitch's monetization model"
-                }
+                {"title": "New Revenue Streams"},
+                {"title": "Microtransactions"},
+                {"title": "Ad Platform Growth"},
+                {"title": "Limited Monetization"}
             ]
         },
         {
-            "title": "The future of Twitch communities",
+            "title": "Twitch Communities",
             "outcomes": [
-                {
-                    "title": "Development of more specialized and niche communities"
-                },
-                {
-                    "title": "Enhanced moderation tools to foster a positive community environment"
-                },
-                {
-                    "title": "Integration of interactive features to encourage community engagement"
-                },
-                {
-                    "title": "Limited changes to the structure and dynamics of Twitch communities"
-                }
+                {"title": "Niche Communities"},
+                {"title": "Better Moderation"},
+                {"title": "Interactive Features"},
+                {"title": "Limited Community Evol."}
             ]
         },
         {
-            "title": "The future of Twitch integration with other platforms",
+            "title": "Twitch Integration",
             "outcomes": [
-                {
-                    "title": "Deeper integration with social media platforms for cross-platform engagement"
-                },
-                {
-                    "title": "Integration with virtual reality platforms for immersive streaming experiences"
-                },
-                {
-                    "title": "Partnerships with gaming consoles and devices for seamless streaming"
-                },
-                {
-                    "title": "Limited integration with external platforms beyond current capabilities"
-                }
+                {"title": "Social Media Link"},
+                {"title": "VR Streaming"},
+                {"title": "Game Console Links"},
+                {"title": "Limited Integration"}
             ]
         },
         {
-            "title": "The future of Twitch's content discovery",
+            "title": "Twitch Content",
             "outcomes": [
-                {
-                    "title": "Improvement of personalized recommendation algorithms"
-                },
-                {
-                    "title": "Introduction of advanced search and filtering options"
-                },
-                {
-                    "title": "Integration of AI-powered content discovery features"
-                },
-                {
-                    "title": "Limited changes to Twitch's current content discovery mechanisms"
-                }
+                {"title": "Improved Algorithms"},
+                {"title": "Advanced Search"},
+                {"title": "AI Content Discovery"},
+                {"title": "Limited Content Evol."}
             ]
         },
         {
-            "title": "The future of Twitch moderation",
+            "title": "Twitch Moderation",
             "outcomes": [
-                {
-                    "title": "Enhanced automated moderation tools powered by machine learning"
-                },
-                {
-                    "title": "Development of more robust reporting and enforcement systems"
-                },
-                {
-                    "title": "Collaboration with streamers and community to shape moderation policies"
-                },
-                {
-                    "title": "Limited changes to Twitch's current moderation practices"
-                }
+                {"title": "AI Moderation"},
+                {"title": "Robust Reporting"},
+                {"title": "Collab. Policies"},
+                {"title": "Limited Moderation Evol."}
             ]
         },
         {
-            "title": "The future of Twitch events and conventions",
+            "title": "Twitch Events",
             "outcomes": [
-                {
-                    "title": "Expansion of TwitchCon and other Twitch-hosted events globally"
-                },
-                {
-                    "title": "Virtualization of events for remote participation"
-                },
-                {
-                    "title": "Increased partnerships with gaming and pop culture conventions"
-                },
-                {
-                    "title": "Limited growth and changes to Twitch's event and convention presence"
-                }
+                {"title": "TwitchCon Expansion"},
+                {"title": "Virtual Events"},
+                {"title": "Gaming Convention Links"},
+                {"title": "Limited Event Growth"}
             ]
         },
         {
-            "title": "The future of Twitch mobile experience",
+            "title": "Twitch Mobile",
             "outcomes": [
-                {
-                    "title": "Enhancement of Twitch's mobile app with new features and capabilities"
-                },
-                {
-                    "title": "Improved streaming quality and stability on mobile devices"
-                },
-                {
-                    "title": "Integration with emerging mobile technologies like augmented reality"
-                },
-                {
-                    "title": "Limited changes to the current Twitch mobile experience"
-                }
+                {"title": "Mobile App Boost"},
+                {"title": "Improved Mobile Stream"},
+                {"title": "AR Integration"},
+                {"title": "Limited Mobile Evol."}
             ]
         },
         {
-            "title": "The future of Twitch's interaction and engagement features",
+            "title": "Twitch Engagement",
             "outcomes": [
-                {
-                    "title": "Introduction of new interactive elements for viewer participation"
-                },
-                {
-                    "title": "Enhancement of chat features to facilitate better community engagement"
-                },
-                {
-                    "title": "Integration of virtual currency and rewards system for viewer interactions"
-                },
-                {
-                    "title": "Limited changes to the current interaction and engagement features"
-                }
+                {"title": "Interactive Elements"},
+                {"title": "Chat Feature Boost"},
+                {"title": "Virtual Currency"},
+                {"title": "Limited Engagement Evol."}
             ]
         },
         {
-            "title": "The future of Twitch's esports and competitive gaming",
+            "title": "Twitch Esports",
             "outcomes": [
-                {
-                    "title": "Increased investment in Twitch's esports ecosystem"
-                },
-                {
-                    "title": "Expansion of Twitch's partnerships with major esports organizations"
-                },
-                {
-                    "title": "Introduction of new tools and features for competitive gaming on Twitch"
-                },
-                {
-                    "title": "Limited changes to Twitch's current esports and competitive gaming landscape"
-                }
+                {"title": "Esports Investment"},
+                {"title": "Major Esports Links"},
+                {"title": "Gaming Tool Intro."},
+                {"title": "Limited Esports Evol."}
             ]
         },
         {
-            "title": "The future of Twitch's streaming technology",
+            "title": "Twitch Streaming",
             "outcomes": [
-                {
-                    "title": "Improvement of streaming quality and stability with new technologies"
-                },
-                {
-                    "title": "Integration of higher resolution and frame rate streaming options"
-                },
-                {
-                    "title": "Exploration of new streaming formats like 360-degree and VR streaming"
-                },
-                {
-                    "title": "Limited changes to Twitch's current streaming technology"
-                }
+                {"title": "Quality & Stability"},
+                {"title": "High-res Streams"},
+                {"title": "360 & VR Streams"},
+                {"title": "Limited Stream Evol."}
             ]
         }
     ]

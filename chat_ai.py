@@ -26,7 +26,7 @@ class ChatAI():
         openai.api_key = fs.read('user_data/openai_apikey')
         openai.organization = "org-WYxlMO9eJAwqVXE47qAZEQVV"
 
-    def _generate_response(self, user_name, content, logging=True) -> str:
+    def _generate_response(self, user_name, content, logging=False) -> str:
         output: str
         message = [{"role": "user", "content": f'{user_name}:{content}'}]
         try:

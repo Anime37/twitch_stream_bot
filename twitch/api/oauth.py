@@ -28,8 +28,8 @@ class TwitchOAuth(TwitchAccount):
         'user:edit',
         'user:manage:whispers',
         # need affiliate
-        # 'channel:manage:predictions',
-        # 'channel:manage:polls'
+        'channel:manage:predictions',
+        'channel:manage:polls'
     ]
     token = None
     broadcaster_id = None

@@ -1,241 +1,129 @@
 {
     "predictions": [
         {
-            "title": "AI will significantly impact job market",
+            "title": "AI's Job Market Impact",
             "outcomes": [
-                {
-                    "title": "Creating new job opportunities"
-                },
-                {
-                    "title": "Displacing certain job roles"
-                },
-                {
-                    "title": "Transforming job tasks and responsibilities"
-                },
-                {
-                    "title": "No significant impact on the job market"
-                }
+                {"title": "New Job Creation"},
+                {"title": "Job Role Displacement"},
+                {"title": "Job Task Shift"},
+                {"title": "No Job Market Impact"}
             ]
         },
         {
-            "title": "AI will enhance healthcare",
+            "title": "AI in Healthcare",
             "outcomes": [
-                {
-                    "title": "Improving diagnosis and treatment accuracy"
-                },
-                {
-                    "title": "Enabling personalized medicine and treatments"
-                },
-                {
-                    "title": "Automating administrative tasks to improve efficiency"
-                },
-                {
-                    "title": "Limited impact on healthcare industry"
-                }
+                {"title": "Improved Diagnostics"},
+                {"title": "Personalized Med."},
+                {"title": "Admin Task Automation"},
+                {"title": "Limited Health Impact"}
             ]
         },
         {
-            "title": "AI will revolutionize transportation",
+            "title": "AI in Transportation",
             "outcomes": [
-                {
-                    "title": "Advancing autonomous vehicles and self-driving cars"
-                },
-                {
-                    "title": "Enhancing traffic management and reducing congestion"
-                },
-                {
-                    "title": "Transforming logistics and supply chain operations"
-                },
-                {
-                    "title": "Minimal impact on transportation sector"
-                }
+                {"title": "Autonomous Vehicles"},
+                {"title": "Traffic Management"},
+                {"title": "Logistics Shift"},
+                {"title": "Minor Transport Impact"}
             ]
         },
         {
-            "title": "AI will transform customer service",
+            "title": "AI in Cust. Service",
             "outcomes": [
-                {
-                    "title": "Enabling chatbots and virtual assistants for improved support"
-                },
-                {
-                    "title": "Enhancing personalized customer experiences"
-                },
-                {
-                    "title": "Automating routine customer interactions"
-                },
-                {
-                    "title": "Limited impact on customer service industry"
-                }
+                {"title": "Chatbots & Assistants"},
+                {"title": "Personalized Service"},
+                {"title": "Routine Automation"},
+                {"title": "Minor Service Impact"}
             ]
         },
         {
-            "title": "AI will revolutionize education",
+            "title": "AI & Education",
             "outcomes": [
-                {
-                    "title": "Personalizing learning experiences for students"
-                },
-                {
-                    "title": "Enhancing educational content creation and delivery"
-                },
-                {
-                    "title": "Enabling adaptive assessment and feedback systems"
-                },
-                {
-                    "title": "Minimal impact on the education sector"
-                }
+                {"title": "Personalized Learning"},
+                {"title": "Content Enhancement"},
+                {"title": "Adaptive Feedback"},
+                {"title": "Minor Edu. Impact"}
             ]
         },
         {
-            "title": "AI will impact cybersecurity",
+            "title": "AI & Cybersecurity",
             "outcomes": [
-                {
-                    "title": "Enhancing threat detection and prevention"
-                },
-                {
-                    "title": "Enabling proactive defense against cyber attacks"
-                },
-                {
-                    "title": "Increasing vulnerability to new AI-powered attacks"
-                },
-                {
-                    "title": "Limited impact on cybersecurity landscape"
-                }
+                {"title": "Enhanced Detection"},
+                {"title": "Proactive Defense"},
+                {"title": "AI Attack Vulnerability"},
+                {"title": "Minor Cyber Impact"}
             ]
         },
         {
-            "title": "AI will revolutionize agriculture",
+            "title": "AI in Agriculture",
             "outcomes": [
-                {
-                    "title": "Optimizing crop yield and resource management"
-                },
-                {
-                    "title": "Enhancing pest and disease detection in crops"
-                },
-                {
-                    "title": "Enabling precision farming and automated machinery"
-                },
-                {
-                    "title": "Minimal impact on the agriculture industry"
-                }
+                {"title": "Optimized Crop Yield"},
+                {"title": "Pest & Disease Detect."},
+                {"title": "Precision Farming"},
+                {"title": "Minor Agri. Impact"}
             ]
         },
         {
-            "title": "AI will influence creative fields",
+            "title": "AI in Creativity",
             "outcomes": [
-                {
-                    "title": "Enhancing content creation and artistic expression"
-                },
-                {
-                    "title": "Enabling AI-generated music, art, and literature"
-                },
-                {
-                    "title": "Transforming the role of human creativity in creative fields"
-                },
-                {
-                    "title": "Limited impact on creative industries"
-                }
+                {"title": "Content Creation"},
+                {"title": "AI-generated Art"},
+                {"title": "Human Role Shift"},
+                {"title": "Minor Creative Impact"}
             ]
         },
         {
-            "title": "AI will impact social interactions",
+            "title": "AI & Social Interact.",
             "outcomes": [
-                {
-                    "title": "Shaping online social platforms and communication"
-                },
-                {
-                    "title": "Influencing human behavior and social dynamics"
-                },
-                {
-                    "title": "Automating social interactions and relationships"
-                },
-                {
-                    "title": "Minimal impact on social interactions"
-                }
+                {"title": "Online Platform Shift"},
+                {"title": "Behavior Influence"},
+                {"title": "Social Automation"},
+                {"title": "Minor Social Impact"}
             ]
         },
         {
-            "title": "AI will transform financial services",
+            "title": "AI in Finance",
             "outcomes": [
-                {
-                    "title": "Improving fraud detection and risk assessment"
-                },
-                {
-                    "title": "Enabling personalized financial advice and wealth management"
-                },
-                {
-                    "title": "Automating financial processes and transactions"
-                },
-                {
-                    "title": "Limited impact on the financial services industry"
-                }
+                {"title": "Fraud & Risk Management"},
+                {"title": "Personalized Advice"},
+                {"title": "Financial Automation"},
+                {"title": "Minor Finance Impact"}
             ]
         },
         {
-            "title": "AI will revolutionize manufacturing",
+            "title": "AI & Manufacturing",
             "outcomes": [
-                {
-                    "title": "Advancing robotics and automation in production lines"
-                },
-                {
-                    "title": "Enhancing quality control and defect detection"
-                },
-                {
-                    "title": "Enabling flexible and adaptive manufacturing systems"
-                },
-                {
-                    "title": "Minimal impact on the manufacturing sector"
-                }
+                {"title": "Robotic Production"},
+                {"title": "Quality Control"},
+                {"title": "Flexible Manufacturing"},
+                {"title": "Minor Manuf. Impact"}
             ]
         },
         {
-            "title": "AI will impact ethics and privacy",
+            "title": "AI, Ethics & Privacy",
             "outcomes": [
-                {
-                    "title": "Raising concerns about AI bias and fairness"
-                },
-                {
-                    "title": "Challenging privacy rights and data protection"
-                },
-                {
-                    "title": "Shaping ethical guidelines and regulations for AI use"
-                },
-                {
-                    "title": "Limited impact on ethics and privacy discussions"
-                }
+                {"title": "AI Bias Concern"},
+                {"title": "Privacy Challenges"},
+                {"title": "AI Ethical Guidelines"},
+                {"title": "Minor Ethics Impact"}
             ]
         },
         {
-            "title": "AI will transform energy and sustainability",
+            "title": "AI in Energy",
             "outcomes": [
-                {
-                    "title": "Optimizing energy consumption and efficiency"
-                },
-                {
-                    "title": "Enabling smart grid systems and renewable energy management"
-                },
-                {
-                    "title": "Supporting climate change modeling and prediction"
-                },
-                {
-                    "title": "Minimal impact on energy and sustainability efforts"
-                }
+                {"title": "Energy Optimization"},
+                {"title": "Smart Grid Systems"},
+                {"title": "Climate Predictions"},
+                {"title": "Minor Energy Impact"}
             ]
         },
         {
-            "title": "AI will revolutionize research and development",
+            "title": "AI in R&D",
             "outcomes": [
-                {
-                    "title": "Accelerating scientific discoveries and breakthroughs"
-                },
-                {
-                    "title": "Enabling AI-driven drug discovery and development"
-                },
-                {
-                    "title": "Enhancing data analysis and pattern recognition in research"
-                },
-                {
-                    "title": "Limited impact on research and development practices"
-                }
+                {"title": "Scientific Breakthroughs"},
+                {"title": "AI-Driven Drug Dev."},
+                {"title": "Enhanced Data Analysis"},
+                {"title": "Minor R&D Impact"}
             ]
         }
     ]

@@ -1,173 +1,93 @@
 {
     "predictions": [
         {
-            "title": "The future of transportation",
+            "title": "Transport Future",
             "outcomes": [
-                {
-                    "title": "Widespread adoption of electric vehicles"
-                },
-                {
-                    "title": "Development of hyperloop transportation systems"
-                },
-                {
-                    "title": "Increased use of drones for delivery services"
-                },
-                {
-                    "title": "Advancements in autonomous flying cars"
-                }
+                {"title": "Electric Vehicles Rise"},
+                {"title": "Hyperloop Systems"},
+                {"title": "Drones for Delivery"},
+                {"title": "Autonomous Flying Cars"}
             ]
         },
         {
-            "title": "The future of space exploration",
+            "title": "Space Exploration",
             "outcomes": [
-                {
-                    "title": "Establishment of permanent human settlements on Mars"
-                },
-                {
-                    "title": "Discovery of extraterrestrial life"
-                },
-                {
-                    "title": "Mining resources from asteroids"
-                },
-                {
-                    "title": "Advancements in interstellar travel"
-                }
+                {"title": "Settlements on Mars"},
+                {"title": "Alien Life Discovery"},
+                {"title": "Asteroid Mining"},
+                {"title": "Interstellar Travel"}
             ]
         },
         {
-            "title": "The future of renewable energy",
+            "title": "Renewable Energy",
             "outcomes": [
-                {
-                    "title": "Massive expansion of solar power generation"
-                },
-                {
-                    "title": "Breakthroughs in fusion energy technology"
-                },
-                {
-                    "title": "Increased use of wind turbines for clean energy"
-                },
-                {
-                    "title": "Development of efficient energy storage systems"
-                }
+                {"title": "Solar Power Boost"},
+                {"title": "Fusion Energy Tech"},
+                {"title": "Wind Turbines Rise"},
+                {"title": "Energy Storage Dev."}
             ]
         },
         {
-            "title": "The future of healthcare technology",
+            "title": "Healthcare Tech",
             "outcomes": [
-                {
-                    "title": "Wide implementation of telemedicine and remote healthcare"
-                },
-                {
-                    "title": "Advancements in personalized medicine based on genetic profiling"
-                },
-                {
-                    "title": "Development of nanorobots for targeted drug delivery"
-                },
-                {
-                    "title": "Integration of AI in disease diagnosis and treatment"
-                }
+                {"title": "Telemedicine Rise"},
+                {"title": "Genetic-based Med."},
+                {"title": "Nanorobots in Med."},
+                {"title": "AI in Diagnosis"}
             ]
         },
         {
-            "title": "The future of education",
+            "title": "Education Future",
             "outcomes": [
-                {
-                    "title": "Shift towards online learning and remote education"
-                },
-                {
-                    "title": "Integration of virtual reality for immersive learning experiences"
-                },
-                {
-                    "title": "Personalized adaptive learning platforms for students"
-                },
-                {
-                    "title": "Increased emphasis on STEAM education (Science, Technology, Engineering, Arts, Mathematics)"
-                }
+                {"title": "Online Learning Boost"},
+                {"title": "VR in Learning"},
+                {"title": "Adaptive Learning"},
+                {"title": "Focus on STEAM Edu."}
             ]
         },
         {
-            "title": "The future of work",
+            "title": "Work's Future",
             "outcomes": [
-                {
-                    "title": "Rise of the gig economy and freelance work"
-                },
-                {
-                    "title": "Automation of repetitive tasks in various industries"
-                },
-                {
-                    "title": "Increased focus on remote work and flexible work arrangements"
-                },
-                {
-                    "title": "Creation of new jobs in emerging fields like cybersecurity and data science"
-                }
+                {"title": "Gig Economy Rise"},
+                {"title": "Task Automation"},
+                {"title": "Focus on Remote Work"},
+                {"title": "Jobs in Cyber & Data"}
             ]
         },
         {
-            "title": "The future of communication",
+            "title": "Communication",
             "outcomes": [
-                {
-                    "title": "Advancements in holographic telepresence for realistic virtual meetings"
-                },
-                {
-                    "title": "Development of ultra-fast 5G and 6G networks for seamless connectivity"
-                },
-                {
-                    "title": "Integration of AI-powered language translation in real-time communication"
-                },
-                {
-                    "title": "Enhanced privacy and security in communication technologies"
-                }
+                {"title": "Holographic Meetings"},
+                {"title": "5G & 6G Networks"},
+                {"title": "AI in Translation"},
+                {"title": "Comm. Privacy & Sec."}
             ]
         },
         {
-            "title": "The future of food technology",
+            "title": "Food Tech Future",
             "outcomes": [
-                {
-                    "title": "Growth of lab-grown meat and plant-based alternatives"
-                },
-                {
-                    "title": "Advancements in vertical farming and urban agriculture"
-                },
-                {
-                    "title": "Application of AI and automation in food production and processing"
-                },
-                {
-                    "title": "Development of personalized nutrition based on individual DNA"
-                }
+                {"title": "Lab-grown Meat Rise"},
+                {"title": "Vertical Farming"},
+                {"title": "AI in Food Production"},
+                {"title": "DNA-based Nutrition"}
             ]
         },
         {
-            "title": "The future of entertainment",
+            "title": "Entertainment",
             "outcomes": [
-                {
-                    "title": "Rise of virtual reality experiences in gaming and entertainment"
-                },
-                {
-                    "title": "Development of AI-generated movies and TV shows"
-                },
-                {
-                    "title": "Integration of augmented reality in live performances and events"
-                },
-                {
-                    "title": "Enhanced interactive and immersive experiences for audiences"
-                }
+                {"title": "VR in Gaming"},
+                {"title": "AI-generated Movies"},
+                {"title": "AR in Live Events"},
+                {"title": "Immersive Audience Exp."}
             ]
         },
         {
-            "title": "The future of sustainable cities",
+            "title": "Sustainable Cities",
             "outcomes": [
-                {
-                    "title": "Implementation of smart city technologies for efficient resource management"
-                },
-                {
-                    "title": "Increased use of renewable energy sources in urban areas"
-                },
-                {
-                    "title": "Development of green infrastructure and sustainable transportation systems"
-                },
-                {
-                    "title": "Promotion of eco-friendly and energy-efficient building designs"
-                }
+                {"title": "Smart City Tech"},
+                {"title": "Urban Renewables"},
+                {"title": "Green Infrastructure"},
+                {"title": "Eco-friendly Designs"}
             ]
         }
     ]
