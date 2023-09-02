@@ -7,7 +7,10 @@ from cli import *
 from event_handler import EventHandler
 
 
-class TwitchEventSub(threading.Thread):
+class TwitchEventSubWebSocket(threading.Thread):
+    instance = None
+
+
     PRINT_TAG = 'EVT'
     cli = CLI()
     mutex = threading.Lock()
@@ -16,8 +19,16 @@ class TwitchEventSub(threading.Thread):
     # NO_KEEPALIVE_FAIL_AMOUNT = 5 # how many to miss before reconnecting
     WELCOME_EVENT_NAME = 'evtsub_welcome'
 
+    def __new__(cls, *args):
+        if cls.instance is None:
+            cls.instance = super().__new__(cls)
+            cls.instance.initialized = False
+        return cls.instance
+
     def __init__(self, debug=False):
         threading.Thread.__init__(self)
+        if self.initialized:
+            return
         if debug:
             websocket.enableTrace(True)
         self.irc = TwitchIRC()
@@ -28,6 +39,7 @@ class TwitchEventSub(threading.Thread):
                                          on_error=self.on_error,
                                          on_close=self.on_close,
                                          on_open=self.on_open)
+        self.initialized = True
 
     def print(self, text: str):
         self.cli.print(f'[{self.PRINT_TAG}] {text}')

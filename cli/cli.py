@@ -1,4 +1,5 @@
 from .colors import TextColor
+from typing import overload
 
 import msvcrt
 import threading
@@ -37,14 +38,22 @@ class CLI():
             color = next(self.color_iter)
         return color
 
-    def print(self, text='', new_color=None):
-        with self.mutex:
-            if not new_color:
-                new_color = self.get_next_color()
-            print(f'{new_color}{text}')
-            self.last_color = new_color
+    def _print(self, text: str, new_color: TextColor):
+        if not new_color:
+            new_color = self.get_next_color()
+        print(f'{new_color}{text}')
+        self.last_color = new_color
 
-    def input(self, input_text=''):
+    def print(self, text: str = '', new_color: TextColor = None):
+        with self.mutex:
+            self._print(text, new_color)
+
+    def print_list(self, tag: str, lines: list, new_color: TextColor = None):
+        with self.mutex:
+            for line in lines:
+                self._print(line, new_color)
+
+    def input(self, input_text: str = ''):
         while not msvcrt.kbhit():
             sleep(0.1)
         with self.mutex:

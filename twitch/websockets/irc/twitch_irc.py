@@ -11,7 +11,6 @@ from tts import TTS
 class TwitchIRC(IRC, threading.Thread):
     instance = None
 
-    MESSAGES_PATH = 'user_data/config/messages/'
     COMM_TMO = 5
     last_receive_time = 0
     last_send_time = 0
@@ -44,14 +43,14 @@ class TwitchIRC(IRC, threading.Thread):
             self.channel,
             self.threat_format.format(
                 priv_msg.sender,
-                utils.get_random_line(f'{self.MESSAGES_PATH}spam_threats.txt')
+                utils.get_random_line(f'{fs.MESSAGES_PATH}spam_threats.txt')
             )
         )
 
     def send_random_compliment(self, channel):
         self.send_privmsg(
             channel,
-            utils.get_random_line(f'{self.MESSAGES_PATH}compliments.txt')
+            utils.get_random_line(f'{fs.MESSAGES_PATH}compliments.txt')
         )
 
     def _is_followbotting(self):

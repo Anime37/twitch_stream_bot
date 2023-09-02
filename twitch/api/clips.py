@@ -1,18 +1,24 @@
-from .segments import TwitchSegments
+from dataclasses import dataclass
+from requests import Session
+
+from .logging import TwitchLogging
+from .oauth import TwitchOAuth
 
 
-class TwitchClips(TwitchSegments):
-    def __init__(self):
-        super().__init__()
+@dataclass
+class TwitchClips():
+    session: Session
+    log: TwitchLogging
+    oauth: TwitchOAuth
 
-    def create_clip(self):
+    def create(self):
         url = 'https://api.twitch.tv/helix/clips'
         params = {
-            'broadcaster_id': self.broadcaster_id
+            'broadcaster_id': self.oauth.broadcaster_id
         }
         with self.session.post(url, params=params) as r:
             try:
                 id = r.json()['data'][0]['id']
-                self.print(f'creating a clip ({id=})')
+                self.log.print(f'creating a clip ({id=})')
             except:
-                self.print_err(r.content)
+                self.log.print_err(r.content)

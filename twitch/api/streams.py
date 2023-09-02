@@ -1,12 +1,14 @@
+from dataclasses import dataclass
+from requests import Session
 from .channel_info import ChannelInfo
-from .oauth import TwitchOAuth
+from .logging import TwitchLogging
 
 import random
 
-
-class TwitchStreams(TwitchOAuth):
-    def __init__(self):
-        super().__init__()
+@dataclass
+class TwitchStreams():
+    session: Session
+    log: TwitchLogging
 
     def _get_top_streams(self):
         return random.randint(1, 3)
@@ -38,7 +40,7 @@ class TwitchStreams(TwitchOAuth):
             'after': ''
         }
         page_to_get = self._streams_page_to_get()
-        self.print(f'getting streams (page {page_to_get})')
+        self.log.print(f'getting streams (page {page_to_get})')
         json_data = {}
         for _ in range(page_to_get):
             with self.session.get(url, params=params) as r:
@@ -60,7 +62,7 @@ class TwitchStreams(TwitchOAuth):
             self.channels = self.channels[:MAX_IDS] if from_left else self.channels[-MAX_IDS:]
         self.channel_info_iter = iter(self.channels)
 
-    def get_stream_channel_info(self):
+    def get_channel_info(self):
         channel_info: ChannelInfo
         try:
             channel_info = next(self.channel_info_iter)

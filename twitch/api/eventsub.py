@@ -1,19 +1,30 @@
-from .clips import TwitchClips
+from dataclasses import dataclass
+from requests import Session
+
+from .logging import TwitchLogging
+from .oauth import TwitchOAuth
+
+from ..websockets.eventsub import TwitchEventSubWebSocket
 
 
-class TwitchEventSub(TwitchClips):
-    def __init__(self):
-        super().__init__()
+@dataclass
+class TwitchEventSub():
+    session: Session
+    log: TwitchLogging
+    oauth: TwitchOAuth
 
-    def get_eventsub_subscriptions(self):
+    def set_websocket(self, websocket: TwitchEventSubWebSocket):
+        self.websocket = websocket
+
+    def get_subscriptions(self):
         url = 'https://api.twitch.tv/helix/eventsub/subscriptions'
         with self.session.get(url) as r:
             if r.status_code != 200:
-                self.print_err(r.content)
+                self.log.print_err(r.content)
                 return None
         return r.json()
 
-    def delete_eventsub_subscription(self, id):
+    def delete_subscription(self, id):
         url = 'https://api.twitch.tv/helix/eventsub/subscriptions'
         params = {
             'id': id
@@ -21,21 +32,21 @@ class TwitchEventSub(TwitchClips):
         with self.session.delete(url, params=params) as r:
             is_success = (r.status_code == 204)
             if not is_success:
-                self.print_err(r.content)
+                self.log.print_err(r.content)
         return is_success
 
-    def delete_all_eventsub_subscriptions(self):
-        subscriptions_json = self.get_eventsub_subscriptions()
+    def delete_all_subscriptions(self):
+        subscriptions_json = self.get_subscriptions()
         if not subscriptions_json:
             return
         total = subscriptions_json['total']
         del_counter = 0
-        self.print(f'deleting eventsub subscriptions: {del_counter}/{total}')
+        self.log.print(f'deleting eventsub subscriptions: {del_counter}/{total}')
         for entry in subscriptions_json['data']:
-            del_counter += self.delete_eventsub_subscription(entry['id'])
-        self.print(f'deleted eventsub subscriptions: {del_counter}/{total}')
+            del_counter += self.delete_subscription(entry['id'])
+        self.log.print(f'deleted eventsub subscriptions: {del_counter}/{total}')
 
-    def create_eventsub_subscription(self, type: str, version: str, conditions: dict):
+    def create_subscription(self, type: str, version: str, conditions: dict):
         url = 'https://api.twitch.tv/helix/eventsub/subscriptions'
         data = {
             'type': type,
@@ -43,41 +54,40 @@ class TwitchEventSub(TwitchClips):
             'condition': conditions,
             'transport': {
                 'method': 'websocket',
-                'session_id': self.websockets.eventsub.session_id,
+                'session_id': self.websocket.session_id,
             },
         }
-        headers = self.session.headers
         with self.session.post(url, json=data) as r:
             if r.status_code == 202:
-                self.print(f'subscribed to {type} events')
+                self.log.print(f'subscribed to {type} events')
             # elif r.status_code == 429:
-            #     self.print(r.headers)
+            #     self.log.print(r.headers)
             else:
-                self.print_err(r.content)
+                self.log.print_err(r.content)
 
     def subscribe_to_follow_events(self):
-        self.create_eventsub_subscription(
+        self.create_subscription(
             'channel.follow', '2',
             {
-                "broadcaster_user_id": self.broadcaster_id,
-                "moderator_user_id": self.broadcaster_id
+                "broadcaster_user_id": self.oauth.broadcaster_id,
+                "moderator_user_id": self.oauth.broadcaster_id
             }
         )
 
     def subscribe_to_shoutout_create_events(self):
-        self.create_eventsub_subscription(
+        self.create_subscription(
             'channel.shoutout.create', '1',
             {
-                "broadcaster_user_id": self.broadcaster_id,
-                "moderator_user_id": self.broadcaster_id
+                "broadcaster_user_id": self.oauth.broadcaster_id,
+                "moderator_user_id": self.oauth.broadcaster_id
             }
         )
 
     def subscribe_to_shoutout_received_events(self):
-        self.create_eventsub_subscription(
+        self.create_subscription(
             'channel.shoutout.receive', '1',
             {
-                "broadcaster_user_id": self.broadcaster_id,
-                "moderator_user_id": self.broadcaster_id
+                "broadcaster_user_id": self.oauth.broadcaster_id,
+                "moderator_user_id": self.oauth.broadcaster_id
             }
         )

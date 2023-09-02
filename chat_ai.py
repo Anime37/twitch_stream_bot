@@ -15,7 +15,7 @@ class ChatAI():
         'you use bad grammar and lowercase.',
         'you mention chatter_name when responding.',
         'you are cheeky or insulting towards negative chatters.',
-        'you never admit to being an AI.',
+        'you never admit to being an AI or a chatbot.',
         f'you respond in one sentence, with a {CHARACTER_LIMIT} character limit.',
     ]
     CONFIG_MESSAGE = [{"role": "system", "content": ' '.join(CONFIG)}]

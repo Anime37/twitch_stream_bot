@@ -1,14 +1,23 @@
-from .x import X
-
 import fs
 import utils
 
+from requests import Session
 
-class Twitch(X):
+from .logging import TwitchLogging
+from .oauth import TwitchOAuth
+
+
+class TwitchWhisper():
+    session: Session
+    log: TwitchLogging
+    oauth: TwitchOAuth
+
     last_whisper_time = 0
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, session: Session, log: TwitchLogging, oauth: TwitchOAuth):
+        self.session = session
+        self.log = log
+        self.oauth = oauth
         self.last_whisper_time = fs.readint('user_data/last_whisper_time')
 
     def whisper(self, user_id, message):
@@ -21,7 +30,7 @@ class Twitch(X):
 
         url = 'https://api.twitch.tv/helix/whispers'
         params = {
-            'from_user_id': self.broadcaster_id,
+            'from_user_id': self.oauth.broadcaster_id,
             'to_user_id': user_id,
         }
         data = {

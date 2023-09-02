@@ -1,15 +1,21 @@
-from .channel_info import ChannelInfo
-from .streams import TwitchStreams
-
 import utils
+
+from dataclasses import dataclass
+from requests import Session
 from word_utfer import TextUTFy
 
+from .logging import TwitchLogging
+from .channel_info import ChannelInfo
+from .oauth import TwitchOAuth
 
-class TwitchChannel(TwitchStreams):
-    def __init__(self):
-        super().__init__()
 
-    def modify_channel_info(self, channel_info: ChannelInfo, utfy: bool = False):
+@dataclass
+class TwitchChannel():
+    session: Session
+    log: TwitchLogging
+    oauth: TwitchOAuth
+
+    def modify_info(self, channel_info: ChannelInfo, utfy: bool = False):
         MAX_TITLE_LEN = 140
         MAX_TAG_LEN = 25
 
@@ -20,7 +26,7 @@ class TwitchChannel(TwitchStreams):
 
         url = 'https://api.twitch.tv/helix/channels'
         params = {
-            'broadcaster_id': self.broadcaster_id
+            'broadcaster_id': self.oauth.broadcaster_id
         }
         data = {
             'title': title,
@@ -29,15 +35,15 @@ class TwitchChannel(TwitchStreams):
         }
         with self.session.patch(url, params=params, data=data) as r:
             if r.status_code == 204:
-                self.print(
+                self.log.print(
                     f'changing title to: {channel_info.title}\n'
-                    f'[{self.PRINT_TAG}] changing tags to: {channel_info.tags}\n'
-                    f'[{self.PRINT_TAG}] changing category to: {channel_info.name} (id={channel_info.id})'
+                    f'[{self.log.PRINT_TAG}] changing tags to: {channel_info.tags}\n'
+                    f'[{self.log.PRINT_TAG}] changing category to: {channel_info.name} (id={channel_info.id})'
                 )
             else:
-                self.print_err(r.content)
+                self.log.print_err(r.content)
 
-    def update_channel_description(self, description: str, utfy: bool = False):
+    def update_description(self, description: str, utfy: bool = False):
         MAX_DESCRIPTION_LEN = 300
         url = 'https://api.twitch.tv/helix/users'
         if utfy:
@@ -47,6 +53,6 @@ class TwitchChannel(TwitchStreams):
         }
         with self.session.put(url, params=params) as r:
             if r.status_code == 200:
-                self.print(f'changing channel description')
+                self.log.print(f'changing channel description')
             else:
-                self.print_err(r.content)
+                self.log.print_err(r.content)

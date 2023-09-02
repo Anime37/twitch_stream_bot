@@ -1,4 +1,4 @@
-from .eventsub import TwitchEventSub
+from .eventsub import TwitchEventSubWebSocket
 from .irc import TwitchIRC
 
 import websocket
@@ -12,17 +12,11 @@ class TwitchWebSockets():
     PRINT_TAG = 'WSS'
     cli = CLI()
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args):
         if cls.instance is None:
             cls.instance = super().__new__(cls)
             cls.instance.initialized = False
         return cls.instance
-
-    def print(self, text: str):
-        self.cli.print(f'[{self.PRINT_TAG}] {text}')
-
-    def print_err(self, text: str):
-        self.cli.print(f'[{self.PRINT_TAG}] {text}', TextColor.WHITE)
 
     def __init__(self, channel, debug=False):
         if self.initialized:
@@ -33,9 +27,15 @@ class TwitchWebSockets():
         self.init_sockets(channel)
         self.initialized = True
 
+    def print(self, text: str):
+        self.cli.print(f'[{self.PRINT_TAG}] {text}')
+
+    def print_err(self, text: str):
+        self.cli.print(f'[{self.PRINT_TAG}] {text}', TextColor.WHITE)
+
     def init_sockets(self, channel):
         self.irc = TwitchIRC(channel)
-        self.eventsub = TwitchEventSub()
+        self.eventsub = TwitchEventSubWebSocket()
 
     def start_all(self):
         if self.started:

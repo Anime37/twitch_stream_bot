@@ -2,6 +2,9 @@ import json
 import os
 import threading
 
+USER_DATA_PATH = 'user_data/'
+USER_CONFIG_PATH = f'{USER_DATA_PATH}config/'
+MESSAGES_PATH = f'{USER_CONFIG_PATH}messages/'
 
 mutex = threading.Lock()
 
