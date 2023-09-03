@@ -49,6 +49,7 @@ class TwitchAPP(TwitchAPI):
             self.channel.update_description(self.USER_NAME, True)
             self.shoutout.shoutout(channel_info) or self.raid.random()
             self.announcements.send()
+            self.polls.create_poll()
             self.predictions.create_prediction()
             self.segments.create_stream_schedule_segment()
             self.clips.create()

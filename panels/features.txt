@@ -4,6 +4,10 @@ API/Periodic (1st thread):
   - Category (other streams)
   - Tags (other streams)
   - Description (channel name utfied)
+- Chat related:
+  - Random announcements
+  - Random polls
+  - Random predictions
 - Interacting with random streams:
   - Raiding (if streamer allows it)
   - Shouting out
@@ -12,19 +16,12 @@ API/Periodic (1st thread):
   - Delete whole schedule when it becomes full
 - Other actions:
   - Clip creation
-  - Announcements in chat
 
 ================================
 
 Done, but turned off:
 - Guest invites (doesn't seem to do anything?)
 - Whisper channels (too annoying to others)
-
-================================
-
-Done, but requires affiliate:
-- Random polls
-- Random predictions
 
 ================================================================
 
