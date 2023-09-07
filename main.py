@@ -2,8 +2,12 @@ import os
 import threading
 
 from cli import CLI
+from gif_manager import GifManager
 from tts import TTSServerThread
 from twitch import TwitchAPP
+
+
+cli = CLI()
 
 
 def _start_twitch_threads(twitch: TwitchAPP):
@@ -21,7 +25,6 @@ def start_threads(twitch: TwitchAPP):
 def chat_input(twitch: TwitchAPP):
     PRINT_TAG = 'APP'
     USER_NAME = twitch.oauth.account.USER_NAME
-    cli = CLI()
     irc = twitch.websockets.irc
 
     while True:
@@ -37,6 +40,7 @@ def chat_input(twitch: TwitchAPP):
 
 
 def main():
+    cli.print(GifManager().toggle_all_gifs(True))
     twitch = TwitchAPP()
     start_threads(twitch)
     try:
