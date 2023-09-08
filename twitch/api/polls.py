@@ -60,7 +60,7 @@ class TwitchPolls():
                 self.log.print_err(r.content)
                 return
             self.log.print(f'starting a poll: {data["title"]}')
-            self.next_poll_time = current_time + MIN_POLL_PERIOD
+            self.next_poll_time = current_time + MIN_POLL_PERIOD + 1
 
     def _can_end_poll(self) -> bool:
         self.get_current_poll()

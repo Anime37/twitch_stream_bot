@@ -1,6 +1,7 @@
 import os
 import fs
 import random
+import utils
 
 from dataclasses import dataclass
 from requests import Session
@@ -31,6 +32,7 @@ class TwitchPredictions():
 
     prediction_files = []
     current_prediction = PredictionInfo()
+    next_prediction_time = 0
 
     def _get_random_prediction_outcomes(self):
         if not self.prediction_files:
@@ -72,24 +74,30 @@ class TwitchPredictions():
             except:
                 self.log.print_err(r.content)
 
-    def _can_create_prediction(self):
+    def _can_create_prediction(self, current_time):
+        if (current_time <= self.next_prediction_time):
+            return False
         self.end_current_prediction()
         return (self.current_prediction.id == '')
 
     def create_prediction(self):
-        if not self._can_create_prediction():
+        current_time = utils.get_current_time()
+        if not self._can_create_prediction(current_time):
+            self.log.print(f'next prediction in {(self.next_prediction_time - current_time)} seconds')
             return
+        MIN_PREDICTION_PERIOD = (30)  # seconds
         data = {
             'broadcaster_id': self.oauth.broadcaster_id,
-            'prediction_window': 30,
+            'prediction_window': MIN_PREDICTION_PERIOD,
         }
         data.update(self._get_random_prediction_outcomes())
         with self.session.post(self.URL, json=data) as r:
-            try:
-                self.current_prediction.id = r.json()['data'][0]['id']
-                self.log.print(f'starting a prediction: {data["title"]}')
-            except:
+            if r.status_code != 200:
                 self.log.print_err(r.content)
+                return
+            self.current_prediction.id = r.json()['data'][0]['id']
+            self.log.print(f'starting a prediction: {data["title"]}')
+            self.next_prediction_time = current_time + MIN_PREDICTION_PERIOD + 1
 
     def _can_end_prediction(self) -> bool:
         self.get_current_prediction()
@@ -97,6 +105,7 @@ class TwitchPredictions():
 
     def end_current_prediction(self):
         if not self._can_end_prediction():
+            self.current_prediction.reset()
             return
         data = {
             'broadcaster_id': self.oauth.broadcaster_id,
