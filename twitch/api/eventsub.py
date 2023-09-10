@@ -13,6 +13,8 @@ class TwitchEventSub():
     log: TwitchLogging
     oauth: TwitchOAuth
 
+    active_subscriptions = {}
+
     def set_websocket(self, websocket: TwitchEventSubWebSocket):
         self.websocket = websocket
 
@@ -59,11 +61,28 @@ class TwitchEventSub():
         }
         with self.session.post(url, json=data) as r:
             if r.status_code == 202:
+                self.active_subscriptions[type] = r.json()['data'][0]['id']
                 self.log.print(f'subscribed to {type} events')
             # elif r.status_code == 429:
             #     self.log.print(r.headers)
             else:
                 self.log.print_err(r.content)
+
+    def subscribe_to_channel_update_events(self):
+        self.create_subscription(
+            'channel.update', '2',
+            {
+                "broadcaster_user_id": self.oauth.broadcaster_id,
+                "moderator_user_id": self.oauth.broadcaster_id
+            }
+        )
+
+    def delete_channel_update_events(self):
+        type = 'channel.update'
+        if type not in self.active_subscriptions:
+            return
+        if self.delete_subscription(self.active_subscriptions[type]):
+            self.log.print('deleted channel.update eventsub subscription')
 
     def subscribe_to_follow_events(self):
         self.create_subscription(

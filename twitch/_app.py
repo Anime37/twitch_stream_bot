@@ -1,5 +1,6 @@
 import random
 
+from queue import Queue
 from time import sleep
 
 from .api import TwitchAPI
@@ -9,6 +10,8 @@ from .websockets import TwitchWebSockets
 class TwitchAPP(TwitchAPI):
     MIN_SLEEP_TIME = 10
     MAX_SLEEP_DELTA = 10
+
+    actions_queue = Queue(5)
 
     def _setup_oauth(self) -> bool:
         if not self.oauth.load_account_info():
@@ -42,6 +45,11 @@ class TwitchAPP(TwitchAPI):
         self.streams.get_streams()
         return True
 
+    def _run_queued_actions(self):
+        if self.actions_queue.empty():
+            return
+        self.actions_queue.get_nowait()()
+
     def api_loop(self):
         while True:
             channel_info = self.streams.get_channel_info()
@@ -53,6 +61,7 @@ class TwitchAPP(TwitchAPI):
             self.predictions.create_prediction()
             self.segments.create_stream_schedule_segment()
             self.clips.create()
+            self._run_queued_actions()
             sleep_time = self.MIN_SLEEP_TIME + (random.random() * self.MAX_SLEEP_DELTA)
             print(f'sleeping for {sleep_time:.2f} seconds')
             sleep(sleep_time)

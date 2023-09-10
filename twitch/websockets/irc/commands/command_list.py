@@ -16,8 +16,6 @@ class CommandList():
         for command in self.commands:
             if not command.was_triggered(cmd):
                 continue
-            self.cli.print(f'received: ({cmd})')
             params = command.extract_params(cmd)
-            self.cli.print(f'params: ({params})')
             return command.run(params)
         return 'no such command exists'

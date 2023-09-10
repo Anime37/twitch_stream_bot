@@ -69,7 +69,9 @@ class TwitchEventSubWebSocket(threading.Thread):
                 self.print_rx(f'a shoutout from {user_name} ({viewer_count=})!')
                 self.irc.send_thx_for_shoutout(user_login, user_name, viewer_count)
             case 'channel.shoutout.create':
-                self.print_rx(f'created a shoutout')
+                self.print_rx('created a shoutout')
+            case 'channel.update':
+                self.print_rx('updated channel properties')
             case _:
                 self.print_rx(f'{message}')
 

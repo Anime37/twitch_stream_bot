@@ -18,11 +18,7 @@ from .whisper import TwitchWhisper
 
 class TwitchAPI():
     def __init__(self):
-        self.session = requests.Session()
-        self.logging = TwitchLogging()
-        self.oauth = TwitchOAuth(self.session, self.logging)
-
-        self.streams = TwitchStreams(self.session, self.logging)
+        self._init_prerequisites()
         self.announcements = TwitchAnnouncement(self.session, self.logging, self.oauth)
         self.channel = TwitchChannel(self.session, self.logging, self.oauth)
         self.clips = TwitchClips(self.session, self.logging, self.oauth)
@@ -34,3 +30,9 @@ class TwitchAPI():
         self.segments = TwitchSegments(self.session, self.logging, self.oauth)
         self.shoutout = TwitchShoutout(self.session, self.logging, self.oauth)
         self.whispers = TwitchWhisper(self.session, self.logging, self.oauth)
+
+    def _init_prerequisites(self):
+        self.session = requests.Session()
+        self.logging = TwitchLogging()
+        self.oauth = TwitchOAuth(self.session, self.logging)
+        self.streams = TwitchStreams(self.session, self.logging)

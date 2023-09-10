@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import os
 import threading
 
@@ -5,9 +6,24 @@ from cli import CLI
 from gif_manager import GifManager
 from tts import TTSServerThread
 from twitch import TwitchAPP
+from twitch.websockets.irc.priv_msg import PRIVMSG
 
 
 cli = CLI()
+PRINT_TAG = 'APP'
+
+
+def print(text: str):
+    cli.print(f'[{PRINT_TAG}] {text}')
+
+
+def input(text: str):
+    return cli.input(f'[{PRINT_TAG}] {text}')
+
+
+def toggle_on_all_gifs():
+    result = GifManager().toggle_all_gifs(True)
+    print(result)
 
 
 def _start_twitch_threads(twitch: TwitchAPP):
@@ -22,29 +38,45 @@ def start_threads(twitch: TwitchAPP):
     _start_twitch_threads(twitch)
 
 
-def chat_input(twitch: TwitchAPP):
-    PRINT_TAG = 'APP'
-    USER_NAME = twitch.oauth.account.USER_NAME
-    irc = twitch.websockets.irc
+class TwitchChat():
+    def __init__(self, app: TwitchAPP):
+        self.app = app
+        self.irc = app.websockets.irc
 
-    while True:
-        msg = cli.input(f'[{PRINT_TAG}] Enter message: ')
-        update_chat = (msg and (msg[0] == '.'))
-        if update_chat:
-            msg = msg[1:]
-        irc.send_chat(msg)
-        if update_chat:
-            irc.update_chat(USER_NAME, msg)
-            ai_response = irc.ai.get_response(USER_NAME, msg)
-            irc.send_chat(ai_response)
+    def _fake_privmsg(self, content: str):
+        priv_msg = PRIVMSG(self.app.USER_NAME, '', '', '', content)
+        self.irc.handle_privmsg(priv_msg)
+
+    def _add_action_to_queue(self, action: str):
+        match(action):
+            case 'eventsub_test':
+                self.app.actions_queue.put(self.app.eventsub.subscribe_to_channel_update_events)
+                self.app.actions_queue.put(self.app.eventsub.delete_channel_update_events)
+
+    def _handle_input(self, text: str):
+        if not text:
+            return
+        self.irc.send_chat(text)
+        match(text[0]):
+            case '.':
+                self._fake_privmsg(text[1:])
+            case ',':
+                self._add_action_to_queue(text[1:])
+            case _:
+                pass
+
+    def loop(self):
+        while True:
+            text = input('Enter message: ')
+            self._handle_input(text)
 
 
 def main():
-    cli.print(GifManager().toggle_all_gifs(True))
+    toggle_on_all_gifs()
     twitch = TwitchAPP()
     start_threads(twitch)
     try:
-        chat_input(twitch)
+        TwitchChat(twitch).loop()
     except KeyboardInterrupt:
         pass
     print('Shutting down...')
