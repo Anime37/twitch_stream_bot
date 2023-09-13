@@ -3,10 +3,10 @@ import fs
 import random
 import utils
 
+from cli import TagCLI
 from dataclasses import dataclass
 from requests import Session
 
-from .logging import TwitchLogging
 from .oauth import TwitchOAuth
 
 
@@ -24,7 +24,7 @@ class PredictionInfo():
 @dataclass
 class TwitchPredictions():
     session: Session
-    log: TwitchLogging
+    cli: TagCLI
     oauth: TwitchOAuth
 
     PREDICTIONS_PATH = f'{fs.MESSAGES_PATH}predictions/'
@@ -72,7 +72,7 @@ class TwitchPredictions():
             try:
                 self._store_current_prediction_state(r.json()['data'][0])
             except:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)
 
     def _can_create_prediction(self, current_time):
         if (current_time <= self.next_prediction_time):
@@ -83,7 +83,7 @@ class TwitchPredictions():
     def create_prediction(self):
         current_time = utils.get_current_time()
         if not self._can_create_prediction(current_time):
-            self.log.print(f'next prediction in {(self.next_prediction_time - current_time)} seconds')
+            self.cli.print(f'next prediction in {(self.next_prediction_time - current_time)} seconds')
             return
         MIN_PREDICTION_PERIOD = (30)  # seconds
         data = {
@@ -93,10 +93,10 @@ class TwitchPredictions():
         data.update(self._get_random_prediction_outcomes())
         with self.session.post(self.URL, json=data) as r:
             if r.status_code != 200:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)
                 return
             self.current_prediction.id = r.json()['data'][0]['id']
-            self.log.print(f'starting a prediction: {data["title"]}')
+            self.cli.print(f'starting a prediction: {data["title"]}')
             self.next_prediction_time = current_time + MIN_PREDICTION_PERIOD + 1
 
     def _can_end_prediction(self) -> bool:
@@ -117,4 +117,4 @@ class TwitchPredictions():
             try:
                 self.current_prediction.reset()
             except:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)

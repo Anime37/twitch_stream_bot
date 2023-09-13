@@ -2,22 +2,22 @@ import fs
 import random
 import utils
 
+from cli import TagCLI
 from requests import Session
 
-from .logging import TwitchLogging
 from .oauth import TwitchOAuth
 
 
 class TwitchAnnouncement():
     session: Session
-    log: TwitchLogging
+    cli: TagCLI
     oauth: TwitchOAuth
 
     last_announcement_time = 0
 
-    def __init__(self, session: Session, log: TwitchLogging, oauth: TwitchOAuth):
+    def __init__(self, session: Session, cli: TagCLI, oauth: TwitchOAuth):
         self.session = session
-        self.log = log
+        self.cli = cli
         self.oauth = oauth
         self.last_announcement_time = fs.readint('user_data/last_announcement_time')
 
@@ -26,7 +26,7 @@ class TwitchAnnouncement():
         current_time = utils.get_current_time()
         time_remaining = (self.last_announcement_time + MIN_ANNOUNCEMENT_PERIOD) - current_time
         if time_remaining > 0:
-            self.log.print(f'next announcement in {time_remaining} seconds')
+            self.cli.print(f'next announcement in {time_remaining} seconds')
             return
 
         COLORS = [
@@ -47,8 +47,8 @@ class TwitchAnnouncement():
         }
         with self.session.post(url, params=params, data=data) as r:
             if r.status_code == 204:
-                self.log.print('making an announcement!')
+                self.cli.print('making an announcement!')
             else:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)
         self.last_announcement_time = current_time
         fs.write('user_data/last_announcement_time', str(self.last_announcement_time))

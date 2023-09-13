@@ -1,7 +1,7 @@
+from cli import TagCLI
 from dataclasses import dataclass
 from requests import Session
 
-from .logging import TwitchLogging
 from .oauth import TwitchOAuth
 
 from ..websockets.eventsub import TwitchEventSubWebSocket
@@ -10,7 +10,7 @@ from ..websockets.eventsub import TwitchEventSubWebSocket
 @dataclass
 class TwitchEventSub():
     session: Session
-    log: TwitchLogging
+    cli: TagCLI
     oauth: TwitchOAuth
 
     active_subscriptions = {}
@@ -22,7 +22,7 @@ class TwitchEventSub():
         url = 'https://api.twitch.tv/helix/eventsub/subscriptions'
         with self.session.get(url) as r:
             if r.status_code != 200:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)
                 return None
         return r.json()
 
@@ -34,7 +34,7 @@ class TwitchEventSub():
         with self.session.delete(url, params=params) as r:
             is_success = (r.status_code == 204)
             if not is_success:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)
         return is_success
 
     def delete_all_subscriptions(self):
@@ -43,10 +43,10 @@ class TwitchEventSub():
             return
         total = subscriptions_json['total']
         del_counter = 0
-        self.log.print(f'deleting eventsub subscriptions: {del_counter}/{total}')
+        self.cli.print(f'deleting eventsub subscriptions: {del_counter}/{total}')
         for entry in subscriptions_json['data']:
             del_counter += self.delete_subscription(entry['id'])
-        self.log.print(f'deleted eventsub subscriptions: {del_counter}/{total}')
+        self.cli.print(f'deleted eventsub subscriptions: {del_counter}/{total}')
 
     def create_subscription(self, type: str, version: str, conditions: dict):
         url = 'https://api.twitch.tv/helix/eventsub/subscriptions'
@@ -62,11 +62,11 @@ class TwitchEventSub():
         with self.session.post(url, json=data) as r:
             if r.status_code == 202:
                 self.active_subscriptions[type] = r.json()['data'][0]['id']
-                self.log.print(f'subscribed to {type} events')
+                self.cli.print(f'subscribed to {type} events')
             # elif r.status_code == 429:
-            #     self.log.print(r.headers)
+            #     self.cli.print(r.headers)
             else:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)
 
     def subscribe_to_channel_update_events(self):
         self.create_subscription(
@@ -82,7 +82,7 @@ class TwitchEventSub():
         if type not in self.active_subscriptions:
             return
         if self.delete_subscription(self.active_subscriptions[type]):
-            self.log.print('deleted channel.update eventsub subscription')
+            self.cli.print('deleted channel.update eventsub subscription')
 
     def subscribe_to_follow_events(self):
         self.create_subscription(

@@ -13,6 +13,10 @@ class TwitchAPP(TwitchAPI):
 
     actions_queue = Queue(5)
 
+    def __init__(self, cli):
+        super().__init__()
+        self.cli = cli
+
     def _setup_oauth(self) -> bool:
         if not self.oauth.load_account_info():
             return False
@@ -63,5 +67,5 @@ class TwitchAPP(TwitchAPI):
             self.clips.create()
             self._run_queued_actions()
             sleep_time = self.MIN_SLEEP_TIME + (random.random() * self.MAX_SLEEP_DELTA)
-            print(f'sleeping for {sleep_time:.2f} seconds')
+            self.cli.print(f'sleeping for {sleep_time:.2f} seconds')
             sleep(sleep_time)

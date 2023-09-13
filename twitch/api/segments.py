@@ -1,17 +1,17 @@
 import random
 import utils
 
+from cli import TagCLI
 from dataclasses import dataclass
 from requests import Session
 
-from .logging import TwitchLogging
 from .oauth import TwitchOAuth
 
 
 @dataclass
 class TwitchSegments():
     session: Session
-    log: TwitchLogging
+    cli: TagCLI
     oauth: TwitchOAuth
 
     schedule_stream_start_time = 0
@@ -33,7 +33,7 @@ class TwitchSegments():
             json_data = self._get_stream_scheduled_segments_page(cursor)
             cursor = json_data['pagination']['cursor']
             for entry in json_data['data']['segments']:
-                self.log.print(entry['start_time'])
+                self.cli.print(entry['start_time'])
 
     def create_stream_schedule_segment(self):
         url = 'https://api.twitch.tv/helix/schedule/segment'
@@ -52,11 +52,11 @@ class TwitchSegments():
         with self.session.post(url, params=params, data=data) as r:
             if r.status_code == 200:
                 self.scheduled_segments_counter += 1
-                self.log.print(f'creating a stream schedule {duration} minute segment at {start_time} ({self.scheduled_segments_counter})')
+                self.cli.print(f'creating a stream schedule {duration} minute segment at {start_time} ({self.scheduled_segments_counter})')
             elif r.status_code == 400 and r.json()['message'] == 'Segment cannot create overlapping segment':
                 self.delete_all_stream_schedule_segments()
             else:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)
 
     def delete_stream_schedule_segment(self, id):
         url = 'https://api.twitch.tv/helix/schedule/segment'
@@ -66,7 +66,7 @@ class TwitchSegments():
         }
         with self.session.delete(url, params=params) as r:
             if r.status_code not in [204, 404]:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)
         return (r.status_code == 204)
 
     def _get_cursor_from_json(self, json_data: dict):
@@ -78,7 +78,7 @@ class TwitchSegments():
 
     def delete_all_stream_schedule_segments(self):
         del_counter = 0
-        self.log.print('deleting all scheduled stream segments...')
+        self.cli.print('deleting all scheduled stream segments...')
         json_data = self._get_stream_scheduled_segments_page()
         cursor = self._get_cursor_from_json(json_data)
         while cursor:
@@ -95,6 +95,6 @@ class TwitchSegments():
                     cursor = ''
                     break
                 del_counter += 1
-            self.log.print(f'deleted scheduled stream segments: {del_counter}/{self.scheduled_segments_counter}')
-        self.log.print(f'deleted all scheduled stream segments!')
+            self.cli.print(f'deleted scheduled stream segments: {del_counter}/{self.scheduled_segments_counter}')
+        self.cli.print(f'deleted all scheduled stream segments!')
         self.scheduled_segments_counter = 0

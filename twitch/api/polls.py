@@ -3,17 +3,17 @@ import fs
 import random
 import utils
 
+from cli import TagCLI
 from dataclasses import dataclass
 from requests import Session
 
-from .logging import TwitchLogging
 from .oauth import TwitchOAuth
 
 
 @dataclass
 class TwitchPolls():
     session: Session
-    log: TwitchLogging
+    cli: TagCLI
     oauth: TwitchOAuth
 
     POLLS_PATH = f'{fs.MESSAGES_PATH}predictions/'
@@ -37,9 +37,9 @@ class TwitchPolls():
         }
         with self.session.get(self.URL, params=data) as r:
             try:
-                self.log.print(r.json()['data'][0])
+                self.cli.print(r.json()['data'][0])
             except:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)
 
     def _can_create_poll(self, current_time) -> bool:
         return (current_time > self.next_poll_time)
@@ -47,7 +47,7 @@ class TwitchPolls():
     def create_poll(self):
         current_time = utils.get_current_time()
         if not self._can_create_poll(current_time):
-            self.log.print(f'next poll in {(self.next_poll_time - current_time)} seconds')
+            self.cli.print(f'next poll in {(self.next_poll_time - current_time)} seconds')
             return
         MIN_POLL_PERIOD = (15)  # seconds
         data = {
@@ -57,9 +57,9 @@ class TwitchPolls():
         data.update(self._get_random_poll_choices())
         with self.session.post(self.URL, json=data) as r:
             if r.status_code != 200:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)
                 return
-            self.log.print(f'starting a poll: {data["title"]}')
+            self.cli.print(f'starting a poll: {data["title"]}')
             self.next_poll_time = current_time + MIN_POLL_PERIOD + 1
 
     def _can_end_poll(self) -> bool:
@@ -79,4 +79,4 @@ class TwitchPolls():
             try:
                 self.current_poll.reset()
             except:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)

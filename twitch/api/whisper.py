@@ -1,22 +1,22 @@
 import fs
 import utils
 
+from cli import TagCLI
 from requests import Session
 
-from .logging import TwitchLogging
 from .oauth import TwitchOAuth
 
 
 class TwitchWhisper():
     session: Session
-    log: TwitchLogging
+    cli: TagCLI
     oauth: TwitchOAuth
 
     last_whisper_time = 0
 
-    def __init__(self, session: Session, log: TwitchLogging, oauth: TwitchOAuth):
+    def __init__(self, session: Session, cli: TagCLI, oauth: TwitchOAuth):
         self.session = session
-        self.log = log
+        self.cli = cli
         self.oauth = oauth
         self.last_whisper_time = fs.readint('user_data/last_whisper_time')
 

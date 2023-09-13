@@ -1,10 +1,10 @@
 import fs
 import utils
 
+from cli import TagCLI
 from requests import Session
 
 from .channel_info import ChannelInfo
-from .logging import TwitchLogging
 from .oauth import TwitchOAuth
 
 from ..websockets.irc import TwitchIRC
@@ -12,7 +12,7 @@ from ..websockets.irc import TwitchIRC
 
 class TwitchShoutout():
     session: Session
-    log: TwitchLogging
+    cli: TagCLI
     oauth: TwitchOAuth
 
     irc: TwitchIRC
@@ -20,9 +20,9 @@ class TwitchShoutout():
     last_shoutout_time = 0
     last_shouted_out_channel = ''
 
-    def __init__(self, session: Session, log: TwitchLogging, oauth: TwitchOAuth):
+    def __init__(self, session: Session, cli: TagCLI, oauth: TwitchOAuth):
         self.session = session
-        self.log = log
+        self.cli = cli
         self.oauth = oauth
         self.last_shoutout_time = fs.readint('user_data/last_shoutout_time')
 
@@ -35,7 +35,7 @@ class TwitchShoutout():
         current_time = utils.get_current_time()
         time_remaining = (self.last_shoutout_time + MIN_SHOUTOUT_PERIOD) - current_time
         if time_remaining > 0:
-            self.log.print(f'next shoutout in {time_remaining} seconds')
+            self.cli.print(f'next shoutout in {time_remaining} seconds')
             return is_success
         user_name = channel_info.user_name
         url = 'https://api.twitch.tv/helix/chat/shoutouts'
@@ -49,10 +49,10 @@ class TwitchShoutout():
         with self.session.post(url, params=params) as r:
             is_success = (r.status_code == 204)
         if is_success:
-            self.log.print(f'shouting out {user_name} ({user_id=}, {viewer_count=})')
+            self.cli.print(f'shouting out {user_name} ({user_id=}, {viewer_count=})')
             self.irc.send_random_compliment(channel_info.user_login)
         else:
-            self.log.print_err(r.content)
+            self.cli.print_err(r.content)
         self.last_shoutout_time = current_time
         self.last_shouted_out_channel = user_name
         fs.write('user_data/last_shoutout_time', str(self.last_shoutout_time))

@@ -1,16 +1,16 @@
 import random
 
+from cli import TagCLI
 from dataclasses import dataclass
 from requests import Session
 
-from .logging import TwitchLogging
 from .oauth import TwitchOAuth
 
 
 @dataclass
 class TwitchGuestStar():
     session: Session
-    log: TwitchLogging
+    cli: TagCLI
     oauth: TwitchOAuth
 
     def create_guest_star_session(self):
@@ -23,7 +23,7 @@ class TwitchGuestStar():
                 json_data = r.json()
                 return json_data['data'][0]['id']
             except:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)
 
     def get_guest_star_session(self):
         url = 'https://api.twitch.tv/helix/guest_star/session'
@@ -38,13 +38,13 @@ class TwitchGuestStar():
                     return self.create_guest_star_session()
                 return json_data['data'][0]['id']
             except:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)
 
     def send_guest_star_invite(self, stream_data):
         user_id = stream_data['user_id']
         user_name = stream_data['user_name']
         viewer_count = stream_data['viewer_count']
-        self.log.print(f'inviting {user_name} ({user_id=}, {viewer_count=})')
+        self.cli.print(f'inviting {user_name} ({user_id=}, {viewer_count=})')
 
         url = 'https://api.twitch.tv/helix/guest_star/invites'
         params = {
@@ -65,7 +65,7 @@ class TwitchGuestStar():
         while not self.whisper(rand_entry['user_id'], message) and retry_cnt < MAX_TRIES:
             rand_idx = random.randrange(len(data_entries))
             rand_entry = data_entries[rand_idx]
-            self.log.print(f"{rand_entry['user_name']} doesn't want to be whispered")
+            self.cli.print(f"{rand_entry['user_name']} doesn't want to be whispered")
             retry_cnt += 1
         if retry_cnt >= MAX_TRIES:
             return

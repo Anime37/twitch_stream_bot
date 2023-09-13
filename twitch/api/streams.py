@@ -1,14 +1,15 @@
+from cli import TagCLI
 from dataclasses import dataclass
 from requests import Session
+
 from .channel_info import ChannelInfo
-from .logging import TwitchLogging
 
 import random
 
 @dataclass
 class TwitchStreams():
     session: Session
-    log: TwitchLogging
+    cli: TagCLI
 
     def _get_top_streams(self):
         return random.randint(1, 3)
@@ -40,7 +41,7 @@ class TwitchStreams():
             'after': ''
         }
         page_to_get = self._streams_page_to_get()
-        self.log.print(f'getting streams (page {page_to_get})')
+        self.cli.print(f'getting streams (page {page_to_get})')
         json_data = {}
         for _ in range(page_to_get):
             with self.session.get(url, params=params) as r:

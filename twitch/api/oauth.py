@@ -3,9 +3,9 @@ import fs
 import utils
 import webbrowser
 
+from cli import TagCLI
 from requests import Session
 
-from .logging import TwitchLogging
 from .account import TwitchAccount
 
 
@@ -34,8 +34,8 @@ class TwitchOAuth(TwitchAccount):
     token = None
     broadcaster_id = None
 
-    def __init__(self, session: Session, log: TwitchLogging):
-        super().__init__(log)
+    def __init__(self, session: Session, cli: TagCLI):
+        super().__init__(cli)
         self.session = session
         self.SCOPES = ' '.join(self.SCOPES)
 
@@ -55,7 +55,7 @@ class TwitchOAuth(TwitchAccount):
         auth_server_thread.stop()
 
     def get_token(self):
-        self.log.print('getting token')
+        self.cli.print('getting token')
 
         # Try loading existing token
         TOKEN_PATH = f'{fs.USER_DATA_PATH}token'
@@ -67,7 +67,7 @@ class TwitchOAuth(TwitchAccount):
         fs.write(TOKEN_PATH, self.token)
 
     def get_broadcaster_id(self):
-        self.log.print('getting broadcaster_id')
+        self.cli.print('getting broadcaster_id')
 
         # Try loading existing broadcaster_id
         BROADCASTER_ID_PATH = f'{fs.USER_DATA_PATH}broadcaster_id'
@@ -85,7 +85,7 @@ class TwitchOAuth(TwitchAccount):
             self.broadcaster_id = json_data['data'][0]['id']
             fs.write(BROADCASTER_ID_PATH, self.broadcaster_id)
         except:
-            self.log.print(json_data)
+            self.cli.print(json_data)
 
     def set_session_headers(self):
         self.session.headers = {

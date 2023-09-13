@@ -2,13 +2,14 @@ import dataclasses
 import fs
 import os
 
+from cli import TagCLI
+
 from .account_info import AccountInfo
-from .logging import TwitchLogging
 
 
 @dataclasses.dataclass
 class TwitchAccount():
-    log: TwitchLogging
+    cli: TagCLI
 
     ACCOUNT_PATH = f'{fs.USER_DATA_PATH}account.json'
 
@@ -19,7 +20,7 @@ class TwitchAccount():
         self.account = AccountInfo()
         if not os.path.exists(self.ACCOUNT_PATH):
             self.save_account_info()
-            self.log.print(f'please fill out the account details in {self.ACCOUNT_PATH}')
+            self.cli.print(f'please fill out the account details in {self.ACCOUNT_PATH}')
             return False
         self.account = AccountInfo(**fs.read(self.ACCOUNT_PATH))
         return self.validate_account_info()
@@ -28,6 +29,6 @@ class TwitchAccount():
         for field in self.account.__dataclass_fields__:
             value = getattr(self.account, field)
             if not value:
-                self.log.print(f'missing {field} value in {self.ACCOUNT_PATH}')
+                self.cli.print(f'missing {field} value in {self.ACCOUNT_PATH}')
                 return False
         return True

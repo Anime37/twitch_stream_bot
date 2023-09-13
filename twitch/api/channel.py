@@ -1,10 +1,10 @@
 import utils
 
+from cli import TagCLI
 from dataclasses import dataclass
 from requests import Session
 from word_utfer import TextUTFy
 
-from .logging import TwitchLogging
 from .channel_info import ChannelInfo
 from .oauth import TwitchOAuth
 
@@ -12,7 +12,7 @@ from .oauth import TwitchOAuth
 @dataclass
 class TwitchChannel():
     session: Session
-    log: TwitchLogging
+    cli: TagCLI
     oauth: TwitchOAuth
 
     def modify_info(self, channel_info: ChannelInfo, utfy: bool = False):
@@ -35,13 +35,13 @@ class TwitchChannel():
         }
         with self.session.patch(url, params=params, data=data) as r:
             if r.status_code == 204:
-                self.log.print(
+                self.cli.print(
                     f'changing title to: {channel_info.title}\n'
-                    f'[{self.log.PRINT_TAG}] changing tags to: {channel_info.tags}\n'
-                    f'[{self.log.PRINT_TAG}] changing category to: {channel_info.name} (id={channel_info.id})'
+                    f'[{self.cli.PRINT_TAG}] changing tags to: {channel_info.tags}\n'
+                    f'[{self.cli.PRINT_TAG}] changing category to: {channel_info.name} (id={channel_info.id})'
                 )
             else:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)
 
     def update_description(self, description: str, utfy: bool = False):
         MAX_DESCRIPTION_LEN = 300
@@ -53,6 +53,6 @@ class TwitchChannel():
         }
         with self.session.put(url, params=params) as r:
             if r.status_code == 200:
-                self.log.print(f'changing channel description')
+                self.cli.print(f'changing channel description')
             else:
-                self.log.print_err(r.content)
+                self.cli.print_err(r.content)

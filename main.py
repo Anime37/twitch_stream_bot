@@ -1,29 +1,19 @@
-from dataclasses import dataclass
 import os
 import threading
 
-from cli import CLI
+from cli import TagCLI
 from gif_manager import GifManager
 from tts import TTSServerThread
 from twitch import TwitchAPP
 from twitch.websockets.irc.priv_msg import PRIVMSG
 
 
-cli = CLI()
-PRINT_TAG = 'APP'
-
-
-def print(text: str):
-    cli.print(f'[{PRINT_TAG}] {text}')
-
-
-def input(text: str):
-    return cli.input(f'[{PRINT_TAG}] {text}')
+cli = TagCLI('APP')
 
 
 def toggle_on_all_gifs():
     result = GifManager().toggle_all_gifs(True)
-    print(result)
+    cli.print(result)
 
 
 def _start_twitch_threads(twitch: TwitchAPP):
@@ -67,19 +57,19 @@ class TwitchChat():
 
     def loop(self):
         while True:
-            text = input('Enter message: ')
+            text = cli.input('Enter message: ')
             self._handle_input(text)
 
 
 def main():
     toggle_on_all_gifs()
-    twitch = TwitchAPP()
+    twitch = TwitchAPP(cli)
     start_threads(twitch)
     try:
         TwitchChat(twitch).loop()
     except KeyboardInterrupt:
         pass
-    print('Shutting down...')
+    cli.print('Shutting down...')
     os._exit(0)
 
 

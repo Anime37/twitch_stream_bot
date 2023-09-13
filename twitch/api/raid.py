@@ -2,10 +2,10 @@ import fs
 import random
 import utils
 
+from cli import TagCLI
 from requests import Session
 
 from .channel_info import ChannelInfo
-from .logging import TwitchLogging
 from .oauth import TwitchOAuth
 from .streams import TwitchStreams
 
@@ -14,7 +14,7 @@ from ..websockets.irc import TwitchIRC
 
 class TwitchRaid():
     session: Session
-    log: TwitchLogging
+    cli: TagCLI
     oauth: TwitchOAuth
     streams: TwitchStreams
     irc: TwitchIRC
@@ -22,9 +22,9 @@ class TwitchRaid():
     last_raid_time = 0
     last_raided_channel = ''
 
-    def __init__(self, session: Session, log: TwitchLogging, oauth: TwitchOAuth, streams: TwitchStreams):
+    def __init__(self, session: Session, cli: TagCLI, oauth: TwitchOAuth, streams: TwitchStreams):
         self.session = session
-        self.log = log
+        self.cli = cli
         self.oauth = oauth
         self.streams = streams
         self.last_raid_time = fs.readint('user_data/last_raid_time')
@@ -37,7 +37,7 @@ class TwitchRaid():
         current_time = utils.get_current_time()
         time_remaining = (self.last_raid_time + MIN_RAID_PERIOD) - current_time
         if time_remaining > 0:
-            self.log.print(f'next raid in {time_remaining} seconds')
+            self.cli.print(f'next raid in {time_remaining} seconds')
             return True
         user_id = channel_info.user_id
         user_name = channel_info.user_name
@@ -56,9 +56,9 @@ class TwitchRaid():
         self.last_raid_time = current_time
         fs.write('user_data/last_raid_time', str(self.last_raid_time))
         if r.status_code == 429:
-            self.log.print_err(r.content)
+            self.cli.print_err(r.content)
             return True
-        self.log.print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
+        self.cli.print(f'raiding {user_name} ({user_id=}, {viewer_count=})')
         self.irc.send_random_compliment(channel_info.user_login)
         return True
 
@@ -73,5 +73,5 @@ class TwitchRaid():
             retry_cnt += 1
         is_success = (retry_cnt < MAX_TRIES)
         if not is_success:
-            self.log.print('No one wants to be raided.')
+            self.cli.print('No one wants to be raided.')
         return is_success
