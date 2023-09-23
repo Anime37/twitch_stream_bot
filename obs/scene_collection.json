@@ -2533,7 +2533,7 @@
                     "id": "mask_filter",
                     "versioned_id": "mask_filter_v2",
                     "settings": {
-                        "image_path": "C:/Users/benas/Desktop/pexels-codioful-(formerly-gradienta)-7135121.jpg",
+                        "image_path": "C:/_git/twitch/obs/chat_mask.jpg",
                         "stretch": true,
                         "type": "blend_mul_filter.effect",
                         "color": 4294967295,
@@ -2804,7 +2804,7 @@
                             "duration": 0
                         },
                         "private_settings": {
-                            "collapsed": false
+                            "collapsed": true
                         }
                     },
                     {
@@ -3914,7 +3914,7 @@
                             "duration": 0
                         },
                         "private_settings": {
-                            "collapsed": true
+                            "collapsed": false
                         }
                     },
                     {
