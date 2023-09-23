@@ -10,7 +10,6 @@ from event_handler import EventHandler
 class TwitchEventSubWebSocket(threading.Thread):
     instance = None
 
-
     PRINT_TAG = 'EVT'
     cli = CLI()
     mutex = threading.Lock()
@@ -105,8 +104,6 @@ class TwitchEventSubWebSocket(threading.Thread):
 
     def _wait_for_welcome(self):
         self.welcome_event.wait()
-        self.event_handler.delete_event(self.WELCOME_EVENT_NAME)
-        del self.welcome_event
 
     def start(self):
         super().start()
