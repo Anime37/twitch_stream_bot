@@ -43,8 +43,12 @@ def get_current_time():
     return int(time())
 
 
+def get_current_timestamp():
+    return datetime.datetime.now().replace(microsecond=0)
+
+
 def get_rfc3339_time(minute_offset: int = 0):
-    current_time = datetime.datetime.now()
+    current_timestamp = get_current_timestamp()
     duration = datetime.timedelta(minutes=minute_offset)
-    offset_time = current_time + duration
-    return offset_time.replace(microsecond=0).isoformat("T") + "Z"
+    offset_time = current_timestamp + duration
+    return offset_time.isoformat("T") + "Z"

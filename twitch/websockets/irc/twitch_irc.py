@@ -95,7 +95,7 @@ class TwitchIRC(IRC, threading.Thread):
 
     def _save_chat_message(self, sender: str, msg: str):
         OUTPUT_PATH = 'user_data/chat/chat.txt'
-        fs.write(OUTPUT_PATH, f'{sender}:\n{msg}')
+        fs.write(OUTPUT_PATH, f'[{utils.get_current_timestamp()}]\n{sender}:\n{msg}')
 
     def update_chat(self, sender: str, msg: str):
         self._save_chat_message(sender, msg)
