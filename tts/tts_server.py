@@ -1,12 +1,10 @@
-from .request_handler import TTSRequestHandler
+from servers import HTTPServerThread
 
-from http_server_thread import HTTPServerThread
+from .request_handler import TTSRequestHandler
 
 
 class TTSServerThread(HTTPServerThread):
     instance = None
-
-    PRINT_TAG = 'TTS'
 
     def __new__(cls, *args, **kwargs):
         if cls.instance is None:
@@ -14,8 +12,8 @@ class TTSServerThread(HTTPServerThread):
             cls.instance.initialized = False
         return cls.instance
 
-    def __init__(self, port=7452):
+    def __init__(self, port=7452, tag: str = 'TTS'):
         if (self.initialized):
             return
-        super().__init__(port, TTSRequestHandler, self.PRINT_TAG)
+        super().__init__(port, TTSRequestHandler, tag)
         self.initialized = True

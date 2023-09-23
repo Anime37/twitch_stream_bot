@@ -163,6 +163,6 @@ class TwitchIRC(IRC, threading.Thread):
     def run(self):
         self.ws.run_forever(reconnect=3)
 
-    def shutdown(self):
+    def stop(self):
         self.ws.keep_running = False
         self.join()

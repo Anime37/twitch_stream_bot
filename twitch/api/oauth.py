@@ -1,4 +1,3 @@
-import auth_server_thread
 import fs
 import utils
 import webbrowser
@@ -7,6 +6,8 @@ from cli import TagCLI
 from requests import Session
 
 from .account import TwitchAccount
+
+from ..oauth_server.oauth_server import OAuthServer
 
 
 class TwitchOAuth(TwitchAccount):
@@ -50,9 +51,10 @@ class TwitchOAuth(TwitchAccount):
         }
         with self.session.get(url, params=params) as r:
             webbrowser.open(r.url)
-        auth_server_thread.start()
-        self.token = auth_server_thread.server.queue.get()
-        auth_server_thread.stop()
+        oauth_server = OAuthServer()
+        oauth_server.start()
+        self.token = oauth_server.queue.get()
+        oauth_server.stop()
 
     def get_token(self):
         self.cli.print('getting token')
