@@ -10,7 +10,6 @@ from time import sleep
 class CLI():
     instance = None
 
-    HISTORY_LEN = 10
     DEFAULT_COLORS = [
         TextColor.RED,
         TextColor.BLUE,
@@ -25,12 +24,11 @@ class CLI():
     def __init__(self):
         if (self.initialized):
             return
-        self.history = []
         self.mutex = threading.Lock()
         utils.clear_terminal()
         self.initialized = True
 
-    def get_next_color(self):
+    def _get_next_color(self):
         try:
             color = next(self.color_iter)
         except:
@@ -38,24 +36,25 @@ class CLI():
             color = next(self.color_iter)
         return color
 
-    def _print(self, text: str, new_color: TextColor):
-        if not new_color:
-            new_color = self.get_next_color()
-        print(f'{new_color}{text}')
-        self.last_color = new_color
+    def _io_handler(self, text: str, color: TextColor, io_function):
+        if not color:
+            color = self._get_next_color()
+        io_function(f'{color}{text}')
+        self.last_color = color
 
-    def print(self, text: str = '', new_color: TextColor = None):
+    def _print(self, text: str, color: TextColor):
+        self._io_handler(text, color, print)
+
+    def _input(self, text: str, color: TextColor):
+        self._io_handler(text, color, input)
+
+    def print(self, text: str = '', color: TextColor = None):
         with self.mutex:
-            self._print(text, new_color)
+            self._print(text, color)
 
-    def print_list(self, tag: str, lines: list, new_color: TextColor = None):
-        with self.mutex:
-            for line in lines:
-                self._print(line, new_color)
-
-    def input(self, input_text: str = ''):
+    def input(self, text: str = '', color: TextColor = None):
         while not msvcrt.kbhit():
             sleep(0.1)
         with self.mutex:
-            msg = input(input_text)
+            msg = self._input(text, color)
         return msg

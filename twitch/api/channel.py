@@ -35,10 +35,10 @@ class TwitchChannel():
         }
         with self.session.patch(url, params=params, data=data) as r:
             if r.status_code == 204:
-                self.cli.print(
-                    f'changing title to: {channel_info.title}\n'
-                    f'[{self.cli.PRINT_TAG}] changing tags to: {channel_info.tags}\n'
-                    f'[{self.cli.PRINT_TAG}] changing category to: {channel_info.name} (id={channel_info.id})'
+                self.cli.print_list(
+                    [f'changing title to: {channel_info.title}',
+                     f'changing tags to: {channel_info.tags}',
+                     f'changing category to: {channel_info.name} (id={channel_info.id})']
                 )
             else:
                 self.cli.print_err(r.content)
