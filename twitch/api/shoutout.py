@@ -1,4 +1,4 @@
-import fs
+from fs import FS
 import utils
 
 from cli import TagCLI
@@ -13,6 +13,7 @@ from ..websockets.irc import TwitchIRC
 class TwitchShoutout():
     session: Session
     cli: TagCLI
+    fs: FS
     oauth: TwitchOAuth
 
     irc: TwitchIRC
@@ -20,11 +21,12 @@ class TwitchShoutout():
     last_shoutout_time = 0
     last_shouted_out_channel = ''
 
-    def __init__(self, session: Session, cli: TagCLI, oauth: TwitchOAuth):
+    def __init__(self, session: Session, cli: TagCLI, fs: FS, oauth: TwitchOAuth):
         self.session = session
         self.cli = cli
+        self.fs = fs
         self.oauth = oauth
-        self.last_shoutout_time = fs.readint('user_data/last_shoutout_time')
+        self.last_shoutout_time = self.fs.readint('user_data/last_shoutout_time')
 
     def set_irc(self, irc: TwitchIRC):
         self.irc = irc
@@ -55,5 +57,5 @@ class TwitchShoutout():
             self.cli.print_err(r.content)
         self.last_shoutout_time = current_time
         self.last_shouted_out_channel = user_name
-        fs.write('user_data/last_shoutout_time', str(self.last_shoutout_time))
+        self.fs.write('user_data/last_shoutout_time', str(self.last_shoutout_time))
         return is_success

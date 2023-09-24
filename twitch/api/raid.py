@@ -1,4 +1,4 @@
-import fs
+from fs import FS
 import random
 import utils
 
@@ -15,6 +15,7 @@ from ..websockets.irc import TwitchIRC
 class TwitchRaid():
     session: Session
     cli: TagCLI
+    fs: FS
     oauth: TwitchOAuth
     streams: TwitchStreams
     irc: TwitchIRC
@@ -22,12 +23,13 @@ class TwitchRaid():
     last_raid_time = 0
     last_raided_channel = ''
 
-    def __init__(self, session: Session, cli: TagCLI, oauth: TwitchOAuth, streams: TwitchStreams):
+    def __init__(self, session: Session, cli: TagCLI, fs: FS, oauth: TwitchOAuth, streams: TwitchStreams):
         self.session = session
         self.cli = cli
+        self.fs = fs
         self.oauth = oauth
         self.streams = streams
-        self.last_raid_time = fs.readint('user_data/last_raid_time')
+        self.last_raid_time = self.fs.readint('user_data/last_raid_time')
 
     def set_irc(self, irc: TwitchIRC):
         self.irc = irc
@@ -54,7 +56,7 @@ class TwitchRaid():
                 return False
         self.last_raided_channel = user_name
         self.last_raid_time = current_time
-        fs.write('user_data/last_raid_time', str(self.last_raid_time))
+        self.fs.write('user_data/last_raid_time', str(self.last_raid_time))
         if r.status_code == 429:
             self.cli.print_err(r.content)
             return True

@@ -1,6 +1,6 @@
 from collections import deque
 from cli import *
-import fs
+from fs import FS
 import openai
 import random
 
@@ -23,7 +23,8 @@ class ChatAI():
 
     def __init__(self):
         self.cli = CLI()
-        openai.api_key = fs.read('user_data/openai_apikey')
+        self.fs = FS()
+        openai.api_key = self.fs.read('user_data/openai_apikey')
         openai.organization = "org-WYxlMO9eJAwqVXE47qAZEQVV"
 
     def _generate_response(self, user_name, content, logging=False) -> str:
@@ -40,8 +41,8 @@ class ChatAI():
         self.message_deque += message
         self.message_deque.append(responses['choices'][0]['message'])
         if logging:
-            fs.write('ai_request.json', self.CONFIG_MESSAGE + list(self.message_deque))
-            fs.write('ai_responses.json', responses)
+            self.fs.write('ai_request.json', self.CONFIG_MESSAGE + list(self.message_deque))
+            self.fs.write('ai_responses.json', responses)
         output = responses['choices'][0]['message']['content']
         output = output.replace('\n\n', '\n')
         output = output.replace(user_name, f'@{user_name}')

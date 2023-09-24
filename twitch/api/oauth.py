@@ -1,4 +1,4 @@
-import fs
+from fs import FS
 import utils
 import webbrowser
 
@@ -35,8 +35,8 @@ class TwitchOAuth(TwitchAccount):
     token = None
     broadcaster_id = None
 
-    def __init__(self, session: Session, cli: TagCLI):
-        super().__init__(cli)
+    def __init__(self, session: Session, cli: TagCLI, fs: FS):
+        super().__init__(cli, fs)
         self.session = session
         self.SCOPES = ' '.join(self.SCOPES)
 
@@ -60,20 +60,20 @@ class TwitchOAuth(TwitchAccount):
         self.cli.print('getting token')
 
         # Try loading existing token
-        TOKEN_PATH = f'{fs.USER_DATA_PATH}twitch_token'
-        self.token = fs.read(TOKEN_PATH)
+        TOKEN_PATH = f'{self.fs.USER_DATA_PATH}twitch_token'
+        self.token = self.fs.read(TOKEN_PATH)
         if self.token:
             return
         # Otherwise, request and store new token
         self._request_token()
-        fs.write(TOKEN_PATH, self.token)
+        self.fs.write(TOKEN_PATH, self.token)
 
     def get_broadcaster_id(self):
         self.cli.print('getting broadcaster_id')
 
         # Try loading existing broadcaster_id
-        BROADCASTER_ID_PATH = f'{fs.USER_DATA_PATH}broadcaster_id'
-        self.broadcaster_id = fs.read(BROADCASTER_ID_PATH)
+        BROADCASTER_ID_PATH = f'{self.fs.USER_DATA_PATH}broadcaster_id'
+        self.broadcaster_id = self.fs.read(BROADCASTER_ID_PATH)
         if self.broadcaster_id:
             return
 
@@ -85,7 +85,7 @@ class TwitchOAuth(TwitchAccount):
             json_data = r.json()
         try:
             self.broadcaster_id = json_data['data'][0]['id']
-            fs.write(BROADCASTER_ID_PATH, self.broadcaster_id)
+            self.fs.write(BROADCASTER_ID_PATH, self.broadcaster_id)
         except:
             self.cli.print(json_data)
 

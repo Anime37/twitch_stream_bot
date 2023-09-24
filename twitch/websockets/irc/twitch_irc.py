@@ -1,7 +1,7 @@
 from .commands.command_list import CommandList
 from .irc import *
 
-import fs
+from fs import FS
 import threading
 import utils
 from chat_ai import ChatAI
@@ -30,6 +30,7 @@ class TwitchIRC(IRC, threading.Thread):
         IRC.__init__(self, channel, 'wss://irc-ws.chat.twitch.tv:443', debug)
         threading.Thread.__init__(self)
         self.init_tts()
+        self.fs = FS()
         self.ai = ChatAI()
         self.commands = CommandList()
         self.initialized = True
@@ -43,14 +44,14 @@ class TwitchIRC(IRC, threading.Thread):
             self.channel,
             self.threat_format.format(
                 priv_msg.sender,
-                utils.get_random_line(f'{fs.MESSAGES_PATH}spam_threats.txt')
+                utils.get_random_line(f'{self.fs.MESSAGES_PATH}spam_threats.txt')
             )
         )
 
     def send_random_compliment(self, channel):
         self.send_privmsg(
             channel,
-            utils.get_random_line(f'{fs.MESSAGES_PATH}compliments.txt')
+            utils.get_random_line(f'{self.fs.MESSAGES_PATH}compliments.txt')
         )
 
     def _is_followbotting(self):
@@ -95,7 +96,7 @@ class TwitchIRC(IRC, threading.Thread):
 
     def _save_chat_message(self, sender: str, msg: str):
         OUTPUT_PATH = 'user_data/chat/chat.txt'
-        fs.write(OUTPUT_PATH, f'[{utils.get_current_timestamp()}]\n{sender}:\n{msg}')
+        self.fs.write(OUTPUT_PATH, f'[{utils.get_current_timestamp()}]\n{sender}:\n{msg}')
 
     def update_chat(self, sender: str, msg: str):
         self._save_chat_message(sender, msg)
@@ -150,7 +151,7 @@ class TwitchIRC(IRC, threading.Thread):
         #     self.print_rx(f'{message}')
 
     def authenticate(self):
-        token = fs.read('user_data/twitch_token')
+        token = self.fs.read('user_data/twitch_token')
         self._send('CAP REQ :twitch.tv/commands')
         self._send(f'PASS oauth:{token}')
         self._send(f'NICK {self.channel}')

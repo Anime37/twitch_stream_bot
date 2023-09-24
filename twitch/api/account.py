@@ -1,5 +1,5 @@
 import dataclasses
-import fs
+from fs import FS
 import os
 
 from cli import TagCLI
@@ -10,11 +10,17 @@ from .account_info import AccountInfo
 @dataclasses.dataclass
 class TwitchAccount():
     cli: TagCLI
+    fs: FS
 
-    ACCOUNT_PATH = f'{fs.USER_DATA_PATH}account.json'
+    ACCOUNT_PATH: str
+
+    def __init__(self, cli: TagCLI, fs: FS):
+        self.cli = cli
+        self.fs = fs
+        self.ACCOUNT_PATH = f'{fs.USER_DATA_PATH}account.json'
 
     def save_account_info(self):
-        fs.write(self.ACCOUNT_PATH, dataclasses.asdict(self.account))
+        self.fs.write(self.ACCOUNT_PATH, dataclasses.asdict(self.account))
 
     def load_account_info(self):
         self.account = AccountInfo()
@@ -22,7 +28,7 @@ class TwitchAccount():
             self.save_account_info()
             self.cli.print(f'please fill out the account details in {self.ACCOUNT_PATH}')
             return False
-        self.account = AccountInfo(**fs.read(self.ACCOUNT_PATH))
+        self.account = AccountInfo(**self.fs.read(self.ACCOUNT_PATH))
         return self.validate_account_info()
 
     def validate_account_info(self):

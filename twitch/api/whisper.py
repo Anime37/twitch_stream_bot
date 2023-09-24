@@ -1,4 +1,4 @@
-import fs
+from fs import FS
 import utils
 
 from cli import TagCLI
@@ -10,15 +10,17 @@ from .oauth import TwitchOAuth
 class TwitchWhisper():
     session: Session
     cli: TagCLI
+    fs: FS
     oauth: TwitchOAuth
 
     last_whisper_time = 0
 
-    def __init__(self, session: Session, cli: TagCLI, oauth: TwitchOAuth):
+    def __init__(self, session: Session, cli: TagCLI, fs: FS, oauth: TwitchOAuth):
         self.session = session
         self.cli = cli
+        self.fs = fs
         self.oauth = oauth
-        self.last_whisper_time = fs.readint('user_data/last_whisper_time')
+        self.last_whisper_time = self.fs.readint('user_data/last_whisper_time')
 
     def whisper(self, user_id, message):
         MIN_WHISPER_PERIOD = (60 * 40)  # 40 minutes
@@ -41,7 +43,7 @@ class TwitchWhisper():
 
         if (status_code in [204, 429]):
             self.last_whisper_time = current_time
-            fs.write('user_data/last_whisper_time', str(self.last_whisper_time))
+            self.fs.write('user_data/last_whisper_time', str(self.last_whisper_time))
             return True
 
         return False

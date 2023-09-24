@@ -1,5 +1,5 @@
 import os
-import fs
+from fs import FS
 import random
 import utils
 
@@ -25,9 +25,9 @@ class PredictionInfo():
 class TwitchPredictions():
     session: Session
     cli: TagCLI
+    fs: FS
     oauth: TwitchOAuth
 
-    PREDICTIONS_PATH = f'{fs.MESSAGES_PATH}predictions/'
     URL = 'https://api.twitch.tv/helix/predictions'
 
     prediction_files = []
@@ -36,9 +36,9 @@ class TwitchPredictions():
 
     def _get_random_prediction_outcomes(self):
         if not self.prediction_files:
-            self.prediction_files = os.listdir(self.PREDICTIONS_PATH)
-        prediction_list_path = f'{self.PREDICTIONS_PATH}{random.choice(self.prediction_files)}'
-        random_prediction = random.choice(fs.read(prediction_list_path)['predictions'])
+            self.prediction_files = os.listdir(self.fs.PREDICTIONS_PATH)
+        prediction_list_path = f'{self.fs.PREDICTIONS_PATH}{random.choice(self.prediction_files)}'
+        random_prediction = random.choice(self.fs.read(prediction_list_path)['predictions'])
         return random_prediction
 
     def _determine_outcome_result_status(self):

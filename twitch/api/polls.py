@@ -1,5 +1,5 @@
 import os
-import fs
+from fs import FS
 import random
 import utils
 
@@ -14,9 +14,9 @@ from .oauth import TwitchOAuth
 class TwitchPolls():
     session: Session
     cli: TagCLI
+    fs: FS
     oauth: TwitchOAuth
 
-    POLLS_PATH = f'{fs.MESSAGES_PATH}predictions/'
     URL = 'https://api.twitch.tv/helix/polls'
 
     polls_files = []
@@ -24,9 +24,9 @@ class TwitchPolls():
 
     def _get_random_poll_choices(self):
         if not self.polls_files:
-            self.polls_files = os.listdir(self.POLLS_PATH)
-        poll_list_path = f'{self.POLLS_PATH}{random.choice(self.polls_files)}'
-        random_poll = random.choice(fs.read(poll_list_path)['predictions'])
+            self.polls_files = os.listdir(self.fs.PREDICTIONS_PATH)
+        poll_list_path = f'{self.fs.PREDICTIONS_PATH}{random.choice(self.polls_files)}'
+        random_poll = random.choice(self.fs.read(poll_list_path)['predictions'])
         # rename predictions outcomes to poll choices
         random_poll['choices'] = random_poll.pop('outcomes')
         return random_poll

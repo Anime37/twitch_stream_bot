@@ -1,6 +1,7 @@
 import requests
 
 from cli import TagCLI
+from fs import FS
 
 from .announcement import TwitchAnnouncement
 from .channel import TwitchChannel
@@ -20,20 +21,21 @@ from .whisper import TwitchWhisper
 class TwitchAPI():
     def __init__(self):
         self._init_prerequisites()
-        self.announcements = TwitchAnnouncement(self.session, self.cli, self.oauth)
+        self.announcements = TwitchAnnouncement(self.session, self.cli, self.fs, self.oauth)
         self.channel = TwitchChannel(self.session, self.cli, self.oauth)
         self.clips = TwitchClips(self.session, self.cli, self.oauth)
         self.eventsub = TwitchEventSub(self.session, self.cli, self.oauth)
         self.guest_star = TwitchGuestStar(self.session, self.cli, self.oauth)
-        self.polls = TwitchPolls(self.session, self.cli, self.oauth)
-        self.predictions = TwitchPredictions(self.session, self.cli, self.oauth)
-        self.raid = TwitchRaid(self.session, self.cli, self.oauth, self.streams)
+        self.polls = TwitchPolls(self.session, self.cli, self.fs, self.oauth)
+        self.predictions = TwitchPredictions(self.session, self.cli, self.fs, self.oauth)
+        self.raid = TwitchRaid(self.session, self.cli, self.fs, self.oauth, self.streams)
         self.segments = TwitchSegments(self.session, self.cli, self.oauth)
-        self.shoutout = TwitchShoutout(self.session, self.cli, self.oauth)
-        self.whispers = TwitchWhisper(self.session, self.cli, self.oauth)
+        self.shoutout = TwitchShoutout(self.session, self.cli, self.fs, self.oauth)
+        self.whispers = TwitchWhisper(self.session, self.cli, self.fs, self.oauth)
 
     def _init_prerequisites(self):
         self.session = requests.Session()
         self.cli = TagCLI('API')
-        self.oauth = TwitchOAuth(self.session, self.cli)
+        self.fs = FS()
+        self.oauth = TwitchOAuth(self.session, self.cli, self.fs)
         self.streams = TwitchStreams(self.session, self.cli)
