@@ -1,11 +1,14 @@
 from cli import TagCLI
 from twitch import TwitchAPP
-from twitch.websockets.irc import PRIVMSG
+from twitch.websockets.irc import TwitchIRC, PRIVMSG
 
 from .actions_queue import TwitchActionsQueue
 
 
 class TwitchTerminalChat():
+    cli : TagCLI
+    irc : TwitchIRC
+
     def __init__(self, app: TwitchAPP):
         self.app = app
         self.cli = app.cli
