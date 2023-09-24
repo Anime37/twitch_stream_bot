@@ -39,14 +39,15 @@ class CLI():
     def _io_handler(self, text: str, color: TextColor, io_function):
         if not color:
             color = self._get_next_color()
-        io_function(f'{color}{text}')
+        result = io_function(f'{color}{text}')
         self.last_color = color
+        return result
 
     def _print(self, text: str, color: TextColor):
         self._io_handler(text, color, print)
 
     def _input(self, text: str, color: TextColor):
-        self._io_handler(text, color, input)
+        return self._io_handler(text, color, input)
 
     def print(self, text: str = '', color: TextColor = None):
         with self.mutex:
