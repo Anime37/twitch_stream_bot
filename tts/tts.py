@@ -4,6 +4,8 @@ import random
 import threading
 import pyttsx3
 
+from fs import FS
+
 
 @dataclasses.dataclass
 class Voice():
@@ -13,7 +15,7 @@ class Voice():
 
 class TTS():
     voices: list[Voice]
-    OUTPUT_DIR = 'user_data/chat/'
+    OUTPUT_DIR = f'{FS.USER_DATA_PATH}chat/'
 
     def __init__(self):
         self.engine = pyttsx3.init()

@@ -36,8 +36,8 @@ class TwitchPredictions():
 
     def _get_random_prediction_outcomes(self):
         if not self.prediction_files:
-            self.prediction_files = os.listdir(self.fs.PREDICTIONS_PATH)
-        prediction_list_path = f'{self.fs.PREDICTIONS_PATH}{random.choice(self.prediction_files)}'
+            self.prediction_files = os.listdir(FS.PREDICTIONS_PATH)
+        prediction_list_path = f'{FS.PREDICTIONS_PATH}{random.choice(self.prediction_files)}'
         random_prediction = random.choice(self.fs.read(prediction_list_path)['predictions'])
         return random_prediction
 

@@ -18,6 +18,8 @@ class TwitchIRC(IRC, threading.Thread):
     last_follow_thx_time = 0
     followbot_counter = 0
 
+    CHAT_OUTPUT_PATH = f'{FS.USER_DATA_PATH}chat/chat.txt'
+
     def __new__(cls, *args):
         if cls.instance is None:
             cls.instance = super().__new__(cls)
@@ -44,14 +46,14 @@ class TwitchIRC(IRC, threading.Thread):
             self.channel,
             self.threat_format.format(
                 priv_msg.sender,
-                utils.get_random_line(f'{self.fs.MESSAGES_PATH}spam_threats.txt')
+                utils.get_random_line(f'{FS.MESSAGES_PATH}spam_threats.txt')
             )
         )
 
     def send_random_compliment(self, channel):
         self.send_privmsg(
             channel,
-            utils.get_random_line(f'{self.fs.MESSAGES_PATH}compliments.txt')
+            utils.get_random_line(f'{FS.MESSAGES_PATH}compliments.txt')
         )
 
     def _is_followbotting(self):
@@ -95,8 +97,7 @@ class TwitchIRC(IRC, threading.Thread):
         )
 
     def _save_chat_message(self, sender: str, msg: str):
-        OUTPUT_PATH = 'user_data/chat/chat.txt'
-        self.fs.write(OUTPUT_PATH, f'[{utils.get_current_timestamp()}]\n{sender}:\n{msg}')
+        self.fs.write(self.CHAT_OUTPUT_PATH, f'[{utils.get_current_timestamp()}]\n{sender}:\n{msg}')
 
     def update_chat(self, sender: str, msg: str):
         self._save_chat_message(sender, msg)
@@ -151,7 +152,7 @@ class TwitchIRC(IRC, threading.Thread):
         #     self.print_rx(f'{message}')
 
     def authenticate(self):
-        token = self.fs.read('user_data/twitch_token')
+        token = self.fs.read(FS.TWITCH_TOKEN_PATH)
         self._send('CAP REQ :twitch.tv/commands')
         self._send(f'PASS oauth:{token}')
         self._send(f'NICK {self.channel}')

@@ -24,8 +24,8 @@ class TwitchPolls():
 
     def _get_random_poll_choices(self):
         if not self.polls_files:
-            self.polls_files = os.listdir(self.fs.PREDICTIONS_PATH)
-        poll_list_path = f'{self.fs.PREDICTIONS_PATH}{random.choice(self.polls_files)}'
+            self.polls_files = os.listdir(FS.PREDICTIONS_PATH)
+        poll_list_path = f'{FS.PREDICTIONS_PATH}{random.choice(self.polls_files)}'
         random_poll = random.choice(self.fs.read(poll_list_path)['predictions'])
         # rename predictions outcomes to poll choices
         random_poll['choices'] = random_poll.pop('outcomes')

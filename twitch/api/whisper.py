@@ -13,6 +13,9 @@ class TwitchWhisper():
     fs: FS
     oauth: TwitchOAuth
 
+    LAST_TIME_PATH = f'{FS.USER_DATA_PATH}last_whisper_time'
+
+
     last_whisper_time = 0
 
     def __init__(self, session: Session, cli: TagCLI, fs: FS, oauth: TwitchOAuth):
@@ -20,7 +23,7 @@ class TwitchWhisper():
         self.cli = cli
         self.fs = fs
         self.oauth = oauth
-        self.last_whisper_time = self.fs.readint('user_data/last_whisper_time')
+        self.last_whisper_time = self.fs.readint(self.LAST_TIME_PATH)
 
     def whisper(self, user_id, message):
         MIN_WHISPER_PERIOD = (60 * 40)  # 40 minutes
@@ -43,7 +46,7 @@ class TwitchWhisper():
 
         if (status_code in [204, 429]):
             self.last_whisper_time = current_time
-            self.fs.write('user_data/last_whisper_time', str(self.last_whisper_time))
+            self.fs.write(self.LAST_TIME_PATH, str(self.last_whisper_time))
             return True
 
         return False

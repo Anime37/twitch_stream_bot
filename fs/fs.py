@@ -8,6 +8,7 @@ class FS():
     instance = None
 
     USER_DATA_PATH = 'user_data/'
+    TWITCH_TOKEN_PATH = f'{USER_DATA_PATH}twitch_token'
     USER_CONFIG_PATH = f'{USER_DATA_PATH}config/'
     MESSAGES_PATH = f'{USER_CONFIG_PATH}messages/'
     PREDICTIONS_PATH = f'{MESSAGES_PATH}predictions/'

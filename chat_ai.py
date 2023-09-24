@@ -24,7 +24,7 @@ class ChatAI():
     def __init__(self):
         self.cli = CLI()
         self.fs = FS()
-        openai.api_key = self.fs.read('user_data/openai_apikey')
+        openai.api_key = self.fs.read(f'{FS.USER_DATA_PATH}openai_apikey')
         openai.organization = "org-WYxlMO9eJAwqVXE47qAZEQVV"
 
     def _generate_response(self, user_name, content, logging=False) -> str:

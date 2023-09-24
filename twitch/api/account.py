@@ -12,12 +12,7 @@ class TwitchAccount():
     cli: TagCLI
     fs: FS
 
-    ACCOUNT_PATH: str
-
-    def __init__(self, cli: TagCLI, fs: FS):
-        self.cli = cli
-        self.fs = fs
-        self.ACCOUNT_PATH = f'{fs.USER_DATA_PATH}account.json'
+    ACCOUNT_PATH = f'{FS.USER_DATA_PATH}account.json'
 
     def save_account_info(self):
         self.fs.write(self.ACCOUNT_PATH, dataclasses.asdict(self.account))

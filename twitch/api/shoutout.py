@@ -18,6 +18,8 @@ class TwitchShoutout():
 
     irc: TwitchIRC
 
+    LAST_TIME_PATH = f'{FS.USER_DATA_PATH}last_shoutout_time'
+
     last_shoutout_time = 0
     last_shouted_out_channel = ''
 
@@ -26,7 +28,7 @@ class TwitchShoutout():
         self.cli = cli
         self.fs = fs
         self.oauth = oauth
-        self.last_shoutout_time = self.fs.readint('user_data/last_shoutout_time')
+        self.last_shoutout_time = self.fs.readint(self.LAST_TIME_PATH)
 
     def set_irc(self, irc: TwitchIRC):
         self.irc = irc
@@ -57,5 +59,5 @@ class TwitchShoutout():
             self.cli.print_err(r.content)
         self.last_shoutout_time = current_time
         self.last_shouted_out_channel = user_name
-        self.fs.write('user_data/last_shoutout_time', str(self.last_shoutout_time))
+        self.fs.write(self.LAST_TIME_PATH, str(self.last_shoutout_time))
         return is_success

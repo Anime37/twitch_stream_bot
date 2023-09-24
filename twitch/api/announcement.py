@@ -14,6 +14,8 @@ class TwitchAnnouncement():
     fs: FS
     oauth: TwitchOAuth
 
+    LAST_TIME_PATH = f'{FS.USER_DATA_PATH}last_announcement_time'
+
     last_announcement_time = 0
 
     def __init__(self, session: Session, cli: TagCLI, fs: FS, oauth: TwitchOAuth):
@@ -21,7 +23,7 @@ class TwitchAnnouncement():
         self.cli = cli
         self.fs = fs
         self.oauth = oauth
-        self.last_announcement_time = fs.readint('user_data/last_announcement_time')
+        self.last_announcement_time = fs.readint(self.LAST_TIME_PATH)
 
     def send(self):
         MIN_ANNOUNCEMENT_PERIOD = (600)  # seconds
@@ -44,7 +46,7 @@ class TwitchAnnouncement():
             'moderator_id': self.oauth.broadcaster_id,
         }
         data = {
-            'message': utils.get_random_line(f'{self.fs.MESSAGES_PATH}announcements.txt'),
+            'message': utils.get_random_line(f'{FS.MESSAGES_PATH}announcements.txt'),
             'color': random.choice(COLORS),
         }
         with self.session.post(url, params=params, data=data) as r:
@@ -53,4 +55,4 @@ class TwitchAnnouncement():
             else:
                 self.cli.print_err(r.content)
         self.last_announcement_time = current_time
-        self.fs.write('user_data/last_announcement_time', str(self.last_announcement_time))
+        self.fs.write(self.LAST_TIME_PATH, str(self.last_announcement_time))

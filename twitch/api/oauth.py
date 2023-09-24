@@ -60,19 +60,18 @@ class TwitchOAuth(TwitchAccount):
         self.cli.print('getting token')
 
         # Try loading existing token
-        TOKEN_PATH = f'{self.fs.USER_DATA_PATH}twitch_token'
-        self.token = self.fs.read(TOKEN_PATH)
+        self.token = self.fs.read(FS.TWITCH_TOKEN_PATH)
         if self.token:
             return
         # Otherwise, request and store new token
         self._request_token()
-        self.fs.write(TOKEN_PATH, self.token)
+        self.fs.write(FS.TWITCH_TOKEN_PATH, self.token)
 
     def get_broadcaster_id(self):
         self.cli.print('getting broadcaster_id')
 
         # Try loading existing broadcaster_id
-        BROADCASTER_ID_PATH = f'{self.fs.USER_DATA_PATH}broadcaster_id'
+        BROADCASTER_ID_PATH = f'{FS.USER_DATA_PATH}broadcaster_id'
         self.broadcaster_id = self.fs.read(BROADCASTER_ID_PATH)
         if self.broadcaster_id:
             return
