@@ -60,7 +60,7 @@ class TwitchOAuth(TwitchAccount):
         self.cli.print('getting token')
 
         # Try loading existing token
-        TOKEN_PATH = f'{fs.USER_DATA_PATH}token'
+        TOKEN_PATH = f'{fs.USER_DATA_PATH}twitch_token'
         self.token = fs.read(TOKEN_PATH)
         if self.token:
             return

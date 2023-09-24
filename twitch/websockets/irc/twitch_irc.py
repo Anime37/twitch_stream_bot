@@ -150,7 +150,7 @@ class TwitchIRC(IRC, threading.Thread):
         #     self.print_rx(f'{message}')
 
     def authenticate(self):
-        token = fs.read('user_data/token')
+        token = fs.read('user_data/twitch_token')
         self._send('CAP REQ :twitch.tv/commands')
         self._send(f'PASS oauth:{token}')
         self._send(f'NICK {self.channel}')
