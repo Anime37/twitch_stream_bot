@@ -3,8 +3,6 @@ from dataclasses import dataclass
 
 @dataclass
 class PRIVMSG():
+    user_id: str
     sender: str
-    user: str
-    host: str
-    target: str
     content: str

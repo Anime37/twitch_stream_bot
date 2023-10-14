@@ -21,7 +21,7 @@ class TwitchTerminalChat():
         self.irc = app.websockets.irc
 
     def _fake_privmsg(self, content: str):
-        priv_msg = PRIVMSG(self.app.USER_NAME, '', '', '', content)
+        priv_msg = PRIVMSG('', self.app.USER_NAME, content)
         self.irc.handle_privmsg(priv_msg)
 
     def _handle_input(self, text: str):

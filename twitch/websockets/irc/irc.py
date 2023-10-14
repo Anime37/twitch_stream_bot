@@ -36,17 +36,14 @@ class IRC():
         self.cli.print(f'[{self.PRINT_TAG}] >> {text}', TextColor.GREEN)
 
     def parse_privmsg(self, message):
-        pattern = r'^:(?P<sender>[^!]+)!(?P<user>[^@]+)@(?P<host>[^ ]+) PRIVMSG (?P<target>[^ ]+) :(?P<content>.*)$'
+        pattern = r'.*?user-id=(?P<user_id>\d+).*?:+(?P<sender>[^!]+)![^@]+@[^ ]+ PRIVMSG [^ ]+ :(?P<content>.+)$'
         match = re.match(pattern, message)
-
         if not match:
             return None
 
         return PRIVMSG(
+            match.group('user_id'),
             match.group('sender'),
-            match.group('user'),
-            match.group('host'),
-            match.group('target'),
             match.group('content')
         )
 
