@@ -53,7 +53,10 @@ class IRC():
             self.print(f'{field}: {value}')
 
     def _send(self, msg):
-        self.ws.send(f'{msg}\r\n')
+        try:
+            self.ws.send(f'{msg}\r\n')
+        except:
+            self.cli.print_err('socket is closed!')
 
     def join_channel(self, channel):
         self._send(f'JOIN #{channel}')
