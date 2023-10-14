@@ -17,9 +17,10 @@ class TTS():
     voices: list[Voice]
     OUTPUT_DIR = f'{FS.USER_DATA_PATH}chat/'
 
-    def __init__(self):
+    def __init__(self, fs: FS):
         self.engine = pyttsx3.init()
         self.mutex = threading.Lock()
+        self.fs = fs
         self._init_voices()
 
     def _init_voices(self):
@@ -50,7 +51,7 @@ class TTS():
     def save_to_file(self, text: str, file_name: str):
         with self.mutex:
             output_path = self.OUTPUT_DIR + file_name
-            if os.path.exists(output_path):
+            if self.fs.exists(output_path):
                 os.remove(output_path)
             self._set_rand_voice()
             self.engine.save_to_file(text, output_path)

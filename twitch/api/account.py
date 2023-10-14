@@ -19,7 +19,7 @@ class TwitchAccount():
 
     def load_account_info(self):
         self.account = AccountInfo()
-        if not os.path.exists(self.ACCOUNT_PATH):
+        if not self.fs.exists(self.ACCOUNT_PATH):
             self.save_account_info()
             self.cli.print(f'please fill out the account details in {self.ACCOUNT_PATH}')
             return False

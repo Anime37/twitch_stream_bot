@@ -39,8 +39,11 @@ class FS():
                 break
         return handler
 
+    def exists(self, filepath: str):
+        return os.path.exists(filepath)
+
     def read(self, filepath: str):
-        if not os.path.exists(filepath):
+        if not self.exists(filepath):
             return ''
         handler = self._get_extension_handler(filepath)
         with self.mutex:

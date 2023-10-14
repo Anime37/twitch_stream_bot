@@ -9,6 +9,7 @@ from .irc import *
 from .commands.command_list import CommandList
 
 from ...actions_queue import TwitchActionsQueue
+from ...api.bans import TwitchBans
 
 
 class TwitchIRC(IRC, threading.Thread):
@@ -29,21 +30,21 @@ class TwitchIRC(IRC, threading.Thread):
             cls.instance.initialized = False
         return cls.instance
 
-    def __init__(self, channel: str, actions_queue: TwitchActionsQueue, bans):
+    def __init__(self, channel: str, actions_queue: TwitchActionsQueue, bans: TwitchBans):
         if self.initialized:
             return
         IRC.__init__(self, channel, 'wss://irc-ws.chat.twitch.tv:443')
         threading.Thread.__init__(self)
-        self.init_tts()
         self.fs = FS()
-        self.ai = ChatAI()
+        self.init_tts()
+        self.ai = ChatAI(self.cli, self.fs)
         self.commands = CommandList()
         self.actions_queue = actions_queue
         self.bans = bans
         self.initialized = True
 
     def init_tts(self):
-        self.tts = TTS()
+        self.tts = TTS(self.fs)
         self.tts.set_voices('Japanese')
 
     def send_random_threat(self, priv_msg: PRIVMSG):

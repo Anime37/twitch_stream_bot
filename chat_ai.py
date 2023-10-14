@@ -1,11 +1,14 @@
 from collections import deque
-from cli import *
+from cli import TagCLI
 from fs import FS
 import openai
 import random
 
 
 class ChatAI():
+    cli: TagCLI
+    fs: FS
+
     MESSAGE_DEQUE_LIMIT = 10
     CHARACTER_LIMIT = 400
     CONFIG = [
@@ -21,9 +24,9 @@ class ChatAI():
     CONFIG_MESSAGE = [{"role": "system", "content": ' '.join(CONFIG)}]
     message_deque = deque(maxlen=MESSAGE_DEQUE_LIMIT)
 
-    def __init__(self):
-        self.cli = CLI()
-        self.fs = FS()
+    def __init__(self, cli: TagCLI, fs: FS):
+        self.cli = cli
+        self.fs = fs
         openai.api_key = self.fs.read(f'{FS.USER_DATA_PATH}openai_apikey')
         openai.organization = "org-WYxlMO9eJAwqVXE47qAZEQVV"
 
