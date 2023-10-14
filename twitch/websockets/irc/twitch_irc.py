@@ -38,6 +38,7 @@ class TwitchIRC(IRC, threading.Thread):
         self.fs = FS()
         self.ai = ChatAI()
         self.commands = CommandList()
+        self.actions_queue = actions_queue
         self.bans = bans
         self.initialized = True
 
@@ -126,6 +127,11 @@ class TwitchIRC(IRC, threading.Thread):
         for result in results:
             self.send_chat(result)
 
+    def _handle_chat_admin(self, priv_msg: PRIVMSG):
+        if (priv_msg.sender != self.channel):
+            return
+        self.actions_queue.add(priv_msg.content[1:].strip())
+
     def _spam_handler(self, priv_msg: PRIVMSG) -> bool:
         current_time = utils.get_current_time()
         if (self.last_receive_time and ((self.last_receive_time + self.COMM_TMO) > current_time)):
@@ -143,6 +149,8 @@ class TwitchIRC(IRC, threading.Thread):
         match(priv_msg.content[0]):
             case '!':
                 self._handle_chat_command(priv_msg)
+            case ',':
+                self._handle_chat_admin(priv_msg)
             case _:
                 self._handle_chat_message(priv_msg)
 
