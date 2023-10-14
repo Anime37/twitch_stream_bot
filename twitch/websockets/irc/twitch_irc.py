@@ -1,4 +1,3 @@
-from .commands.command_list import CommandList
 from .irc import *
 
 from fs import FS
@@ -6,6 +5,8 @@ import threading
 import utils
 from chat_ai import ChatAI
 from tts import TTS
+
+from .commands.command_list import CommandList
 
 from ...actions_queue import TwitchActionsQueue
 
@@ -117,8 +118,13 @@ class TwitchIRC(IRC, threading.Thread):
             self.bans.ban_user(priv_msg.user_id, priv_msg.sender)
 
     def _handle_chat_command(self, priv_msg: PRIVMSG):
-        result = self.commands.execute(priv_msg.content[1:])
-        self.send_chat(f'@{priv_msg.sender}, {result}')
+        results = self.commands.execute(priv_msg.content[1:])
+        if len(results) > 1:
+            results = [f'@{priv_msg.sender}'] + results
+        else:
+            results[0] = f'@{priv_msg.sender}, {results[0]}'
+        for result in results:
+            self.send_chat(result)
 
     def _spam_handler(self, priv_msg: PRIVMSG) -> bool:
         current_time = utils.get_current_time()

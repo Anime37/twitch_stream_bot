@@ -1,5 +1,8 @@
 class CommandBase():
-    trigger: str
+    trigger: str = 'undefined'
+    help_params: str = ''
+    help_description: str = 'undefined'
+
     trigger_len: int
 
     def __init__(self):
@@ -10,6 +13,9 @@ class CommandBase():
 
     def extract_params(self, cmd: str) -> str:
         return cmd[self.trigger_len:].strip()
+
+    def get_help_msg(self) -> str:
+        return f'!{self.trigger} {self.help_params} - {self.help_description}'
 
     def run(self, params: str) -> str:
         return 'command not implemented'

@@ -5,6 +5,8 @@ from .command_base import CommandBase
 
 class ToggleGif(CommandBase):
     trigger = 'togglegif'
+    help_params: str = '<gif_name>'
+    help_description: str = 'toggle gifs on/off on the stream (guess gif names)'
 
     def __init__(self):
         super().__init__()
