@@ -31,15 +31,17 @@ class TwitchPolls():
         random_poll['choices'] = random_poll.pop('outcomes')
         return random_poll
 
-    def get_current_poll(self):
+    def get_current_poll_id(self):
+        result = ''
         data = {
             'broadcaster_id': self.oauth.broadcaster_id,
         }
         with self.session.get(self.URL, params=data) as r:
             try:
-                self.cli.print(r.json()['data'][0])
+                result = r.json()['data'][0]['id']
             except:
                 self.cli.print_err(r.content)
+        return result
 
     def _can_create_poll(self, current_time) -> bool:
         return (current_time > self.next_poll_time)
@@ -56,27 +58,21 @@ class TwitchPolls():
         }
         data.update(self._get_random_poll_choices())
         with self.session.post(self.URL, json=data) as r:
-            if r.status_code != 200:
+            if r.status_code == 200:
+                self.cli.print(f'starting a poll: {data["title"]}')
+                self.next_poll_time = current_time + MIN_POLL_PERIOD + 1
+            else:
                 self.cli.print_err(r.content)
-                return
-            self.cli.print(f'starting a poll: {data["title"]}')
-            self.next_poll_time = current_time + MIN_POLL_PERIOD + 1
-
-    def _can_end_poll(self) -> bool:
-        self.get_current_poll()
-        return True
+                self.end_current_poll()
 
     def end_current_poll(self):
-        if not self._can_end_poll():
-            return
         data = {
             'broadcaster_id': self.oauth.broadcaster_id,
-            'id': self.current_poll.id,
-            'status': self.current_poll.result_status,
-            'winning_outcome_id': self.current_poll.winning_outcome_id,
+            'id': self.get_current_poll_id(),
+            'status': 'TERMINATED',
         }
         with self.session.patch(self.URL, json=data) as r:
-            try:
-                self.current_poll.reset()
-            except:
+            if r.status_code == 200:
+                self.cli.print(f'manually terminated the poll')
+            else:
                 self.cli.print_err(r.content)
