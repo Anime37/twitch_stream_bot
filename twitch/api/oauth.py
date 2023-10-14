@@ -68,6 +68,14 @@ class TwitchOAuth(TwitchAccount):
         self._request_token()
         self.fs.write(FS.TWITCH_TOKEN_PATH, self.token)
 
+    def validate(self):
+        self.cli.print('validating token')
+
+        url = 'https://id.twitch.tv/oauth2/validate'
+        headers = {'Authorization': f'Bearer {self.token}'}
+        with self.session.get(url, headers=headers) as r:
+            return (r.status_code == 200)
+
     def get_broadcaster_id(self):
         self.cli.print('getting broadcaster_id')
 
