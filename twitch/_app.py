@@ -68,8 +68,8 @@ class TwitchAPP(TwitchAPI):
         self.announcements.send()
         self.polls.create_poll()
         self.predictions.create_prediction()
-        self.segments.create_stream_schedule_segment()
         self.clips.create()
+        self.segments.create_stream_schedule_segments(channel_info, True)
 
     def _run_queued_actions(self):
         if self.actions_queue.empty():
