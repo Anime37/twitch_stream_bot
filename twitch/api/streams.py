@@ -2,6 +2,8 @@ from cli import TagCLI
 from dataclasses import dataclass
 from requests import Session
 
+from fs import FS
+
 from .channel_info import ChannelInfo
 
 import random
@@ -12,22 +14,22 @@ class TwitchStreams():
     cli: TagCLI
 
     def _get_top_streams(self):
-        return random.randint(1, 3)
+        return random.randint(1, 2)
 
     def _get_mid_streams(self):
         return random.randint(3, 5)
 
     def _get_low_streams(self):
-        return random.randint(5, 20)
+        return random.randint(6, 9)
 
     def _streams_page_to_get(self):
         try:
             page_to_get = next(self.page_to_get_iter)()
         except:
             self.page_to_get_iter = iter(
-                [self._get_low_streams]*4 +
+                [self._get_low_streams]*1 +
                 [self._get_mid_streams]*2 +
-                [self._get_top_streams]*1
+                [self._get_top_streams]*3
             )
             page_to_get = next(self.page_to_get_iter)()
         return page_to_get
