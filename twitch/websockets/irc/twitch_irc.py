@@ -7,6 +7,8 @@ import utils
 from chat_ai import ChatAI
 from tts import TTS
 
+from ...actions_queue import TwitchActionsQueue
+
 
 class TwitchIRC(IRC, threading.Thread):
     instance = None
@@ -26,15 +28,16 @@ class TwitchIRC(IRC, threading.Thread):
             cls.instance.initialized = False
         return cls.instance
 
-    def __init__(self, channel='', debug=False):
+    def __init__(self, channel: str, actions_queue: TwitchActionsQueue, bans):
         if self.initialized:
             return
-        IRC.__init__(self, channel, 'wss://irc-ws.chat.twitch.tv:443', debug)
+        IRC.__init__(self, channel, 'wss://irc-ws.chat.twitch.tv:443')
         threading.Thread.__init__(self)
         self.init_tts()
         self.fs = FS()
         self.ai = ChatAI()
         self.commands = CommandList()
+        self.bans = bans
         self.initialized = True
 
     def init_tts(self):
@@ -109,6 +112,9 @@ class TwitchIRC(IRC, threading.Thread):
         self.update_chat(priv_msg.sender, priv_msg.content)
         ai_response = self.ai.get_response(priv_msg.sender, priv_msg.content)
         self.send_chat(ai_response)
+        if priv_msg.user_id and '!timeout!' in ai_response:
+            self.update_chat(self.channel, 'uh-oh!')
+            self.bans.ban_user(priv_msg.user_id, priv_msg.sender)
 
     def _handle_chat_command(self, priv_msg: PRIVMSG):
         result = self.commands.execute(priv_msg.content[1:])
@@ -153,7 +159,7 @@ class TwitchIRC(IRC, threading.Thread):
 
     def authenticate(self):
         token = self.fs.read(FS.TWITCH_TOKEN_PATH)
-        self._send('CAP REQ :twitch.tv/commands')
+        self._send('CAP REQ :twitch.tv/commands twitch.tv/tags')
         self._send(f'PASS oauth:{token}')
         self._send(f'NICK {self.channel}')
 

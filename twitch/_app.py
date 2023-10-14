@@ -31,7 +31,7 @@ class TwitchAPP(TwitchAPI):
         return True
 
     def _start_websockets(self):
-        self.websockets = TwitchWebSockets(self.oauth.account.USER_NAME)
+        self.websockets = TwitchWebSockets(self.oauth.account.USER_NAME, self.actions_queue, self.bans)
         self.websockets.start_all()
 
     def _set_websocket_references(self):

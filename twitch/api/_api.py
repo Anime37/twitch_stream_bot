@@ -4,6 +4,7 @@ from cli import TagCLI
 from fs import FS
 
 from .announcement import TwitchAnnouncement
+from .bans import TwitchBans
 from .channel import TwitchChannel
 from .clips import TwitchClips
 from .eventsub import TwitchEventSub
@@ -22,6 +23,7 @@ class TwitchAPI():
     def __init__(self):
         self._init_prerequisites()
         self.announcements = TwitchAnnouncement(self.session, self.cli, self.fs, self.oauth)
+        self.bans = TwitchBans(self.session, self.cli, self.oauth)
         self.channel = TwitchChannel(self.session, self.cli, self.oauth)
         self.clips = TwitchClips(self.session, self.cli, self.oauth)
         self.eventsub = TwitchEventSub(self.session, self.cli, self.oauth)
