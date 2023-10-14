@@ -24,13 +24,11 @@ class TwitchEventSubWebSocket(threading.Thread):
             cls.instance.initialized = False
         return cls.instance
 
-    def __init__(self, debug=False):
+    def __init__(self, irc: TwitchIRC):
         threading.Thread.__init__(self)
         if self.initialized:
             return
-        if debug:
-            websocket.enableTrace(True)
-        self.irc = TwitchIRC()
+        self.irc = irc
         self.event_handler = EventHandler()
         self.welcome_event = self.event_handler.create_event(self.WELCOME_EVENT_NAME)
         self.ws = websocket.WebSocketApp("wss://eventsub.wss.twitch.tv/ws",

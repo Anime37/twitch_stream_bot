@@ -4,7 +4,7 @@ import threading
 from cli import TagCLI
 from gif_manager import GifManager
 from tts import TTSServerThread
-from twitch import TwitchAPP, TwitchTerminalChat
+from twitch import *
 
 
 cli = TagCLI('APP')

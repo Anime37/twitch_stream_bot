@@ -7,33 +7,25 @@ from cli import *
 
 
 class IRC():
-    PRINT_TAG = 'IRC'
+    cli: TagCLI
 
-    cli = CLI()
     mutex = threading.Lock()
     last_privmsg = ''
 
-    def __init__(self, channel, url, debug=False):
-        if debug:
-            websocket.enableTrace(True)
+    def __init__(self, channel, url):
         self.ws = websocket.WebSocketApp(url,
                                          on_message=self.on_message,
                                          on_error=self.on_error,
                                          on_close=self.on_close,
                                          on_open=self.on_open)
+        self.cli = TagCLI('IRC')
         self.channel = channel
 
-    def print(self, text: str):
-        self.cli.print(f'[{self.PRINT_TAG}] {text}')
-
-    def print_err(self, text: str):
-        self.cli.print(f'[{self.PRINT_TAG}] {text}', TextColor.WHITE)
-
     def print_rx(self, text: str):
-        self.cli.print(f'[{self.PRINT_TAG}] << {text}', TextColor.YELLOW)
+        self.cli.print(f'<< {text}', TextColor.YELLOW)
 
     def print_tx(self, text: str):
-        self.cli.print(f'[{self.PRINT_TAG}] >> {text}', TextColor.GREEN)
+        self.cli.print(f'>> {text}', TextColor.GREEN)
 
     def parse_privmsg(self, message):
         pattern = r'.*?user-id=(?P<user_id>\d+).*?:+(?P<sender>[^!]+)![^@]+@[^ ]+ PRIVMSG [^ ]+ :(?P<content>.+)$'
@@ -84,13 +76,13 @@ class IRC():
             self.print_rx(f"Received message: {message}")
 
     def on_error(self, ws, error):
-        self.print_err(f"Error occurred: {error}")
+        self.cli.print_err(f"Error occurred: {error}")
 
     def on_close(self, ws, status_code, close_msg):
-        self.print_err(f"WebSocket connection closed ({status_code}: {close_msg})")
+        self.cli.print_err(f"WebSocket connection closed ({status_code}: {close_msg})")
 
     def on_open(self, ws):
-        self.print("WebSocket connection opened")
+        self.cli.print("WebSocket connection opened")
 
     def run(self):
         self.ws.run_forever()

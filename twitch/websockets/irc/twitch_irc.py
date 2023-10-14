@@ -1,11 +1,11 @@
-from .irc import *
-
-from fs import FS
 import threading
 import utils
+
 from chat_ai import ChatAI
+from fs import FS
 from tts import TTS
 
+from .irc import *
 from .commands.command_list import CommandList
 
 from ...actions_queue import TwitchActionsQueue
@@ -90,26 +90,29 @@ class TwitchIRC(IRC, threading.Thread):
     def send_thx_for_follow(self, user_name):
         if self._handle_followbotting(user_name):
             return
-        self.send_privmsg(
-            self.channel,
-            self.ai.generate_follow_thx(user_name)
-        )
+        ai_response = self.ai.generate_follow_thx(user_name)
+        self._send_and_update_tts(self.channel, ai_response)
 
     def send_thx_for_shoutout(self, user_login, user_name, viewer_count):
-        self.send_privmsg(
-            user_login,
-            self.ai.generate_shoutout_thx(user_name, viewer_count)
-        )
+        ai_response = self.ai.generate_shoutout_thx(user_name, viewer_count)
+        self._send_and_update_tts(user_login, ai_response)
+
+    def _send_and_update_tts(self, user_login: str, message: str):
+        self.send_privmsg(user_login, message)
+        self._update_tts(message)
 
     def _save_chat_message(self, sender: str, msg: str):
         self.fs.write(self.CHAT_OUTPUT_PATH, f'[{utils.get_current_timestamp()}]\n{sender}:\n{msg}')
 
-    def update_chat(self, sender: str, msg: str):
-        self._save_chat_message(sender, msg)
+    def _update_tts(self, msg: str):
         self.tts.save_to_file(msg, 'chat.mp3')
 
+    def update_chat(self, sender: str, msg: str):
+        self._save_chat_message(sender, msg)
+        self._update_tts(msg)
+
     def _handle_chat_message(self, priv_msg: PRIVMSG):
-        if (priv_msg.sender == self.channel) and priv_msg.content[0] != '.':
+        if (priv_msg.sender == self.channel) and (priv_msg.content[0] != '.'):
             return
         self.update_chat(priv_msg.sender, priv_msg.content)
         ai_response = self.ai.get_response(priv_msg.sender, priv_msg.content)

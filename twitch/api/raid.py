@@ -53,9 +53,10 @@ class TwitchRaid():
             'to_broadcaster_id': user_id,
         }
         with self.session.post(url, params=params) as r:
-            if r.status_code in [409]:
+            if r.status_code == 409:
                 return True
-            if r.status_code != 200:
+            if r.status_code not in [200, 429]:
+                # self.cli.print_err(r.content)
                 return False
         self.last_raided_channel = user_name
         self.last_raid_time = current_time
