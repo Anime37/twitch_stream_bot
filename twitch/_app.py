@@ -40,7 +40,7 @@ class TwitchAPP(TwitchAPI):
         self.shoutout.set_irc(self.websockets.irc)
 
     def _setup_eventsub(self):
-        self.eventsub.delete_all_subscriptions()
+        # self.eventsub.delete_all_subscriptions() # not working? maybe not needed anymore?
         self.eventsub.subscribe_to_follow_events()
         self.eventsub.subscribe_to_shoutout_received_events()
 
@@ -52,6 +52,7 @@ class TwitchAPP(TwitchAPI):
         self._setup_eventsub()
         self.channel.get_broadcaster_type()
         self.streams.get_streams()
+        # self.segments.delete_all_scheduled_segments()
         return True
 
     def _sleep(self, secs: float):
