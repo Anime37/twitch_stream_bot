@@ -52,3 +52,6 @@ def get_rfc3339_time(minute_offset: int = 0):
     duration = datetime.timedelta(minutes=minute_offset)
     offset_time = current_timestamp + duration
     return offset_time.isoformat("T") + "Z"
+
+def restart_program():
+    os.execvp(sys.executable, [sys.executable] + sys.argv)

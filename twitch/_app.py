@@ -1,22 +1,25 @@
 import random
 import utils
 
-from queue import Queue
+from cli import TagCLI
 from time import sleep
+from twitch.actions_queue import TwitchActionsQueue
 
 from .api import TwitchAPI
 from .websockets import TwitchWebSockets
 
 
 class TwitchAPP(TwitchAPI):
+    cli: TagCLI
+    actions_queue: TwitchActionsQueue
+
     MIN_SLEEP_TIME = 10
     MAX_SLEEP_DELTA = 10
 
-    actions_queue = Queue(5)
-
-    def __init__(self, cli):
+    def __init__(self, cli: TagCLI):
         super().__init__()
         self.cli = cli
+        self.actions_queue = TwitchActionsQueue(self, 5)
 
     def _setup_oauth(self) -> bool:
         if not self.oauth.load_account_info():
