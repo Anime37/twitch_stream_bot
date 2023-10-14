@@ -24,8 +24,9 @@ class TwitchOAuth(TwitchAccount):
         'chat:read',
         'clips:edit',
         'moderator:manage:announcements',
-        'moderator:read:followers',
+        'moderator:manage:banned_users',
         'moderator:manage:shoutouts',
+        'moderator:read:followers',
         'user:edit',
         'user:manage:whispers',
         # need affiliate
