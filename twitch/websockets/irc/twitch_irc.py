@@ -115,12 +115,12 @@ class TwitchIRC(IRC, threading.Thread):
     def _handle_chat_message(self, priv_msg: PRIVMSG):
         if (priv_msg.sender == self.channel) and (priv_msg.content[0] != '.'):
             return
-        self.update_chat(priv_msg.sender, priv_msg.content)
         ai_response = self.ai.get_response(priv_msg.sender, priv_msg.content)
-        self.send_chat(ai_response)
-        if priv_msg.user_id and '!timeout!' in ai_response:
-            self.update_chat(self.channel, 'uh-oh!')
+        if priv_msg.user_id and ('!timeout!' in ai_response):
             self.bans.ban_user(priv_msg.user_id, priv_msg.sender)
+        else:
+            self.update_chat(priv_msg.sender, priv_msg.content)
+        self.send_chat(ai_response)
 
     def _handle_chat_command(self, priv_msg: PRIVMSG):
         results = self.commands.execute(priv_msg.content[1:])
