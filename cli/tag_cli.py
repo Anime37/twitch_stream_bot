@@ -2,7 +2,7 @@ from . import CLI, TextColor
 
 
 class TagCLI():
-    def __init__(self, tag):
+    def __init__(self, tag: str):
         self.cli = CLI()
         self.PRINT_TAG = tag
 

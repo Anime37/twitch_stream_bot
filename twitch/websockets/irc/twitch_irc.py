@@ -1,7 +1,7 @@
 import threading
 import utils
 
-from chat_ai import ChatAI
+from twitch_chat_ai import TwitchChatAI
 from fs import FS
 from tts import TTS
 
@@ -37,7 +37,7 @@ class TwitchIRC(IRC, threading.Thread):
         threading.Thread.__init__(self)
         self.fs = FS()
         self.init_tts()
-        self.ai = ChatAI(self.cli, self.fs)
+        self.ai = TwitchChatAI(self.cli, self.fs, bans.ban_trigger)
         self.commands = CommandList()
         self.actions_queue = actions_queue
         self.bans = bans
@@ -116,11 +116,11 @@ class TwitchIRC(IRC, threading.Thread):
         if (priv_msg.sender == self.channel) and (priv_msg.content[0] != '.'):
             return
         ai_response = self.ai.get_response(priv_msg.sender, priv_msg.content)
-        if priv_msg.user_id and ('!timeout!' in ai_response):
+        if priv_msg.user_id and self.bans.need_to_ban(ai_response):
             self.bans.ban_user(priv_msg.user_id, priv_msg.sender)
         else:
             self.update_chat(priv_msg.sender, priv_msg.content)
-        self.send_chat(ai_response)
+        self.send_chat(ai_response.lower())
 
     def _handle_chat_command(self, priv_msg: PRIVMSG):
         results = self.commands.execute(priv_msg.content[1:])

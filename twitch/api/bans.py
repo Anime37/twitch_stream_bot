@@ -13,6 +13,10 @@ class TwitchBans():
     oauth: TwitchOAuth
 
     multipliers = defaultdict(list)
+    ban_trigger = 'TIMEOUT'
+
+    def need_to_ban(self, message: str):
+        return (self.ban_trigger in message)
 
     def _get_multiplier(self, user_id: str):
         try:
@@ -34,9 +38,8 @@ class TwitchBans():
                 'reason': 'relax ;)',
             }
         }
-        print(body)
         with self.session.post(url, params=params, json=body) as r:
             if r.status_code == 200:
-                self.cli.print(f'banned {user_name}')
+                self.cli.print(f'banned {user_name} for {body["data"]["duration"]} seconds')
             else:
                 self.cli.print_err(r.content)

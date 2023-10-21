@@ -9,28 +9,18 @@ class ChatAI():
     cli: TagCLI
     fs: FS
 
-    MESSAGE_DEQUE_LIMIT = 10
-    CHARACTER_LIMIT = 400
-    CONFIG = [
-        f'you are a twitch streamer and you talk with different people, who can be identified by their chatter_name.',
-        'if someone is being very rude, angry, is threatening or spamming gibberish a lot, you respond with !TIMEOUT! to get them banned.',
-        'you receive messages in "chatter_name:message" format.',
-        'you remember people you are talking to by their chatter_name.'
-        'you mention chatter_name when responding.',
-        'you are cheeky or insulting towards negative chatters.',
-        'you never admit to being an AI or a chatbot.',
-        f'you respond in one sentence, with a {CHARACTER_LIMIT} character limit.',
-    ]
-    CONFIG_MESSAGE = [{"role": "system", "content": ' '.join(CONFIG)}]
-    message_deque = deque(maxlen=MESSAGE_DEQUE_LIMIT)
+    CONFIG: list[str]
+    CONFIG_MESSAGE: list[dict]
 
-    def __init__(self, cli: TagCLI, fs: FS):
+    def __init__(self, cli: TagCLI, fs: FS, config: list[str], max_queue_len: int = 10):
         self.cli = cli
         self.fs = fs
+        self.CONFIG_MESSAGE = [{"role": "system", "content": ' '.join(config)}]
+        self.message_deque = deque(maxlen=max_queue_len)
         openai.api_key = self.fs.read(f'{FS.USER_DATA_PATH}openai_apikey')
         openai.organization = "org-WYxlMO9eJAwqVXE47qAZEQVV"
 
-    def _generate_response(self, user_name, content, logging=False) -> str:
+    def _generate_response(self, user_name, content) -> str:
         output: str
         message = [{"role": "user", "content": f'{user_name}:{content}'}]
         try:
@@ -39,38 +29,11 @@ class ChatAI():
                 messages=self.CONFIG_MESSAGE + list(self.message_deque) + message
             )
         except Exception as e:
-            self.cli.print(e, TextColor.WHITE)
+            self.cli.print_err(e)
             return ''
         self.message_deque += message
         self.message_deque.append(responses['choices'][0]['message'])
-        if logging:
-            self.fs.write('ai_request.json', self.CONFIG_MESSAGE + list(self.message_deque))
-            self.fs.write('ai_responses.json', responses)
         output = responses['choices'][0]['message']['content']
         output = output.replace('\n\n', '\n')
         output = output.replace(user_name, f'@{user_name}')
-        return output[:self.CHARACTER_LIMIT].lower()
-
-    def get_response(self, user_name, message) -> str:
-        response = self._generate_response(user_name, message)
-        return response
-
-    def generate_follow_thx(self, user_name):
-        random_year = random.randint(1980, 2023)
-        message = f'i followed your channel \
-suggest me a random obscure anime, that came out in {random_year}'
-        return self._generate_response(user_name, message)
-
-    def generate_followbot_response(self, user_name):
-        reasons = [
-            'lol',
-            'you gonna get banned lol',
-            'coz im a weirdo',
-        ]
-        return self._generate_response(user_name, f'i am followbotting your channel, {random.choice(reasons)}')
-
-    def generate_shoutout_thx(self, user_name, viewer_count):
-        random_year = random.randint(1980, 2023)
-        message = f'i shouted out your channel to {viewer_count} viewers, \
-suggest me a random obscure anime, that came out in {random_year}'
-        return self._generate_response(user_name, message)
+        return output
