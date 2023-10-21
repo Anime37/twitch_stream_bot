@@ -7,8 +7,7 @@ from .itest import ITest
 
 
 class ChatAI_Test(ITest):
-    def __init__(self):
-        super().__init__('ChatAI')
+    name: str = 'ChatAI'
 
     def run(self):
         ban_trigger = TwitchBans.ban_trigger
