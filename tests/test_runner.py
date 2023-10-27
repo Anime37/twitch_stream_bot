@@ -1,13 +1,16 @@
 from typing import Type
 
-from .chat_ai_test import ChatAI_Test
 from .itest import ITest
+
+from .chat_ai_test import ChatAI_Test
+from .pubsub_test import PubSub_Test
 
 
 class TestRunner():
     def __init__(self):
         tests_list: list[ITest] = [
-            ChatAI_Test
+            ChatAI_Test,
+            PubSub_Test,
         ]
         self.tests: dict[str, Type[ITest]] = {}
         for test in tests_list:

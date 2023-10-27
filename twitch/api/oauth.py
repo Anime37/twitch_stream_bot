@@ -29,6 +29,7 @@ class TwitchOAuth(TwitchAccount):
         'moderator:read:followers',
         'user:edit',
         'user:manage:whispers',
+        'whispers:read',
         # need affiliate
         'channel:manage:predictions',
         'channel:manage:polls'
