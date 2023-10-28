@@ -1,9 +1,12 @@
 import json
 import threading
+
 import websocket
 
+import utils
 from cli import TagCLI, TextColor
-from fs.fs import FS
+from fs import FS
+from twitch.actions_queue import TwitchActionsQueue
 
 
 class TwitchPubSub(threading.Thread):
@@ -15,11 +18,13 @@ class TwitchPubSub(threading.Thread):
             cls.instance.initialized = False
         return cls.instance
 
-    def __init__(self):
+    def __init__(self, actions_queue: TwitchActionsQueue):
         if self.initialized:
             return
         threading.Thread.__init__(self)
+        self.actions_queue = actions_queue
         self.cli = TagCLI('PSB')
+        self.fs = FS()
         self.ws = websocket.WebSocketApp("wss://pubsub-edge.twitch.tv",
                                          on_message=self.on_message,
                                          on_error=self.on_error,
@@ -47,13 +52,19 @@ class TwitchPubSub(threading.Thread):
         message_data = json.loads(message['data'])
         body = message_data['body']
         display_name = message_data['tags']['display_name']
+        user_id = message_data['from_id']
         self.print_rx(f'{display_name}: {body}')
+        self.actions_queue.add(f'whisper {user_id}')
 
     def _message_handler(self, msg_json: dict):
         message = json.loads(msg_json['data']['message'])
         match(message['type']):
             case 'whisper_received':
                 self._whisper_handler(message)
+            case 'whisper_sent':
+                pass
+            case 'thread':
+                pass
             case _:
                 self.cli.print(message)
 
@@ -76,11 +87,10 @@ class TwitchPubSub(threading.Thread):
 
     def on_open(self, ws):
         self.cli.print("WebSocket connection opened")
-        self.fs = FS()
         broadcaster_id = self.fs.read(f'{FS.USER_DATA_PATH}broadcaster_id')
         msg = {
             "type": "LISTEN",
-            "nonce": "u23f4b834u8324fub39",
+            "nonce": utils.get_random_string(32),
             "data": {
                 "topics": [f'whispers.{broadcaster_id}'],
                 "auth_token": f'{self.fs.read(FS.TWITCH_TOKEN_PATH)}'

@@ -2,14 +2,11 @@ from collections import deque
 from chat_ai import ChatAI
 from cli import TagCLI
 from fs import FS
-import openai
 import random
 
 
 class TwitchChatAI(ChatAI):
-    MESSAGE_DEQUE_LIMIT = 10
     CHARACTER_LIMIT = 400
-    message_deque = deque(maxlen=MESSAGE_DEQUE_LIMIT)
 
     def __init__(self, cli: TagCLI, fs: FS, ban_trigger: str):
         self.ban_trigger = ban_trigger

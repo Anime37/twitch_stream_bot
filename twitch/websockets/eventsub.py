@@ -25,9 +25,9 @@ class TwitchEventSubWebSocket(threading.Thread):
         return cls.instance
 
     def __init__(self, irc: TwitchIRC):
-        threading.Thread.__init__(self)
         if self.initialized:
             return
+        threading.Thread.__init__(self)
         self.irc = irc
         self.event_handler = EventHandler()
         self.welcome_event = self.event_handler.create_event(self.WELCOME_EVENT_NAME)
