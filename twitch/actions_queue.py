@@ -15,6 +15,14 @@ class Action():
         self.method = method
         self.args = args
 
+    def __hash__(self):
+        return hash((self.method, tuple(self.args)))
+
+    def __eq__(self, other):
+        return (isinstance(other, Action) and
+                self.method == other.method and
+                self.args == other.args)
+
     def run(self):
         self.method(*self.args)
 
@@ -39,6 +47,7 @@ class TwitchActionsQueue(Queue):
 
     def __init__(self, app: TwitchAPP, maxsize: int = 0):
         super().__init__(maxsize)
+        self.set = set()
         self.app = app
         self.cli = app.cli
 
@@ -64,12 +73,27 @@ class TwitchActionsQueue(Queue):
                 action_list.add(self.app.whispers.random_response, args)
             case _:
                 pass
-        if action_list:
-            self.put(action_list)
-            self.cli.print(f'queued up action: {action_name}')
-        else:
-            self.cli.print(f'no such queueable action: {action_name}')
+        if not action_list:
+            self.cli.print_err(f'no such queueable action: {action_name}')
+            return
+        if self.put(action_list):
+            self.cli.print(f'queued up action: {action_name} | args: {args}')
 
-    def put(self, actions: ActionList):
+    def put(self, actions: ActionList) -> bool:
+        ret_val = False
         for action in actions:
+            if self.full():
+                self.cli.print_err(f'action queue is full')
+                return ret_val
+            if action in self.set:
+                self.cli.print_err(f'action is already queued')
+                return ret_val
             super().put(action)
+            self.set.add(action)
+            ret_val = True
+        return ret_val
+
+    def get_nowait(self) -> Action or None:
+        action = super().get_nowait()
+        self.set.remove(action)
+        return action
