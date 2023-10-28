@@ -62,7 +62,7 @@ class IRC():
         with self.mutex:
             if (msg == self.last_privmsg):
                 return
-            self.print_tx(f'PRIVMSG #{channel} :{msg}')
+            self.print_tx(f'PRIVMSG #{channel}: {msg}')
             self._send(f'PRIVMSG #{channel} :{msg}')
             self.last_privmsg = msg
 

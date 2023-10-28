@@ -54,7 +54,7 @@ class TwitchPubSub(threading.Thread):
         display_name = message_data['tags']['display_name']
         user_id = message_data['from_id']
         self.print_rx(f'{display_name}: {body}')
-        self.actions_queue.add(f'whisper {user_id}')
+        self.actions_queue.add(f'whisper {user_id} {display_name}')
 
     def _message_handler(self, msg_json: dict):
         message = json.loads(msg_json['data']['message'])
