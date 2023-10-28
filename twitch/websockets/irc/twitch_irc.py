@@ -88,29 +88,15 @@ class TwitchIRC(IRC, threading.Thread):
         self._followbotting_response(user_name)
         return True
 
-    def send_thx_for_follow(self, user_name):
-        if self._handle_followbotting(user_name):
-            return
-        ai_response = self.ai.generate_follow_thx(user_name)
-        self._send_and_update_tts(self.channel, ai_response)
+    def _save_chat_message(self, sender: str, message: str):
+        self.fs.write(self.CHAT_OUTPUT_PATH, f'[{utils.get_current_timestamp()}]\n{sender}:\n{message}')
 
-    def send_thx_for_shoutout(self, user_login, user_name, viewer_count):
-        ai_response = self.ai.generate_shoutout_thx(user_name, viewer_count)
-        self._send_and_update_tts(user_login, ai_response)
+    def _update_tts(self, message: str):
+        self.tts.save_to_file(message, 'chat.mp3')
 
     def _send_and_update_tts(self, user_login: str, message: str):
         self.send_privmsg(user_login, message)
         self._update_tts(message)
-
-    def _save_chat_message(self, sender: str, msg: str):
-        self.fs.write(self.CHAT_OUTPUT_PATH, f'[{utils.get_current_timestamp()}]\n{sender}:\n{msg}')
-
-    def _update_tts(self, msg: str):
-        self.tts.save_to_file(msg, 'chat.mp3')
-
-    def update_chat(self, sender: str, msg: str):
-        self._save_chat_message(sender, msg)
-        self._update_tts(msg)
 
     def _handle_chat_message(self, priv_msg: PRIVMSG):
         if (priv_msg.sender == self.channel) and (priv_msg.content[0] != '.'):
@@ -119,7 +105,8 @@ class TwitchIRC(IRC, threading.Thread):
         if priv_msg.user_id and self.bans.need_to_ban(ai_response):
             self.bans.ban_user(priv_msg.user_id, priv_msg.sender)
         else:
-            self.update_chat(priv_msg.sender, priv_msg.content)
+            self._save_chat_message(priv_msg.sender, priv_msg.content)
+            self._update_tts(ai_response)
         self.send_chat(ai_response.lower())
 
     def _handle_chat_command(self, priv_msg: PRIVMSG):
@@ -157,6 +144,16 @@ class TwitchIRC(IRC, threading.Thread):
                 self._handle_chat_admin(priv_msg)
             case _:
                 self._handle_chat_message(priv_msg)
+
+    def send_thx_for_follow(self, user_name):
+        if self._handle_followbotting(user_name):
+            return
+        ai_response = self.ai.generate_follow_thx(user_name)
+        self._send_and_update_tts(self.channel, ai_response)
+
+    def send_thx_for_shoutout(self, user_login, user_name, viewer_count):
+        ai_response = self.ai.generate_shoutout_thx(user_name, viewer_count)
+        self._send_and_update_tts(user_login, ai_response)
 
     def on_message(self, ws, message):
         if 'PRIVMSG' in message:
