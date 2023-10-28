@@ -3,6 +3,7 @@ import utils
 
 from twitch_chat_ai import TwitchChatAI
 from fs import FS
+from telegram_bot import TelegramBot
 from tts import TTS
 
 from .irc import *
@@ -41,6 +42,7 @@ class TwitchIRC(IRC, threading.Thread):
         self.commands = CommandList()
         self.actions_queue = actions_queue
         self.bans = bans
+        self.telegram_bot = TelegramBot()
         self.initialized = True
 
     def init_tts(self):
@@ -107,6 +109,7 @@ class TwitchIRC(IRC, threading.Thread):
         else:
             self._save_chat_message(priv_msg.sender, priv_msg.content)
             self._update_tts(ai_response)
+        self.telegram_bot.send_message(f'{priv_msg.sender}: {priv_msg.content}')
         self.send_chat(ai_response.lower())
 
     def _handle_chat_command(self, priv_msg: PRIVMSG):
