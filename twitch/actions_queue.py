@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class Action():
-    def __init__(self, method: method, args: list = []):
+    def __init__(self, method: callable, args: list = []):
         self.method = method
         self.args = args
 
@@ -71,6 +71,8 @@ class TwitchActionsQueue(Queue):
                 action_list.add(utils.restart_program)
             case 'whisper':
                 action_list.add(self.app.whispers.random_response, args)
+            case 'save_contexts':
+                action_list.add(self.app.websockets.irc.ai.save_contexts)
             case _:
                 pass
         if not action_list:

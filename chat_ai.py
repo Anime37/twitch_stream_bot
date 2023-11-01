@@ -1,8 +1,10 @@
+import threading
 from collections import deque
+
+import openai
+
 from cli import TagCLI
 from fs import FS
-import openai
-import random
 
 
 class ChatAI():
@@ -20,6 +22,7 @@ class ChatAI():
         self.MAX_CONTEXT_LEN = max_context_len
         openai.api_key = self.fs.read(f'{FS.USER_DATA_PATH}openai_apikey')
         openai.organization = "org-WYxlMO9eJAwqVXE47qAZEQVV"
+        self.mutex = threading.Lock()
 
     def _get_conversation(self, context_name: str):
         for context in self.contexts:
@@ -41,6 +44,7 @@ class ChatAI():
     def _generate_response(self, context_name, content) -> str:
         output: str
         message = {"role": "user", "content": f'{context_name}:{content}'}
+        self.mutex.acquire()
         self._update_context(context_name, message)
         try:
             responses = openai.ChatCompletion.create(
@@ -50,8 +54,24 @@ class ChatAI():
         except Exception as e:
             self.cli.print_err(e)
             return ''
-        self._update_context(context_name, responses['choices'][0]['message'])
+        self._update_context(context_name, responses['choices'][0]['message'].to_dict())
+        self.mutex.release()
         output = responses['choices'][0]['message']['content']
         output = output.replace('\n\n', '\n')
         output = output.replace(context_name, f'@{context_name}')
         return output
+
+    def save_contexts(self, filename: str = 'chat_ai_contexts'):
+        self.cli.print('saving contexts')
+        CONTEXTS_PATH = f'{FS.USER_DATA_PATH}{filename}.txt'
+        output_str = ''
+        self.mutex.acquire()
+        for context in self.contexts:
+            (context_name, conversation_list), = context.items()
+            conversation = [f"{entry['role']}: {entry['content']}" for entry in list(conversation_list)]
+            output_str += f'{context_name}:\n'
+            for entry in conversation:
+                output_str += f'{entry}\n'
+            output_str += '\n'
+        self.mutex.release()
+        self.fs.write(CONTEXTS_PATH, output_str)
