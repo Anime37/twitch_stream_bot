@@ -26,10 +26,11 @@ class FS():
         if (self.initialized):
             return
         self.mutex = threading.Lock()
+        self.default_handler = FSDefaultHandler()
         self.extension_handlers = [
             FSJsonHandler(),
             # DEFAULT HAS TO BE AT THE END
-            FSDefaultHandler()
+            self.default_handler
         ]
         self.initialized = True
 
@@ -42,16 +43,22 @@ class FS():
     def exists(self, filepath: str):
         return os.path.exists(filepath)
 
-    def read(self, filepath: str):
+    def _read(self, filepath: str, read_method: callable):
         if not self.exists(filepath):
             return ''
-        handler = self._get_extension_handler(filepath)
         with self.mutex:
             with open(filepath, 'r', encoding='utf-8') as f:
-                return handler.read(f)
+                return read_method(f)
+
+    def read(self, filepath: str):
+        handler = self._get_extension_handler(filepath)
+        return self._read(filepath, handler.read)
+
+    def readlines(self, filepath: str) -> list[str]:
+        return self._read(filepath, self.default_handler.readlines)
 
     def readint(self, filepath: str):
-        str_val = self.read(filepath)
+        str_val = self._read(filepath, self.default_handler.read)
         try:
             return int(str_val)
         except:

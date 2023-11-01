@@ -15,3 +15,6 @@ class FSExtensionHandler(ABC):
     @abstractmethod
     def write(self, f: TextIOWrapper, data):
         pass
+
+    def readlines(self, f: TextIOWrapper) -> list[str]:
+        return [line.strip() for line in f.readlines()]
