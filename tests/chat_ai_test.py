@@ -11,9 +11,16 @@ class ChatAI_Test(ITest):
 
     def run(self):
         ban_trigger = TwitchBans.ban_trigger
-        username = 'bobbybobbob'
-        chat_ai = TwitchChatAI(TagCLI('TST'), FS(), ban_trigger)
-        while True:
-            message = input()
-            ai_response = chat_ai.get_response(username, message)
-            print(ai_response, (ban_trigger in ai_response))
+        username = 'bobbyX'
+        cnt = 1
+        chat_ai = TwitchChatAI(TagCLI('TST'), FS(), ban_trigger, 2, 5)
+        try:
+            while True:
+                message = input()
+                ai_response = chat_ai.get_response(username.replace('X', str(cnt)), message)
+                cnt += 1
+                if cnt > chat_ai.contexts.maxlen:
+                    cnt = 1
+                print(ai_response, (ban_trigger in ai_response))
+        except KeyboardInterrupt:
+            chat_ai.save_contexts('chat_ai_contexts_test')

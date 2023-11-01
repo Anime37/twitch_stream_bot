@@ -14,15 +14,21 @@ class ChatAI():
     CONFIG: list[str]
     CONFIG_MESSAGE: list[dict]
 
-    def __init__(self, cli: TagCLI, fs: FS, config: list[str], max_contexts: int = 5, max_context_len: int = 20):
+    def __init__(self, cli: TagCLI, fs: FS, max_contexts: int = 5, max_context_len: int = 20):
         self.cli = cli
         self.fs = fs
-        self.CONFIG_MESSAGE = [{"role": "system", "content": ' '.join(config)}]
+        self.load_config()
         self.contexts = deque(maxlen=max_contexts)
         self.MAX_CONTEXT_LEN = max_context_len
         openai.api_key = self.fs.read(f'{FS.USER_DATA_PATH}openai_apikey')
         openai.organization = "org-WYxlMO9eJAwqVXE47qAZEQVV"
         self.mutex = threading.Lock()
+
+    def _get_config(self):
+        return [f'you are a chat ai.']
+
+    def load_config(self):
+        self.CONFIG_MESSAGE = [{"role": "system", "content": ' '.join(self._get_config())}]
 
     def _get_conversation(self, context_name: str):
         for context in self.contexts:

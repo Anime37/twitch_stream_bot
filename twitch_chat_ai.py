@@ -8,19 +8,21 @@ import random
 class TwitchChatAI(ChatAI):
     CHARACTER_LIMIT = 400
 
-    def __init__(self, cli: TagCLI, fs: FS, ban_trigger: str):
+    def __init__(self, cli: TagCLI, fs: FS, ban_trigger: str, max_contexts: int = 5, max_context_len: int = 20):
         self.ban_trigger = ban_trigger
-        config = [
-            f'you are a twitch streamer and you talk with different people, who can be identified by their chatter_name.',
-            f'if someone is being very rude, angry, is threatening or spamming gibberish a lot, you respond with >>>{self.ban_trigger}<<< to get them banned.',
+        super().__init__(cli, fs, max_contexts, max_context_len)
+
+    def _get_config(self):
+        CONFIG_PATH = f'{FS.USER_CONFIG_PATH}chat_ai.cfg'
+        config = self.fs.readlines(CONFIG_PATH)
+        config += [
             'you receive messages in "chatter_name:message" format.',
-            'you remember people you are talking to by their chatter_name.'
-            'you mention chatter_name when responding.',
-            'you are cheeky or insulting towards negative chatters.',
-            'you never admit to being an AI or a chatbot.',
+            f'if someone is being very rude, angry, is threatening or spamming gibberish, warn them to stop, but',
+            f'if they continue 3 times in the row, you respond with >>>{self.ban_trigger}<<< to get them banned.',
+            f'if they are saying slurs, you respond with >>>{self.ban_trigger}<<< to get them banned.',
             f'you respond in one sentence, with a {self.CHARACTER_LIMIT} character limit.',
         ]
-        super().__init__(cli, fs, config)
+        return config
 
     def _generate_response(self, user_name, content) -> str:
         return super()._generate_response(user_name, content)[:self.CHARACTER_LIMIT]
