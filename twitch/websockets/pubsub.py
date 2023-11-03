@@ -1,3 +1,4 @@
+import asyncio
 import json
 import threading
 
@@ -30,6 +31,7 @@ class TwitchPubSub(threading.Thread):
                                          on_error=self.on_error,
                                          on_close=self.on_close,
                                          on_open=self.on_open)
+        self.pinger_thread: threading.Thread = None
         self.initialized = True
 
     def print_rx(self, text: str):
@@ -47,6 +49,7 @@ class TwitchPubSub(threading.Thread):
             self.cli.print(f'authentication error: {error}')
         else:
             self.cli.print('authentication successful')
+            self.start_pinger_task_thread()
 
     def _whisper_handler(self, message: dict):
         message_data = json.loads(message['data'])
@@ -71,6 +74,8 @@ class TwitchPubSub(threading.Thread):
     def on_message(self, ws, msg: str):
         msg_json = json.loads(msg)
         match(msg_json['type']):
+            case 'PONG':
+                self.print_rx(msg_json['type'])
             case 'RESPONSE':
                 self._response_handler(msg_json)
             case 'MESSAGE':
@@ -84,6 +89,27 @@ class TwitchPubSub(threading.Thread):
     def on_close(self, ws, status_code, close_msg):
         self.cli.print_err(
             f"WebSocket connection closed ({status_code}: {close_msg})")
+
+    async def _ping(self):
+        self.cli.print('>> PING')
+        self._send({'type': 'PING'})
+
+    async def pinger_task(self):
+        while True:
+            await self._ping()
+            await asyncio.sleep(240)  # 4 minutes
+
+    def pinger_task_thread(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(self.pinger_task())
+
+    def start_pinger_task_thread(self):
+        if self.pinger_thread:
+            return
+        self.pinger_thread = threading.Thread(target=self.pinger_task_thread)
+        self.pinger_thread.daemon = True
+        self.pinger_thread.start()
 
     def on_open(self, ws):
         self.cli.print("WebSocket connection opened")

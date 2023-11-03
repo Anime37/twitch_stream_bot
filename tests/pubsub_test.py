@@ -7,5 +7,5 @@ class PubSub_Test(ITest):
     name: str = 'PubSub'
 
     def run(self):
-        pubsub = TwitchPubSub()
+        pubsub = TwitchPubSub(None)
         pubsub.run()
