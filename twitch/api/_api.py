@@ -39,7 +39,7 @@ class TwitchAPI():
         self.announcements = TwitchAnnouncement(self.session, self.cli, self.fs, self.oauth)
         self.bans = TwitchBans(self.session, self.cli, self.oauth)
         self.channel = TwitchChannel(self.session, self.cli, self.oauth)
-        self.clips = TwitchClips(self.session, self.cli, self.oauth)
+        self.clips = TwitchClips(self.session, self.cli, self.fs, self.oauth)
         self.eventsub = TwitchEventSub(self.session, self.cli, self.oauth)
         self.guest_star = TwitchGuestStar(self.session, self.cli, self.oauth)
         self.raid = TwitchRaid(self.session, self.cli, self.fs, self.oauth, self.streams)
