@@ -1,9 +1,9 @@
 from twitch.websockets.pubsub import TwitchPubSub
 
-from .itest import ITest
+from .test_base import TestBase
 
 
-class PubSub_Test(ITest):
+class PubSub_Test(TestBase):
     name: str = 'PubSub'
 
     def run(self):

@@ -14,13 +14,13 @@ class TwitchStreams():
     cli: TagCLI
 
     def _get_top_streams(self):
-        return random.randint(1, 2)
+        return random.randint(1, 5)
 
     def _get_mid_streams(self):
-        return random.randint(3, 5)
+        return random.randint(6, 20)
 
     def _get_low_streams(self):
-        return random.randint(6, 9)
+        return random.randint(21, 50)
 
     def _streams_page_to_get(self):
         try:
@@ -28,30 +28,30 @@ class TwitchStreams():
         except:
             self.page_to_get_iter = iter(
                 [self._get_low_streams]*1 +
-                [self._get_mid_streams]*2 +
-                [self._get_top_streams]*3
+                [self._get_mid_streams]*1 +
+                [self._get_top_streams]*1
             )
             page_to_get = next(self.page_to_get_iter)()
         return page_to_get
 
-    def get_streams(self):
-        MAX_IDS = 5
-
+    def _get_streams_page(self, page: int):
+        self.cli.print(f'getting streams (page {page})')
         url = 'https://api.twitch.tv/helix/streams'
         params = {
             'first': 100,
             'after': ''
         }
-        page_to_get = self._streams_page_to_get()
-        self.cli.print(f'getting streams (page {page_to_get})')
         json_data = {}
-        for _ in range(page_to_get):
+        for _ in range(page):
             with self.session.get(url, params=params) as r:
                 json_data = r.json()
             params['after'] = json_data['pagination']['cursor']
-        data_entries = json_data['data']
+        return json_data['data']
 
+    def get_streams(self):
+        MAX_IDS = 5
         self.channels = []
+        data_entries = self._get_streams_page(self._streams_page_to_get())
         for entry in data_entries:
             if not entry['game_id']:
                 continue

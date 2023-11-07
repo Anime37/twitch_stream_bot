@@ -3,10 +3,10 @@ from fs import FS
 from twitch_chat_ai import TwitchChatAI
 from twitch.api.bans import TwitchBans
 
-from .itest import ITest
+from .test_base import TestBase
 
 
-class ChatAI_Test(ITest):
+class ChatAI_Test(TestBase):
     name: str = 'ChatAI'
 
     def run(self):

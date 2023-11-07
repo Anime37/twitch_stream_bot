@@ -1,22 +1,25 @@
 from typing import Type
 
-from .itest import ITest
+
+from .test_base import TestBase
 
 from .chat_ai_test import ChatAI_Test
 from .pubsub_test import PubSub_Test
+from .twitch_streams_test import TwitchStreams_Test
 
 
 class TestRunner():
     def __init__(self):
-        tests_list: list[ITest] = [
+        tests_list: list[TestBase] = [
             ChatAI_Test,
             PubSub_Test,
+            TwitchStreams_Test,
         ]
-        self.tests: dict[str, Type[ITest]] = {}
+        self.tests: dict[str, Type[TestBase]] = {}
         for test in tests_list:
             self.tests[test.name] = test
 
-    def _run_test(self, test_class: Type[ITest]):
+    def _run_test(self, test_class: Type[TestBase]):
         print(f'running test: {test_class.name}')
         test_class().run()
 
