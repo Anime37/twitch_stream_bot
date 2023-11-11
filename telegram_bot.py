@@ -1,10 +1,12 @@
 import requests
 
+from cli import TagCLI
 from fs import FS
 
 
 class TelegramBot():
     def __init__(self):
+        self.cli = TagCLI('TLG')
         self.fs = FS()
         TOKEN_PATH = f'{FS.USER_DATA_PATH}telegram_bot_token'
         self.TOKEN = self.fs.read(TOKEN_PATH)
@@ -31,5 +33,6 @@ class TelegramBot():
             'chat_id': self.CHAT_ID,
             'text': message
         }
-        response = requests.post(url, data=data)
-        print(response)
+        r = requests.post(url, data=data, timeout=5)
+        if r.status_code != 200:
+            self.cli.print_err(r.content)
