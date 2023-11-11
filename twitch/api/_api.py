@@ -33,7 +33,7 @@ class TwitchAPI():
 
     def _init_dependency_api(self):
         self.oauth = TwitchOAuth(self.session, self.cli, self.fs)
-        self.streams = TwitchStreams(self.session, self.cli)
+        self.streams = TwitchStreams(self.session, self.cli, self.fs)
 
     def _init_standard_level_api(self):
         self.announcements = TwitchAnnouncement(self.session, self.cli, self.fs, self.oauth)

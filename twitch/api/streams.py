@@ -13,26 +13,68 @@ class TwitchStreams():
     session: Session
     cli: TagCLI
 
-    def _get_top_streams(self):
-        return random.randint(1, 5)
+    CONFIG_PATH = f'{FS.USER_CONFIG_PATH}streams.cfg'
 
-    def _get_mid_streams(self):
-        return random.randint(6, 20)
+    def __init__(self, session: Session, cli: TagCLI, fs: FS):
+        self.session = session
+        self.cli = cli
+        self.fs = fs
+        self._load_config()
 
-    def _get_low_streams(self):
-        return random.randint(21, 50)
+    def _save_config(self):
+        data_str = ''
+        for range in self.page_ranges:
+            data_str += f'{range[0]}-{range[1]}\n'
+        data_str = data_str[:-1]
+        self.fs.write(self.CONFIG_PATH, data_str)
 
-    def _streams_page_to_get(self):
+    def _load_config(self):
+        self.page_ranges = []
+        config_ranges = self.fs.readlines(self.CONFIG_PATH)
+        if not config_ranges:
+            self._load_defaults()
+            return
+        for range in config_ranges:
+            range = range.split('-')
+            start = int(range[0])
+            end = int(range[1])
+            self.page_ranges.append([start, end])
+
+    def _load_defaults(self):
+        self.page_ranges = [
+            [1, 5],
+            [6, 20],
+            [21, 50],
+        ]
+        self._save_config()
+
+    def set_config(self, *config_ranges: str):
+        if not config_ranges:
+            self.cli.print_err(f'no arguments received')
+            return
+        new_ranges = []
+        for range in config_ranges:
+            if '-' not in range:
+                self.cli.print_err(f'invalid argument ({range})')
+                return
+            range = range.split('-')
+            if len(range) != 2:
+                self.cli.print_err(f'invalid format ({range})')
+                return
+            start = int(range[0])
+            end = int(range[1])
+            new_ranges.append([start, end])
+        self.page_ranges = new_ranges
+        self.cli.print(f'set new stream page ranges: {self.page_ranges}')
+        self._save_config()
+
+    def _get_streams_page_number(self):
         try:
-            page_to_get = next(self.page_to_get_iter)()
+            page_range = next(self.page_range_iter)
         except:
-            self.page_to_get_iter = iter(
-                [self._get_low_streams]*1 +
-                [self._get_mid_streams]*1 +
-                [self._get_top_streams]*1
-            )
-            page_to_get = next(self.page_to_get_iter)()
-        return page_to_get
+            self.page_range_iter = iter(self.page_ranges)
+            page_range = next(self.page_range_iter)
+        return random.randint(*page_range)
 
     def _get_streams_page(self, page: int):
         self.cli.print(f'getting streams (page {page})')
@@ -51,7 +93,7 @@ class TwitchStreams():
     def get_streams(self):
         MAX_IDS = 5
         self.channels = []
-        data_entries = self._get_streams_page(self._streams_page_to_get())
+        data_entries = self._get_streams_page(self._get_streams_page_number())
         for entry in data_entries:
             if not entry['game_id']:
                 continue

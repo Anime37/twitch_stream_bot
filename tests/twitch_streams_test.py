@@ -9,7 +9,7 @@ class TwitchStreams_Test(TwitchOAuth_Test):
 
     def __init__(self) -> None:
         super().__init__()
-        self.streams = TwitchStreams(self.session, self.cli)
+        self.streams = TwitchStreams(self.session, self.cli, self.fs)
 
     def run(self):
         if not self.setup():

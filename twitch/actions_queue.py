@@ -73,6 +73,8 @@ class TwitchActionsQueue(Queue):
                 action_list.add(self.app.whispers.random_response, args)
             case 'save_contexts':
                 action_list.add(self.app.websockets.irc.ai.save_contexts)
+            case 'config_streams':
+                action_list.add(self.app.streams.set_config, args)
             case _:
                 pass
         if not action_list:
